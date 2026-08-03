@@ -1,0 +1,29 @@
+[
+  {
+    "id": "human",
+    "name": "Human",
+    "description": "Adaptable and ambitious, humans are capable of reaching great heights.",
+    "traits": [
+      "Versatile",
+      "Determined"
+    ]
+  },
+  {
+    "id": "elf",
+    "name": "Elf",
+    "description": "Ancient beings with a connection to magic and nature.",
+    "traits": [
+      "Keen Senses",
+      "Fey Ancestry"
+    ]
+  },
+  {
+    "id": "dwarf",
+    "name": "Dwarf",
+    "description": "Resilient people known for endurance and craftsmanship.",
+    "traits": [
+      "Darkvision",
+      "Dwarven Resilience"
+    ]
+  }
+]

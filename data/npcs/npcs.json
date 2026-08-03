@@ -1,0 +1,16 @@
+[
+  {
+    "id": "elder_varen",
+    "name": "Elder Varen",
+    "role": "Quest Giver",
+    "location": "ashenvale",
+    "description": "An ancient keeper of forgotten bloodline secrets."
+  },
+  {
+    "id": "blacksmith_kora",
+    "name": "Kora Ironhand",
+    "role": "Blacksmith",
+    "location": "blackspire",
+    "description": "A master smith who crafts legendary weapons."
+  }
+]

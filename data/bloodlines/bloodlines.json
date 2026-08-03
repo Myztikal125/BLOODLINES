@@ -1,0 +1,20 @@
+[
+  {
+    "id": "emberborn",
+    "name": "Emberborn Bloodline",
+    "description": "A lineage carrying the power of ancient flame.",
+    "abilities": [
+      "Fire Resistance",
+      "Flame Affinity"
+    ]
+  },
+  {
+    "id": "shadowveil",
+    "name": "Shadowveil Bloodline",
+    "description": "A hidden lineage connected to darkness and secrets.",
+    "abilities": [
+      "Shadow Step",
+      "Night Vision"
+    ]
+  }
+]

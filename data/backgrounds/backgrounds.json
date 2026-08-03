@@ -1,0 +1,17 @@
+[
+  {
+    "id": "soldier",
+    "name": "Soldier",
+    "description": "A trained warrior with battlefield experience."
+  },
+  {
+    "id": "scholar",
+    "name": "Scholar",
+    "description": "A researcher of knowledge and forgotten secrets."
+  },
+  {
+    "id": "wanderer",
+    "name": "Wanderer",
+    "description": "A survivor who knows the wild roads."
+  }
+]

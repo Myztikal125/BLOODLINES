@@ -1,0 +1,19 @@
+{
+  "id": "bloodlands",
+  "name": "The Bloodlands",
+  "description": "A realm of ancient powers, forgotten kingdoms, and dangerous bloodlines.",
+  "locations": [
+    {
+      "id": "ashenvale",
+      "name": "Ashenvale",
+      "type": "forest",
+      "description": "An ancient forest filled with hidden ruins."
+    },
+    {
+      "id": "blackspire",
+      "name": "Blackspire Keep",
+      "type": "dungeon",
+      "description": "A fortress where dark secrets remain buried."
+    }
+  ]
+}

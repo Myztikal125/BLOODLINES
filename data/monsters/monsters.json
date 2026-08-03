@@ -1,0 +1,32 @@
+[
+  {
+    "id": "goblin",
+    "name": "Goblin",
+    "type": "humanoid",
+    "challenge": 0.25,
+    "hitPoints": 7,
+    "armorClass": 15,
+    "attack": "Scimitar",
+    "damage": "1d6+2"
+  },
+  {
+    "id": "wolf",
+    "name": "Wolf",
+    "type": "beast",
+    "challenge": 0.25,
+    "hitPoints": 11,
+    "armorClass": 13,
+    "attack": "Bite",
+    "damage": "2d4+2"
+  },
+  {
+    "id": "shadow_beast",
+    "name": "Shadow Beast",
+    "type": "aberration",
+    "challenge": 3,
+    "hitPoints": 60,
+    "armorClass": 16,
+    "attack": "Shadow Claw",
+    "damage": "2d8+4"
+  }
+]

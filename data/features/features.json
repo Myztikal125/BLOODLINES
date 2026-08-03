@@ -1,0 +1,20 @@
+[
+  {
+    "id": "second_wind",
+    "name": "Second Wind",
+    "source": "fighter",
+    "description": "Recover hit points using your inner reserve."
+  },
+  {
+    "id": "arcane_recovery",
+    "name": "Arcane Recovery",
+    "source": "wizard",
+    "description": "Recover expended spell slots."
+  },
+  {
+    "id": "shadow_step",
+    "name": "Shadow Step",
+    "source": "shadowveil",
+    "description": "Teleport between areas of darkness."
+  }
+]

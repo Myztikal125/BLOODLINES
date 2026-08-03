@@ -1,0 +1,23 @@
+[
+  {
+    "id": "iron_sword",
+    "name": "Iron Sword",
+    "type": "weapon",
+    "damage": "1d8",
+    "value": 25
+  },
+  {
+    "id": "leather_armor",
+    "name": "Leather Armor",
+    "type": "armor",
+    "armorClass": 11,
+    "value": 10
+  },
+  {
+    "id": "health_potion",
+    "name": "Health Potion",
+    "type": "consumable",
+    "effect": "heal 2d4+2",
+    "value": 50
+  }
+]

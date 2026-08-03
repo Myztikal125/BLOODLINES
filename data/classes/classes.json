@@ -1,0 +1,20 @@
+[
+  {
+    "id": "fighter",
+    "name": "Fighter",
+    "description": "A master of martial combat.",
+    "hitDie": "d10"
+  },
+  {
+    "id": "wizard",
+    "name": "Wizard",
+    "description": "A scholar who commands arcane magic.",
+    "hitDie": "d6"
+  },
+  {
+    "id": "rogue",
+    "name": "Rogue",
+    "description": "A skilled expert in stealth and precision.",
+    "hitDie": "d8"
+  }
+]
