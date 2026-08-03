@@ -1,17 +1,13 @@
-import { CharacterBuilder } from "../engine/characters/characterBuilder";
-import { GameSession } from "../engine/game/gameSession";
+import { GameRunner } from "../engine/game/gameRunner";
 
-const hero =
-  CharacterBuilder.create(
-    "Aric",
-    "elf",
-    "scholar",
-    "wizard",
-    "shadowveil"
-  );
+const game = new GameRunner();
 
-const game = new GameSession();
+const player = game.start();
 
+console.log("\nCharacter Created:");
+console.log(player);
+
+console.log("\nEncounter:");
 console.log(
-  game.start(hero)
+  game.createEncounter()
 );
