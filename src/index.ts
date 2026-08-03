@@ -1,25 +1,32 @@
 import { GameRunner } from "../engine/game/gameRunner";
+import { TerminalInterface } from "./interface/terminal";
+import { GameController } from "../engine/game/gameController";
+import { CombatController } from "../engine/combat/combatController";
 
-const game = new GameRunner();
+const runner = new GameRunner();
 
-const player = game.start({
-
+const player = runner.start({
   name: "Shadow",
-
   ancestry: "elf",
-
   background: "scholar",
-
   className: "wizard",
-
   bloodline: "shadowveil"
-
 });
 
-console.log("\n=== CHARACTER ===");
-console.log(player);
+const state = {
+  character: player.data,
+  location: "Ashenvale",
+  inventory: []
+};
 
-console.log("\n=== ENCOUNTER ===");
-console.log(
-  game.createEncounter()
-);
+const combat = new CombatController();
+
+const controller =
+  new GameController(state, combat);
+
+const terminal =
+  new TerminalInterface();
+
+terminal.start(input => {
+  controller.handle(input);
+});
