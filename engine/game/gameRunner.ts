@@ -1,6 +1,7 @@
 import { GameSession } from "./gameSession";
-import { CharacterBuilder } from "../characters/characterBuilder";
+import { CharacterCreation } from "../characters/characterCreation";
 import { EncounterDirector } from "../ai/encounterDirector";
+import { CharacterOptions } from "../characters/characterCreation";
 
 export class GameRunner {
 
@@ -12,16 +13,10 @@ export class GameRunner {
     this.encounters = new EncounterDirector();
   }
 
-  start() {
+  start(options: CharacterOptions) {
 
     const hero =
-      CharacterBuilder.create(
-        "Aric",
-        "elf",
-        "scholar",
-        "wizard",
-        "shadowveil"
-      );
+      CharacterCreation.create(options);
 
     const opening =
       this.session.start(hero);

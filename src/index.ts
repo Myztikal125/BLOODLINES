@@ -2,12 +2,24 @@ import { GameRunner } from "../engine/game/gameRunner";
 
 const game = new GameRunner();
 
-const player = game.start();
+const player = game.start({
 
-console.log("\nCharacter Created:");
+  name: "Shadow",
+
+  ancestry: "elf",
+
+  background: "scholar",
+
+  className: "wizard",
+
+  bloodline: "shadowveil"
+
+});
+
+console.log("\n=== CHARACTER ===");
 console.log(player);
 
-console.log("\nEncounter:");
+console.log("\n=== ENCOUNTER ===");
 console.log(
   game.createEncounter()
 );
