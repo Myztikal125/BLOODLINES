@@ -16,6 +16,9 @@ export class EnemyAI {
         target
       );
 
+    target.hitPoints =
+      Math.max(0, target.hitPoints);
+
     return `
 ${enemy.name} attacks!
 

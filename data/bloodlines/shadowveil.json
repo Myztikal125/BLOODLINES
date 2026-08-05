@@ -1,0 +1,59 @@
+{
+  "id": "shadowveil",
+  "name": "Shadowveil",
+  "description": "The Shadowveil bloodline harnesses the essence of shadows and deception. Its members are skilled in stealth, illusion, and manipulation of darkness.",
+  "traits": [
+    {
+      "id": "shadow_stealth",
+      "type": "trait",
+      "name": "Shadow Stealth",
+      "description": "Increase stealth abilities in dim light or darkness."
+    },
+    {
+      "id": "illusion_craft",
+      "type": "trait",
+      "name": "Illusion Craft",
+      "description": "Create basic illusions that can confuse and mislead."
+    }
+  ],
+  "evolutions": [
+    {
+      "id": "veil_of_darkness",
+      "type": "ability",
+      "unlock": {
+        "level": 3
+      },
+      "name": "Veil of Darkness",
+      "description": "Surround yourself with a shroud that grants temporary invisibility."
+    },
+    {
+      "id": "shadow_walk",
+      "type": "ability",
+      "unlock": {
+        "level": 5
+      },
+      "name": "Shadow Walk",
+      "description": "Teleport between shadows within a limited range."
+    }
+  ],
+  "curses": [
+    {
+      "id": "shadow_curse",
+      "type": "curse",
+      "name": "Shadow Curse",
+      "description": "Embrace deeper shadows to enhance abilities, but risk losing your sense of self."
+    }
+  ],
+  "legacy_quests": [
+    {
+      "id": "whisper_in_the_dark",
+      "name": "A Whisper in the Dark",
+      "description": "Uncover the secrets of the Shadowveil ancestry through stealth challenges."
+    },
+    {
+      "id": "phantoms_request",
+      "name": "The Phantom's Request",
+      "description": "Assist a spirit trapped in the shadows to gain unique bloodline powers."
+    }
+  ]
+}

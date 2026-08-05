@@ -1,4 +1,5 @@
 import { EncounterGenerator, Difficulty } from "../combat/encounters/encounterGenerator";
+import { narrateEncounter } from "../../src/ai/encounterNarrator";
 
 export interface EncounterRequest {
   location: string;
@@ -29,6 +30,18 @@ export class EncounterDirector {
       request.partyLevel,
       request.partySize,
       difficulty
+    );
+  }
+
+  async narrate(
+    location: string,
+    character: any,
+    encounter: any
+  ) {
+    return await narrateEncounter(
+      location,
+      character,
+      encounter
     );
   }
 }

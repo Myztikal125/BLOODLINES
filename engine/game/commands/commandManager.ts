@@ -14,7 +14,7 @@ export class CommandManager {
 
   }
 
-  execute(input: string): string {
+  async execute(input: string): Promise<string> {
 
     const parts =
       input.trim().split(" ");
@@ -28,7 +28,7 @@ export class CommandManager {
       return "Unknown command.";
     }
 
-    return command.execute(
+    return await command.execute(
       parts.slice(1)
     );
 

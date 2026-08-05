@@ -4,6 +4,8 @@ import { CharacterCommand } from "./commands/characterCommand";
 import { ExploreCommand } from "./commands/exploreCommand";
 import { CombatController } from "../combat/combatController";
 import { CombatCommand } from "./commands/combatCommand";
+import { EncounterCommand } from "./commands/encounterCommand";
+import { EncounterDirector } from "../ai/encounterDirector";
 import { WorldCommand } from "./commands/worldCommand";
 import { QuestCommand } from "./commands/questCommand";
 import { StatsCommand } from "./commands/statsCommand";
@@ -21,10 +23,13 @@ import { Inventory } from "../inventory/inventory";
 import { InventoryCommand } from "./commands/inventoryCommand";
 import { AddItemCommand } from "./commands/addItemCommand";
 import { RemoveItemCommand } from "./commands/removeItemCommand";
+import { narrateEvent } from "../../src/ai/gameNarrator";
 
 export class GameController {
 
   private commands = new CommandManager();
+
+  private encounters = new EncounterDirector();
 
   private world =
     new WorldState();
@@ -66,7 +71,18 @@ export class GameController {
     );
 
     this.commands.register(
-      new CombatCommand(this.combat)
+      new CombatCommand(
+        this.combat,
+        this.state
+      )
+    );
+
+    this.commands.register(
+      new EncounterCommand(
+        this.encounters,
+        this.combat,
+        this.state
+      )
     );
 
     this.commands.register(
@@ -129,11 +145,24 @@ export class GameController {
 
   }
 
-  handle(input: string) {
+  async handle(input: string) {
 
-    console.log(
-      this.commands.execute(input)
-    );
+    const result = await this.commands.execute(input);
+
+    console.log(result);
+
+    if (
+      input === "explore" ||
+      input === "combat"
+    ) {
+      const story = await narrateEvent(
+        result,
+        this.state.character,
+        this.state.location
+      );
+
+      console.log("\n" + story);
+    }
 
   }
 

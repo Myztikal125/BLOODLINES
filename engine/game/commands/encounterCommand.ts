@@ -1,16 +1,24 @@
 import { Command } from "./command";
 import { EncounterDirector } from "../../ai/encounterDirector";
+import { narrateEncounter } from "../../../src/ai/encounterNarrator";
 
-export class AttackCommand implements Command {
+export class EncounterCommand implements Command {
 
-  name = "attack";
+  name = "encounter";
 
   constructor(
     private encounterDirector: EncounterDirector,
-    private combat: any
+    private combat: any,
+    private state: any
   ) {}
 
-  execute(): string {
+  async execute(): Promise<string> {
+
+    if (this.state.character.hitPoints <= 0) {
+
+      this.state.character.hitPoints = 10;
+
+    }
 
     const encounter =
       this.encounterDirector.createEncounter({
@@ -24,12 +32,20 @@ export class AttackCommand implements Command {
       encounter.monsters
     );
 
+    const story = await narrateEncounter(
+      "Ashenvale",
+      this.state.character,
+      encounter
+    );
+
     return `
+${story}
+
 ⚔️ Combat Begins!
 
 Enemies:
 
-${encounter.monsters
+${this.combat.state.enemies
   .map(
     (monster: any) =>
       `${monster.name} (${monster.hitPoints} HP)`

@@ -2,7 +2,7 @@ import { reviewDesign } from "./leadDesigner";
 
 async function main() {
   const result = await reviewDesign(
-    "core_combat_system_design_for_bloodlines_rpg_research_initiative_action_economy_attacks_defenses_damage_status_effects_tactical_choices_monster_ai_and_how_to_balance_combat_depth_with_accessibility_.md"
+    "bloodline_system_design_for_bloodlines_rpg_research_inherited_powers_supernatural_ancestry_progression_systems_awakening_mechanics_mutations_curses_blessings_class_interactions_and_how_bloodlines_can_affect_character_identity_and_storytelling_.md"
   );
 
   console.log(result);

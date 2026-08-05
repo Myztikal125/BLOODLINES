@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { GameRunner } from "../engine/game/gameRunner";
 import { TerminalInterface } from "./interface/terminal";
 import { GameController } from "../engine/game/gameController";
