@@ -26,13 +26,43 @@ export class ExploreCommand implements Command {
     );
 
     const quest: Quest = {
+
       id: "lost-scholar",
+
       title: "The Lost Scholar",
+
       description:
-        "Find the missing scholar inside the Ruined Watchtower."
+        "Find the missing scholar inside the Ruined Watchtower.",
+
+      objectives: [
+        {
+          id: "discover-watchtower",
+          description:
+            "Discover the Ruined Watchtower.",
+          completed: true
+        },
+        {
+          id: "find-scholar",
+          description:
+            "Find the missing scholar.",
+          completed: false
+        }
+      ],
+
+      completed: false,
+
+      rewards: {
+        experience: 100,
+        gold: 50
+      }
+
     };
 
-    this.quests.addQuest(quest);
+
+    this.quests.addQuest(
+      quest
+    );
+
 
     return `
 You explore ${this.state.location}.
@@ -44,6 +74,9 @@ ${location}
 
 Quest Started:
 ${quest.title}
+
+Objective:
+${quest.objectives[1].description}
 `;
 
   }

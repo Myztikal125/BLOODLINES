@@ -6,9 +6,21 @@ import { CombatController } from "../combat/combatController";
 import { CombatCommand } from "./commands/combatCommand";
 import { WorldCommand } from "./commands/worldCommand";
 import { QuestCommand } from "./commands/questCommand";
+import { StatsCommand } from "./commands/statsCommand";
+import { CompleteQuestCommand } from "./commands/completeQuestCommand";
+import { ObjectiveCommand } from "./commands/objectiveCommand";
 import { GameState } from "./gameState";
 import { WorldState } from "../world/state/worldState";
 import { QuestManager } from "../world/quests/questManager";
+import { PlayerProgress } from "../progression/playerProgress";
+import { RewardHandler } from "../progression/rewardHandler";
+import { SaveManager } from "../save/saveManager";
+import { SaveCommand } from "./commands/saveCommand";
+import { LoadCommand } from "./commands/loadCommand";
+import { Inventory } from "../inventory/inventory";
+import { InventoryCommand } from "./commands/inventoryCommand";
+import { AddItemCommand } from "./commands/addItemCommand";
+import { RemoveItemCommand } from "./commands/removeItemCommand";
 
 export class GameController {
 
@@ -19,6 +31,18 @@ export class GameController {
 
   private quests =
     new QuestManager();
+
+  private progress =
+    new PlayerProgress();
+
+  private rewards =
+    new RewardHandler(this.progress);
+
+  private saves =
+    new SaveManager();
+
+  private inventory =
+    new Inventory();
 
   constructor(
     private state: GameState,
@@ -36,7 +60,8 @@ export class GameController {
     this.commands.register(
       new ExploreCommand(
         this.state,
-        this.world, this.quests
+        this.world,
+        this.quests
       )
     );
 
@@ -50,6 +75,56 @@ export class GameController {
 
     this.commands.register(
       new QuestCommand(this.quests)
+    );
+
+    this.commands.register(
+      new StatsCommand(this.progress)
+    );
+
+    this.commands.register(
+      new CompleteQuestCommand(
+        this.quests,
+        this.rewards
+      )
+    );
+
+    this.commands.register(
+      new ObjectiveCommand(
+        this.quests,
+        this.rewards
+      )
+    );
+
+    this.commands.register(
+      new SaveCommand(
+        this.saves,
+        this.progress,
+        this.world,
+        this.state,
+        this.inventory
+      )
+    );
+
+    this.commands.register(
+      new InventoryCommand(this.inventory)
+    );
+
+    this.commands.register(
+      new AddItemCommand(this.inventory)
+    );
+
+    this.commands.register(
+      new RemoveItemCommand(this.inventory)
+    );
+
+    this.commands.register(
+      new LoadCommand(
+        this.saves,
+        this.progress,
+        this.world,
+        this.state,
+        this.inventory
+      )
     );
 
   }

@@ -1,7 +1,32 @@
-export interface Quest {
+export interface QuestObjective {
+
   id: string;
-  title: string;
-  giver: string;
+
   description: string;
-  reward: string;
+
+  completed: boolean;
+
+}
+
+
+export interface Quest {
+
+  id: string;
+
+  title: string;
+
+  description: string;
+
+  objectives: QuestObjective[];
+
+  completed: boolean;
+
+  rewards: {
+
+    experience: number;
+
+    gold: number;
+
+  };
+
 }
