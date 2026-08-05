@@ -123,3 +123,43 @@ The BLOODLINES RPG combat system will focus on striking a balance between tactic
 3. What is the target demographic's comfort level with complex systems, and how can we ascertain this before full implementation?
 4. How many action options should we provide to avoid overwhelming players while still promoting variety and engagement in combat?
 5. In what ways can we incorporate player feedback into future updates and expansions of the combat system?
+
+
+---
+
+# New Design Review
+
+# Design Decision
+To incorporate the Bloodlines system as a pivotal aspect of character identity and progression while ensuring balance and enhancing player experience.
+
+# Approved Concepts
+1. **Dual Bloodlines**: Characters may inherit traits from two different bloodlines. This will allow for a richer character creation experience and further customization.
+   
+2. **Bloodline Evolution**: Characters can evolve their bloodline powers based on player choices made throughout the game, emphasizing player agency and growth.
+
+3. **Legacy Quests**: Introduce special quests tied to each bloodline, which will serve to unlock new powers and further the lore regarding their lineage.
+
+4. **Bloodline Curses**: Players may opt to accept curses in exchange for enhanced powers. This will add a layer of moral complexity and narrative depth.
+
+# Rejected Concepts
+1. **Overly Complex Mechanics**: Any concept that complicates bloodline interactions beyond the approved framework shall be avoided to ensure approachability for new players.
+
+2. **Static Bloodline Traits**: Bloodline traits that do not allow for evolution or player input will be rejected to maintain dynamic gameplay and character growth.
+
+# Required Changes
+- Establish a clearer framework for the interaction between bloodlines and other character mechanics (skills, attributes) to ensure compatibility and balance.
+- Design a balanced approach that mitigates discrepancies in power between different bloodlines, creating a more equitable game environment.
+- Develop guidelines for bloodline traits that encourage diversity but are not overly complex, making them easily understandable for new players.
+
+# Implementation Guidance
+- Integrate bloodlines into the character creation process with clear choices and descriptions to guide players.
+- Design legacy quests with scalable difficulty to ensure they are appealing and accessible regardless of character level.
+- Ensure art assets and lore are consistent and enriching, enhancing the world-building aspect relevant to each bloodline.
+- Maintain focus on both narrative richness and mechanical enhancements from bloodlines during playtesting to gauge player experiences.
+
+# Future Questions
+1. How might we ensure that each bloodline remains unique while preventing exploitation through balancing mechanics?
+2. What narrative significance should we prioritize for bloodlines that enhance player engagement without overshadowing individual character stories?
+3. In what ways can we implement ongoing player feedback to continually improve and balance the Bloodlines system post-launch? 
+4. How do we envision new players discovering and embracing the Bloodlines mechanics without feeling overwhelmed by complexity? 
+5. What stakes do we want to associate with accepting bloodline curses, and how can we ensure they foster essential player decision-making?
