@@ -4,32 +4,26 @@
 Date: 2026-08-05
 
 ## Completed
-- TypeScript RPG engine pushed to GitHub
-- npm start working through tsx
-- Character creation implemented
-- Encounter generation implemented
+- Added GitHub project memory documentation system
+- Added save/load persistence system
+- Created src/save/saveManager.ts
+- Updated src/index.ts to load savegame.json
+- Verified game starts with "Loading saved adventure..."
 
-## Current Character Test
-Name: Shadow
-Ancestry: Elf
-Background: Scholar
-Class: Wizard
-Bloodline: Shadowveil
-Ruleset: Bloodlines
-Level: 1
+## Current State
+BLOODLINES now restores saved characters instead of creating a new character every launch.
 
-## Current World State
-Starting Location: Ashenvale
+Current save:
+- Name: Shadow
+- Ancestry: Elf
+- Background: Scholar
+- Class: Wizard
+- Bloodline: Shadowveil
+- Ruleset: Bloodlines
+- Location: Ashenvale
 
-## Current Systems Working
-- Character creation
-- Ruleset selection
-- Encounter generation
-- Monster generation
-
-## Next Development Tasks
-- Combat loop
-- AI Dungeon Master system
-- Inventory system
-- Character persistence
-- World generation
+## Next Task
+Improve save flow:
+- Add Continue/New Game prompt
+- Add save slots later
+- Continue expanding RPG systems
