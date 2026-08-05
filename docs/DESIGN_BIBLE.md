@@ -87,3 +87,39 @@ The wizard class in BLOODLINES should embody the classic archetype of a wise and
 3. Are we considering a tiered complexity system, where certain spells have an advanced option that experienced players can unlock later?
 4. How much focus should we put on environmental interactions, and what unique elements can we incorporate to make this aspect engaging without being overly complex? 
 5. Should there be set limits on spell customization in the Spellcrafting System to maintain balance, or do we want to embrace chaos in spell creation?
+
+
+---
+
+# New Design Review
+
+# Design Decision
+The BLOODLINES RPG combat system will focus on striking a balance between tactical depth and accessibility. The proposed mechanics will emphasize strategic decision-making while providing clear guidelines for players to understand complex interactions.
+
+# Approved Concepts
+1. **Dynamic Initiative System:** Implementing mechanics that allow players to gather "initiative points" through certain actions to influence their turn order.
+2. **Action Economy Variability:** Introduce an energy or stamina system where actions differ in resource cost, encouraging tactical resource management.
+3. **Conditional Status Effects:** Develop status effects that can be influenced by in-game conditions (e.g., weather effects on elemental spells).
+4. **Action Synergy:** Abilities that enhance the effectiveness of other abilities, promoting teamwork and strategy within party dynamics.
+5. **Adaptive Monster AI:** Create an AI that learns basic patterns from player actions to introduce dynamic enemy strategies.
+
+# Rejected Concepts
+1. **Overly Complex Damage System:** Randomness in damage calculation will be minimized to maintain predictability and allow for effective tactical planning. The emphasis will be on a more balanced approach to damage calculation.
+2. **Excessive AI Complexity:** Basic learning will be incorporated, but complex learning mechanisms that could lead to unpredictable and inconsistent behavior will not be prioritized.
+
+# Required Changes
+- Develop clear, concise explanations for the mechanics to be included in the game manual and tutorials.
+- Design a layered tutorial system that gradually introduces players to combat mechanics without overwhelming them.
+- Create visual aids (e.g., icons for status effects, action costs) to enhance player understanding during combat.
+
+# Implementation Guidance
+- Conduct iterative playtesting to refine the balance between complexity and accessibility in the combat system. Use feedback to adjust action costs, initiative mechanisms, and AI behavior.
+- Ensure that documentation and tutorials explain game mechanics in a straightforward manner, allowing new players to grasp concepts easily.
+- Prioritize balance in the action economy to ensure players feel their choices have meaningful impacts during gameplay.
+
+# Future Questions
+1. What specific narrative themes should influence the design and consequences of status effects?
+2. How will we ensure that the adaptive AI remains engaging without increasing frustration levels for players?
+3. What is the target demographic's comfort level with complex systems, and how can we ascertain this before full implementation?
+4. How many action options should we provide to avoid overwhelming players while still promoting variety and engagement in combat?
+5. In what ways can we incorporate player feedback into future updates and expansions of the combat system?
