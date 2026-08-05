@@ -1,41 +1,62 @@
-# Project State
+# BLOODLINES Project State
 
-## Project
-BLOODLINES
+## Current Direction
 
-## Current Status
-Core RPG engine is operational.
+BLOODLINES is being developed as an AI-assisted tabletop RPG system.
 
-## Working Systems
-- TypeScript engine
-- Character creation
-- Ruleset selection
-- Exploration
-- Quest system connection
-- Combat system
-- Enemy AI turns
-- Combat rewards and loot
-- Encounter generation
+## Architecture Plan
 
-## Current Test Character
-Name: Shadow
-Ancestry: Elf
-Background: Scholar
-Class: Wizard
-Bloodline: Shadowveil
-Ruleset: Bloodlines
-Level: 1
+### Research Layer
+AI research assistants gather and organize:
+- RPG rules research
+- Character systems
+- Magic systems
+- Monster design
+- World building
+- AI Dungeon Master concepts
 
-## Current Location
-Ashenvale
+Stored in:
+- research/
 
-## Development Environment
-Runtime: Node.js
-Launcher: npm start
-Entry: src/index.ts
+### Game Data Layer
+Approved designs become:
+- classes
+- spells
+- monsters
+- items
+- locations
+- bloodlines
 
-## Next Focus
-- Expand combat depth
-- Add persistence/save system
-- Expand AI Dungeon Master
-- Add world systems
+Stored in:
+- data/
+
+### Campaign System
+Stores:
+- characters
+- quests
+- NPC relationships
+- world changes
+- campaign memories
+
+### AI Dungeon Master
+Uses OpenRouter and retrieves:
+- rules
+- world information
+- character history
+- campaign memories
+
+## Current Engine Status
+
+- TypeScript engine running
+- Character creation working
+- Combat loop working
+- Encounter generation working
+- AI narration foundation working
+
+## Next Major Systems
+
+1. Research assistant workflow
+2. Knowledge base
+3. Campaign memory system
+4. AI Dungeon Master
+5. Expanded rules/content
