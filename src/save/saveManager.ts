@@ -1,20 +1,20 @@
 import fs from "fs";
-import path from "path";
 
-const savePath = path.join(process.cwd(), "savegame.json");
+const SAVE_FILE = "savegame.json";
+
+export function saveGame(data: any) {
+  fs.writeFileSync(
+    SAVE_FILE,
+    JSON.stringify(data, null, 2)
+  );
+}
 
 export function loadGame() {
-  if (!fs.existsSync(savePath)) {
+  if (!fs.existsSync(SAVE_FILE)) {
     return null;
   }
 
-  const data = fs.readFileSync(savePath, "utf-8");
-  return JSON.parse(data);
-}
-
-export function saveGame(state: any) {
-  fs.writeFileSync(
-    savePath,
-    JSON.stringify(state, null, 2)
+  return JSON.parse(
+    fs.readFileSync(SAVE_FILE, "utf8")
   );
 }

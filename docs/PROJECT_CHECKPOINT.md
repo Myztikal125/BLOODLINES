@@ -79,3 +79,27 @@ Character
  ├── Evolutions
  ├── Spells
  └── Combat abilities
+
+---
+
+# BLOODLINES Progress Update
+
+Completed:
+- Character Factory integration
+- Wizard class loading
+- Shadowveil bloodline integration
+- Bloodline progression engine
+- Evolution unlocking
+- Curse tracking
+- Effect resolution
+
+Current test status:
+- Character Factory: PASS
+- Bloodline Application: PASS
+- Evolution Unlock: PASS
+- Curse Acceptance: PASS
+- Bloodline Effects: PASS
+
+Next:
+Integrate resolved bloodline effects into gameplay systems.
+

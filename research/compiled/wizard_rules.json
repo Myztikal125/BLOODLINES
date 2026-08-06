@@ -1,0 +1,128 @@
+{
+  "system": "magic",
+  "class": "wizard",
+  "version": "0.1",
+
+  "design_decisions": {
+    "approved": [
+      "hybrid_spellcasting",
+      "resource_based_magic",
+      "dynamic_spellcrafting",
+      "modular_magic_schools",
+      "tiered_spell_power"
+    ],
+    "rejected": [
+      "fully_ai_generated_magic",
+      "rigid_spell_schools"
+    ]
+  },
+
+  "wizard": {
+    "id": "wizard",
+    "name": "Wizard",
+    "role": "arcane_caster",
+
+    "features": [
+      {
+        "id": "spellbook",
+        "type": "feature",
+        "description": "Stores discovered spells that can be prepared."
+      },
+      {
+        "id": "signature_spells",
+        "type": "feature",
+        "description": "Mastered spells that can be cast without normal spell resources."
+      },
+      {
+        "id": "spellcrafting",
+        "type": "feature",
+        "description": "Modify and create spells using ingredients, research, and rituals."
+      },
+      {
+        "id": "arcane_tutor",
+        "type": "feature",
+        "description": "Learn rare spells from magical mentors."
+      }
+    ],
+
+    "spellcasting": {
+      "model": "hybrid",
+      "prepared_spells": true,
+      "known_spells": true,
+      "mana_system": true
+    },
+
+    "schools": [
+      "evocation",
+      "illusion",
+      "necromancy",
+      "transmutation",
+      "abjuration",
+      "conjuration",
+      "divination",
+      "enchantment"
+    ],
+
+    "progression": [
+      {
+        "level": 1,
+        "abilities": [
+          "spellbook",
+          "arcane_learning"
+        ],
+        "signature_spell_slots": 1
+      },
+      {
+        "level": 3,
+        "abilities": [
+          "arcane_specialization"
+        ],
+        "signature_spell_slots": 2
+      },
+      {
+        "level": 5,
+        "abilities": [
+          "advanced_spellcrafting"
+        ],
+        "signature_spell_slots": 3
+      }
+    ]
+  },
+
+  "resources": {
+    "mana": {
+      "enabled": true,
+      "recovery": [
+        "rest",
+        "meditation",
+        "special_items"
+      ]
+    },
+
+    "material_components": {
+      "enabled": true
+    }
+  },
+
+  "spellcrafting": {
+    "enabled": true,
+    "limits": {
+      "balanced_modifiers": true,
+      "tier_based_power": true
+    },
+
+    "modifiers": [
+      "element",
+      "range",
+      "duration",
+      "area",
+      "effect"
+    ]
+  },
+
+  "integration": {
+    "bloodlines": true,
+    "combat_system": true,
+    "progression_system": true
+  }
+}

@@ -1,44 +1,14 @@
 {
-  "character": {
-    "name": "Shadow",
-    "level": 1,
-    "experience": 0,
-    "ancestry": "elf",
-    "background": "scholar",
-    "className": "wizard",
-    "bloodline": "shadowveil",
-    "ruleset": "bloodlines",
-    "hitPoints": 0,
-    "armorClass": 10,
-    "abilities": {
-      "strength": 10,
-      "dexterity": 10,
-      "constitution": 10,
-      "intelligence": 10,
-      "wisdom": 10,
-      "charisma": 10
-    }
-  },
-  "progress": {
-    "level": 1,
-    "experience": 0,
-    "gold": 0
-  },
-  "world": {
-    "currentLocation": "Ashenvale",
-    "discoveredLocations": [
-      "Ashenvale"
+  "name": "Shadow",
+  "level": 1,
+  "class": "wizard",
+  "bloodline": "shadowveil",
+  "bloodlineState": {
+    "awakeningLevel": 1,
+    "evolutionPoints": 1,
+    "completedQuests": [
+      "whisper_in_the_dark"
     ],
-    "activeQuests": [],
-    "discoveredNPCs": [],
-    "events": []
-  },
-  "inventory": {
-    "items": [
-      {
-        "name": "Healing Potion",
-        "quantity": 1
-      }
-    ]
+    "acceptedCurses": []
   }
 }

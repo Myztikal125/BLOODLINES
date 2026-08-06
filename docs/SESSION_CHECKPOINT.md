@@ -77,3 +77,74 @@ Build the integration layer:
 
 - Keep research filenames short to avoid ENAMETOOLONG filesystem errors.
 - Data loaders must match JSON structure exactly.
+
+---
+
+## BLOODLINES ENGINE CHECKPOINT
+
+### Date
+2026-08-05
+
+### Completed Systems
+
+Character system:
+- Character Factory creates structured characters.
+- Wizard class loads from data/classes/wizard.json.
+- Bloodline data loads from data/bloodlines.
+
+Shadow character verified:
+- Name: Shadow
+- Class: Wizard
+- Bloodline: Shadowveil
+
+### Bloodline Engine
+
+Implemented:
+
+- Bloodline state tracking
+- Legacy quest progression
+- Evolution point rewards
+- Evolution unlocking
+- Curse acceptance
+- Bloodline effect resolution
+
+Current Shadowveil systems:
+
+Traits:
+- Shadow Stealth
+- Illusion Craft
+
+Evolution:
+- Veil of Darkness
+
+Curse:
+- Shadow Curse
+
+### New Files
+
+src/bloodlines/
+- evolutionManager.ts
+- curseManager.ts
+- bloodlineEffects.ts
+
+### Current Architecture
+
+Character
+  |
+  +-- Class
+  |
+  +-- Bloodlines
+        |
+        +-- State
+        +-- Evolutions
+        +-- Curses
+        +-- Effects
+
+### Next Development Step
+
+Connect Bloodline Effects to:
+- Combat modifiers
+- Wizard spell system
+- Status effects
+- Dialogue/quest consequences
+

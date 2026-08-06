@@ -1,0 +1,60 @@
+{
+  "id": "wizard",
+  "name": "Wizard",
+  "description": "A master of arcane knowledge who studies magic, discovers secrets, and shapes reality through spells.",
+  "role": "arcane_caster",
+
+  "features": [
+    {
+      "id": "spellbook",
+      "name": "Spellbook",
+      "description": "A collection of discovered spells the wizard can prepare."
+    },
+    {
+      "id": "signature_spells",
+      "name": "Signature Spells",
+      "description": "A small number of mastered spells that can be cast without normal spell resources."
+    },
+    {
+      "id": "spellcrafting",
+      "name": "Spellcrafting",
+      "description": "Modify and create spells through research, ingredients, and rituals."
+    }
+  ],
+
+  "schools": [
+    "evocation",
+    "illusion",
+    "necromancy",
+    "transmutation",
+    "abjuration",
+    "conjuration",
+    "divination",
+    "enchantment"
+  ],
+
+  "progression": [
+    {
+      "level": 1,
+      "abilities": [
+        "spellbook",
+        "arcane_learning"
+      ],
+      "signatureSpellSlots": 1
+    },
+    {
+      "level": 3,
+      "abilities": [
+        "arcane_specialization"
+      ],
+      "signatureSpellSlots": 2
+    },
+    {
+      "level": 5,
+      "abilities": [
+        "advanced_spellcrafting"
+      ],
+      "signatureSpellSlots": 3
+    }
+  ]
+}
