@@ -1,0 +1,16 @@
+{
+  "evolution_paths": [
+    {
+      "id": "shadowveil_paths",
+      "bloodline": "shadowveil",
+      "requirements": [
+        "gain_experience",
+        "complete_legacy_quest"
+      ],
+      "effects": [
+        "stealth_enhancement",
+        "shadow_power_growth"
+      ]
+    }
+  ]
+}

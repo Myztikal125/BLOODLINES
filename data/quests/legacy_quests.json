@@ -1,0 +1,16 @@
+{
+  "legacy_quests": [
+    {
+      "id": "quest_of_the_silenced",
+      "bloodline": "shadowveil",
+      "objectives": [
+        "obtain_hidden_tome",
+        "return_to_shadowveil_shrine"
+      ],
+      "rewards": [
+        "unlock_shadow_power",
+        "unique_item_access"
+      ]
+    }
+  ]
+}

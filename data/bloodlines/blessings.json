@@ -1,0 +1,15 @@
+{
+  "blessings": [
+    {
+      "id": "shadows_embrace",
+      "bloodline": "shadowveil",
+      "effects": [
+        "stealth_enhancement",
+        "shadow_movement_bonus"
+      ],
+      "acquisition_conditions": [
+        "shadowveil_tier_2"
+      ]
+    }
+  ]
+}

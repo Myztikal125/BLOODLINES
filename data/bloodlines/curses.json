@@ -1,0 +1,17 @@
+{
+  "curses": [
+    {
+      "id": "dark_whispers",
+      "bloodline": "shadowveil",
+      "effects": [
+        "focus_disruption"
+      ],
+      "trade_offs": [
+        "shadow_power_increase"
+      ],
+      "expiry_conditions": [
+        "complete_curse_quest"
+      ]
+    }
+  ]
+}
