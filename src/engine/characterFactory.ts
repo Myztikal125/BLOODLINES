@@ -10,6 +10,19 @@ interface CharacterOptions {
 export function createCharacter(options: CharacterOptions) {
   const characterClass = loadData("classes", options.classId);
 
+  const level = options.level ?? 1;
+
+  const progression =
+    characterClass.progression?.find(
+      (p: any) => p.level === level
+    );
+
+  const signatureSpellSlots =
+    progression?.signatureSpellSlots ?? 0;
+
+  const abilities =
+    progression?.abilities ?? [];
+
   const bloodlines = options.bloodlineIds.map((id) => {
     const bloodline = loadData("bloodlines", id);
 
@@ -35,12 +48,16 @@ export function createCharacter(options: CharacterOptions) {
   return {
     name: options.name,
 
-    level: options.level ?? 1,
+    level,
 
     class: {
       id: characterClass.id,
       name: characterClass.name,
-      features: characterClass.features
+      features: characterClass.features,
+      schools: characterClass.schools ?? [],
+      startingSpells: characterClass.startingSpells ?? [],
+      signatureSpellSlots,
+      abilities
     },
 
     bloodlines,
