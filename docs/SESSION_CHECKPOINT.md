@@ -1,29 +1,79 @@
-# Session Checkpoint
+# BLOODLINES Session Checkpoint
 
-## Last Session
+## Current Milestone
+
 Date: 2026-08-05
 
-## Completed
-- Added GitHub project memory documentation system
-- Added save/load persistence system
-- Created src/save/saveManager.ts
-- Updated src/index.ts to load savegame.json
-- Verified game starts with "Loading saved adventure..."
+## Completed This Session
 
-## Current State
-BLOODLINES now restores saved characters instead of creating a new character every launch.
+### Character System
+- Character data structure implemented.
+- Shadow test character created.
+- Character loading successfully combines class and bloodline data.
 
-Current save:
-- Name: Shadow
-- Ancestry: Elf
-- Background: Scholar
-- Class: Wizard
-- Bloodline: Shadowveil
-- Ruleset: Bloodlines
-- Location: Ashenvale
+Current character:
 
-## Next Task
-Improve save flow:
-- Add Continue/New Game prompt
-- Add save slots later
-- Continue expanding RPG systems
+Name: Shadow
+Level: 1
+Class: Wizard
+Bloodline: Shadowveil
+Experience: 0
+Health: 10
+
+### Class System
+Wizard class loading works.
+
+Implemented:
+- Spellbook
+- Signature Spells
+- Spellcrafting
+- Arcane Tutor
+
+Wizard progression:
+- Level 1: Spellbook, Arcane Learning, 1 Signature Spell
+- Level 3: Arcane Specialization, 2 Signature Spells
+- Level 5: Advanced Spellcrafting, 3 Signature Spells
+
+### Bloodline System
+Shadowveil implemented.
+
+Traits:
+- Shadow Stealth
+- Illusion Craft
+
+Evolutions:
+- Level 3: Veil of Darkness
+- Level 5: Shadow Walk
+
+Legacy quests:
+- A Whisper in the Dark
+- The Phantom's Request
+
+Bloodline progression tested:
+- Quest completion grants evolution points.
+- Evolution unlock checks work.
+
+### Save System
+Save/load system tested successfully.
+
+Saved data includes:
+- Character identity
+- Class
+- Bloodline state
+- Completed quests
+- Evolution progress
+
+## Current Next Step
+
+Build the integration layer:
+
+1. Character factory
+2. Bloodline engine
+3. Progression engine
+4. Combat engine integration
+5. Magic engine integration
+
+## Known Issues
+
+- Keep research filenames short to avoid ENAMETOOLONG filesystem errors.
+- Data loaders must match JSON structure exactly.
