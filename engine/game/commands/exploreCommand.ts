@@ -2,7 +2,7 @@ import { Command } from "./command";
 import { GameState } from "../gameState";
 import { WorldState } from "../../world/state/worldState";
 import { QuestManager } from "../../world/quests/questManager";
-import { Quest } from "../../world/quests/quest";
+import { QuestLoader } from "../../world/quests/questLoader";
 
 export class ExploreCommand implements Command {
 
@@ -25,44 +25,20 @@ export class ExploreCommand implements Command {
       "Discovered ancient ruins in Ashenvale"
     );
 
-    const quest: Quest = {
+    const quest =
+      QuestLoader.getQuest(
+        "lost_scholar"
+      );
 
-      id: "lost-scholar",
+    if (quest) {
 
-      title: "The Lost Scholar",
+      quest.objectives[0].completed = true;
 
-      description:
-        "Find the missing scholar inside the Ruined Watchtower.",
+      this.quests.addQuest(
+        quest
+      );
 
-      objectives: [
-        {
-          id: "discover-watchtower",
-          description:
-            "Discover the Ruined Watchtower.",
-          completed: true
-        },
-        {
-          id: "find-scholar",
-          description:
-            "Find the missing scholar.",
-          completed: false
-        }
-      ],
-
-      completed: false,
-
-      rewards: {
-        experience: 100,
-        gold: 50
-      }
-
-    };
-
-
-    this.quests.addQuest(
-      quest
-    );
-
+    }
 
     return `
 You explore ${this.state.location}.
@@ -73,10 +49,10 @@ You discover:
 ${location}
 
 Quest Started:
-${quest.title}
+${quest?.title ?? "Unknown Quest"}
 
 Objective:
-${quest.objectives[1].description}
+${quest?.objectives[1]?.description ?? "Explore further."}
 `;
 
   }

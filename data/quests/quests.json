@@ -1,9 +1,29 @@
 [
   {
-    "id": "lost_legacy",
-    "title": "The Lost Legacy",
-    "giver": "elder_varen",
-    "description": "Recover the forgotten records of an ancient bloodline.",
-    "reward": "Experience and reputation"
+    "id": "lost_scholar",
+    "title": "The Lost Scholar",
+    "description": "Find the missing scholar lost within the Ruined Watchtower of Ashenvale.",
+    "objectives": [
+      {
+        "id": "discover_watchtower",
+        "description": "Discover the Ruined Watchtower.",
+        "completed": false
+      },
+      {
+        "id": "investigate_watchtower",
+        "description": "Investigate the scholar's research.",
+        "completed": false
+      },
+      {
+        "id": "find_scholar",
+        "description": "Find the missing scholar.",
+        "completed": false
+      }
+    ],
+    "completed": false,
+    "rewards": {
+      "experience": 100,
+      "gold": 50
+    }
   }
 ]

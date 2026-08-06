@@ -33,6 +33,11 @@
     "enchantment"
   ],
 
+  "startingSpells": [
+    "firebolt",
+    "magic_missile"
+  ],
+
   "progression": [
     {
       "level": 1,

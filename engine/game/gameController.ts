@@ -2,6 +2,7 @@ import { CommandManager } from "./commands/commandManager";
 import { HelpCommand } from "./commands/helpCommand";
 import { CharacterCommand } from "./commands/characterCommand";
 import { ExploreCommand } from "./commands/exploreCommand";
+import { InvestigateCommand } from "./commands/investigateCommand";
 import { CombatController } from "../combat/combatController";
 import { CombatCommand } from "./commands/combatCommand";
 import { EncounterCommand } from "./commands/encounterCommand";
@@ -65,6 +66,13 @@ export class GameController {
     this.commands.register(
       new ExploreCommand(
         this.state,
+        this.world,
+        this.quests
+      )
+    );
+
+    this.commands.register(
+      new InvestigateCommand(
         this.world,
         this.quests
       )
