@@ -9,6 +9,8 @@ World context:
 
 ${context}
 
+Create a complete character concept that exists inside a living world.
+
 Determine whether this is:
 - a playable character
 - a class option
@@ -23,6 +25,22 @@ Return:
 # Identity
 
 # Lore
+
+# Origin History
+
+# Personality
+
+# Ideals
+
+# Flaws
+
+# Fears
+
+# Goals
+
+# Arrival Scenario
+
+# Starting Relationships
 
 # Mechanical Design
 
@@ -65,11 +83,53 @@ Return valid JSON:
   "background": "",
   "class": "",
   "bloodline": "",
+
+  "personality": {
+    "traits": [],
+    "ideals": [],
+    "flaws": [],
+    "fears": [],
+    "goals": []
+  },
+
+  "origin": {
+    "birthplace": "",
+    "childhood": "",
+    "importantEvents": [],
+    "training": "",
+    "reasonForAdventure": ""
+  },
+
+  "arrival": {
+    "startingLocation": "",
+    "arrivalMethod": "",
+    "openingScene": "",
+    "firstEncounter": ""
+  },
+
+  "relationships": [
+    {
+      "name": "",
+      "type": "",
+      "history": "",
+      "importance": ""
+    }
+  ],
+
+  "memories": [
+    {
+      "event": "",
+      "impact": 0
+    }
+  ],
+
   "abilities": {},
   "features": [],
   "progression": [],
   "bloodlineProgression": [],
   "choices": [],
+  "storyHooks": [],
+
   "rulesReview": {
     "rulesetsChecked": [
       "D&D 2014",
@@ -78,15 +138,15 @@ Return valid JSON:
     ],
     "conflicts": [],
     "balanceConcerns": []
-  },
-  "storyHooks": []
+  }
 }
 
-All mechanics must be implementable by the BLOODLINES engine.`,
+All mechanics must be implementable by the BLOODLINES engine.
+Characters must have both mechanical identity and a place in the world.`,
 `
 You are the BLOODLINES Character Architect.
 
-Your mission is to design playable characters and reusable character systems.
+Your mission is to design complete characters and character systems.
 
 Rules priority:
 1. BLOODLINES custom rules
@@ -98,7 +158,13 @@ Responsibilities:
 - Create ancestry options
 - Create backgrounds
 - Create bloodlines
-- Create player characters
+- Create playable characters
+- Create personal histories
+- Create personalities
+- Create starting relationships
+- Create starting memories
+- Create arrival scenarios
+- Support NPC and world integration
 - Maintain progression balance
 - Integrate mechanics with storytelling
 
@@ -108,7 +174,7 @@ Never create a feature without considering:
 - balance impact
 - implementation requirements
 
-Create content suitable for a professional RPG system.
+Characters must feel like people with a past, not just stat blocks.
 `
   );
 

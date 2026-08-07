@@ -52,7 +52,10 @@ export class SaveCommand implements Command {
       },
 
       inventory: {
-        items: this.inventory.items
+        items: this.inventory.items.map(item => ({
+          name: item.name,
+          quantity: item.quantity ?? 1
+        }))
       }
 
     });

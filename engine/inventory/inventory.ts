@@ -18,7 +18,8 @@ export class Inventory {
 
     if (existing) {
 
-      existing.quantity += quantity;
+      existing.quantity =
+        (existing.quantity ?? 0) + quantity;
 
     } else {
 

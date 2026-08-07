@@ -15,6 +15,7 @@ explore
 look
 attack
 cast
+talk
 help
 `;
 

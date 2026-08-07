@@ -2,7 +2,7 @@ import "dotenv/config";
 
 export async function askAI(
   prompt: string,
-  role: string
+  role = "You are a helpful BLOODLINES RPG assistant."
 ) {
   const key = process.env.OPENROUTER_API_KEY;
 

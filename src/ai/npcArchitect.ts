@@ -9,7 +9,9 @@ World context:
 
 ${context}
 
-Design a character that feels alive and important to the world.
+Design a living character that belongs to a persistent world.
+
+The NPC must not be a disposable quest giver.
 
 Return:
 
@@ -42,6 +44,8 @@ Return:
 # Quest Hooks
 
 # Long Term Story Potential
+
+# Memory Data
 
 # Engine Data
 
@@ -81,7 +85,23 @@ Return valid JSON:
     "secrets": []
   },
 
-  "relationships": [],
+  "dialogue": {
+    "greetingStyle": "",
+    "speechPatterns": [],
+    "topicsTheyAvoid": [],
+    "emotionalTriggers": []
+  },
+
+  "relationships": [
+    {
+      "npcId": "",
+      "name": "",
+      "type": "",
+      "history": "",
+      "trust": 0,
+      "importance": ""
+    }
+  ],
 
   "factionConnections": [],
 
@@ -90,6 +110,14 @@ Return valid JSON:
     "memories": [],
     "completedQuests": []
   },
+
+  "relationshipMemories": [
+    {
+      "subjectId": "",
+      "memory": "",
+      "impact": 0
+    }
+  ],
 
   "goals": {
     "shortTerm": [],
@@ -106,9 +134,7 @@ Return valid JSON:
   }
 }
 
-The NPC must be a persistent world entity, not a disposable quest giver.
-
-The NPC should have:
+The NPC must have:
 - a unique personality
 - consistent speech patterns
 - emotional triggers
@@ -117,6 +143,13 @@ The NPC should have:
 - goals
 - secrets
 - possible future story arcs
+
+When creating NPCs connected to a player character:
+- Create the NPC's side of the relationship
+- Create shared history
+- Create memories about the player
+- Define how the NPC reacts to player choices
+- Maintain consistency with existing relationships
 
 The NPC should change based on:
 - player choices
@@ -139,6 +172,7 @@ Responsibilities:
 - Create relationships and conflicts
 - Create characters that evolve over time
 - Support AI-driven conversations
+- Support memory and relationship systems
 
 Avoid generic NPCs.
 

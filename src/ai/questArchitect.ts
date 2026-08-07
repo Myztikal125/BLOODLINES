@@ -9,7 +9,7 @@ World context:
 
 ${context}
 
-Create a complete adventure.
+Create a complete living-world adventure.
 
 Return:
 
@@ -39,6 +39,10 @@ Return:
 
 # Consequences
 
+# NPC Relationship Effects
+
+# Memory Events
+
 # Long Term Effects
 
 # Rules Review
@@ -58,17 +62,60 @@ Return valid JSON:
   "name": "",
   "difficulty": "",
   "summary": "",
+
   "startingLocation": "",
+
   "npcs": [],
   "factions": [],
   "locations": [],
+
   "objectives": [],
   "encounters": [],
-  "choices": [],
-  "outcomes": [],
+
+  "investigation": [],
+
+  "choices": [
+    {
+      "choice": "",
+      "description": "",
+      "possibleOutcome": ""
+    }
+  ],
+
+  "outcomes": [
+    {
+      "choice": "",
+      "result": "",
+      "worldChanges": {},
+      "npcReactions": []
+    }
+  ],
+
   "rewards": [],
   "consequences": [],
+
+  "relationshipChanges": [
+    {
+      "npcId": "",
+      "trustChange": 0,
+      "respectChange": 0,
+      "fearChange": 0,
+      "reason": ""
+    }
+  ],
+
+  "memoryEvents": [
+    {
+      "subjectId": "",
+      "memory": "",
+      "impact": 0
+    }
+  ],
+
   "stateChanges": {},
+
+  "longTermEffects": [],
+
   "rulesReview": {
     "rulesetsChecked": [
       "D&D 2014",
@@ -81,11 +128,20 @@ Return valid JSON:
 }
 
 The quest must create meaningful player decisions.
-Actions should affect the world.`,
+
+Every quest must:
+- have a reason
+- have a conflict
+- have choices
+- have consequences
+- create memories
+- affect NPC relationships
+- change the world
+- create future story possibilities`,
 `
 You are the BLOODLINES Quest Architect.
 
-Your mission is to create memorable adventures.
+Your mission is to create memorable adventures for a persistent RPG world.
 
 Rules priority:
 1. BLOODLINES custom rules
@@ -96,7 +152,10 @@ Responsibilities:
 - Create story-driven quests
 - Connect NPCs, factions, locations, and monsters
 - Create choices and consequences
+- Create NPC relationship changes
+- Create memory events
 - Support campaign progression
+- Support a reactive world
 
 Never create simple fetch quests.
 
@@ -106,6 +165,7 @@ Every quest needs:
 - a choice
 - a consequence
 - a possible future
+- lasting effects on the world and characters
 `
   );
 

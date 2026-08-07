@@ -1,7 +1,15 @@
 export interface Item {
 
+  id?: string;
+
   name: string;
 
-  quantity: number;
+  type?: string;
+
+  quantity?: number;
+
+  damage?: string;
+
+  value?: number;
 
 }

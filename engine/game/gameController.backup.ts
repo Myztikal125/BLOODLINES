@@ -24,11 +24,6 @@ import { Inventory } from "../inventory/inventory";
 import { InventoryCommand } from "./commands/inventoryCommand";
 import { AddItemCommand } from "./commands/addItemCommand";
 import { RemoveItemCommand } from "./commands/removeItemCommand";
-import { TalkCommand } from "./commands/talkCommand";
-import { NPCService } from "../../src/npcs/npcService";
-import { NPCMemoryService } from "../../src/npcs/npcMemory";
-import { RelationshipService } from "../../src/npcs/relationships/relationshipService";
-import { NPCDialogueService } from "../../src/npcs/npcDialogueService";
 import { narrateEvent } from "../../src/ai/gameNarrator";
 
 export class GameController {
@@ -57,9 +52,7 @@ export class GameController {
 
   constructor(
     private state: GameState,
-    private combat: CombatController,
-    private npcService: NPCService,
-    private relationshipService: RelationshipService
+    private combat: CombatController
   ) {
 
     this.commands.register(
@@ -146,16 +139,6 @@ export class GameController {
 
     this.commands.register(
       new RemoveItemCommand(this.inventory)
-    );
-
-    this.commands.register(
-      new TalkCommand(
-        new NPCDialogueService(
-          this.npcService,
-          new NPCMemoryService(),
-          this.relationshipService
-        )
-      )
     );
 
     this.commands.register(

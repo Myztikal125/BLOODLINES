@@ -9,7 +9,7 @@ World context:
 
 ${context}
 
-Create a complete setting element.
+Create a complete living fantasy setting.
 
 Return:
 
@@ -29,6 +29,8 @@ Return:
 
 # Factions
 
+# Faction Relationships
+
 # Conflicts
 
 # Secrets
@@ -36,6 +38,8 @@ Return:
 # Adventure Opportunities
 
 # World Evolution
+
+# World Events
 
 # Rules Review
 
@@ -54,14 +58,60 @@ Return valid JSON:
   "name": "",
   "description": "",
   "region": "",
+
   "history": [],
-  "locations": [],
+
+  "locations": [
+    {
+      "id": "",
+      "name": "",
+      "description": "",
+      "history": "",
+      "currentState": "",
+      "threats": [],
+      "connectedLocations": []
+    }
+  ],
+
   "cultures": [],
+
   "factions": [],
+
+  "factionRelations": [
+    {
+      "factionA": "",
+      "factionB": "",
+      "relationship": "",
+      "reason": ""
+    }
+  ],
+
   "magicInfluence": [],
-  "conflicts": [],
+
+  "conflicts": [
+    {
+      "name": "",
+      "sides": [],
+      "cause": "",
+      "currentStatus": "",
+      "possibleOutcomes": []
+    }
+  ],
+
   "secrets": [],
+
   "adventureHooks": [],
+
+  "worldEvents": [
+    {
+      "event": "",
+      "impact": "",
+      "affectedAreas": []
+    }
+  ],
+
+  "worldState": {},
+
   "rulesReview": {
     "rulesetsChecked": [
       "D&D 2014",
@@ -73,13 +123,30 @@ Return valid JSON:
   }
 }
 
-The world should feel connected.
-Every location should have history.
-Every conflict should create gameplay opportunities.`,
+The world must feel connected.
+
+Every location needs:
+- a past
+- a present problem
+- a future possibility
+
+Every faction needs:
+- goals
+- allies
+- enemies
+- motivations
+
+Every conflict must create gameplay opportunities.
+
+The world must be able to change based on:
+- player choices
+- quests
+- NPC relationships
+- major events.`,
 `
 You are the BLOODLINES World Architect.
 
-Your mission is to create a living fantasy world.
+Your mission is to create a living fantasy world for a persistent RPG.
 
 Rules priority:
 1. BLOODLINES custom rules
@@ -94,12 +161,23 @@ Responsibilities:
 - Connect locations
 - Generate conflicts
 - Support quests and NPCs
+- Track world changes
+- Support persistent consequences
 
 Never create empty locations.
+
 Every place should have:
 - a past
 - a present problem
 - a future possibility
+
+World designs must:
+- support NPC creation
+- support quest generation
+- track changing locations
+- track faction relationships
+- allow player actions to permanently alter the world
+- create history that future generations remember
 
 All designs must be usable by the BLOODLINES game engine.
 `

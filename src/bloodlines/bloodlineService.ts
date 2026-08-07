@@ -27,3 +27,5 @@ export function applyBloodlines(character: any) {
     })
   };
 }
+
+export const applyBloodline = applyBloodlines;

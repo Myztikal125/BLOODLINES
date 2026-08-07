@@ -17,6 +17,7 @@ export class RelationshipGenerator {
     for (const relationship of npcData.relationships) {
 
       const targetId =
+        relationship.npcId ??
         relationship.name
           .toLowerCase()
           .replace(/\s+/g, "_");
@@ -35,19 +36,39 @@ export class RelationshipGenerator {
         // Generate connected NPC
       }
 
+      const type =
+        this.normalizeType(
+          relationship.type
+        );
+
       this.relationshipService.addRelationship({
         fromNpc: npcData.id,
         toNpc: targetId,
-        type: this.normalizeType(
-          relationship.type
-        ),
+        type,
         history:
           relationship.history ?? "",
-        strength: 50,
-        trust: 50
+        strength:
+          relationship.strength ?? 50,
+        trust:
+          relationship.trust ?? 50
+      });
+
+
+      // Create reverse relationship
+      this.relationshipService.addRelationship({
+        fromNpc: targetId,
+        toNpc: npcData.id,
+        type: this.reverseType(type),
+        history:
+          relationship.history ?? "",
+        strength:
+          relationship.strength ?? 50,
+        trust:
+          relationship.trust ?? 50
       });
     }
   }
+
 
   private normalizeType(
     type: string
@@ -66,6 +87,29 @@ export class RelationshipGenerator {
       return "friend";
 
     if (value.includes("enemy"))
+      return "enemy";
+
+    return "ally";
+  }
+
+
+  private reverseType(
+    type: string
+  ): any {
+
+    if (type === "mentor")
+      return "student";
+
+    if (type === "student")
+      return "mentor";
+
+    if (type === "rival")
+      return "rival";
+
+    if (type === "friend")
+      return "friend";
+
+    if (type === "enemy")
       return "enemy";
 
     return "ally";

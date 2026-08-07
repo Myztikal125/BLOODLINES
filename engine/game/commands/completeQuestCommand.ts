@@ -11,7 +11,10 @@ export class CompleteQuestCommand implements Command {
     private rewards: RewardHandler
   ) {}
 
-  execute(input?: string): string {
+  execute(args?: string[]): string {
+
+    const input =
+      args?.join(" ");
 
     const questId =
       input || "lost-scholar";

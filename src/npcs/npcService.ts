@@ -17,11 +17,23 @@ export class NPCService {
   private memoryService = new NPCMemoryService();
 
   load(npcs: NPC[]) {
-    this.npcs = npcs.map(npc => ({
-      ...npc,
-      trust: npc.trust ?? 0,
-      quests: npc.quests ?? []
-    }));
+
+    for (const npc of npcs) {
+
+      const existing =
+        this.getById(npc.id);
+
+      if (existing) {
+        Object.assign(existing, npc);
+        continue;
+      }
+
+      this.npcs.push({
+        ...npc,
+        trust: npc.trust ?? 0,
+        quests: npc.quests ?? []
+      });
+    }
   }
 
   getAll() {
