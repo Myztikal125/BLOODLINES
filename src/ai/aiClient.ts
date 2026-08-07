@@ -1,9 +1,6 @@
 import "dotenv/config";
 
-export async function askAI(
-  prompt: string,
-  role = "You are a helpful BLOODLINES RPG assistant."
-) {
+export async function askAI(prompt: string, maxTokens: number = 2000) {
   const key = process.env.OPENROUTER_API_KEY;
 
   if (!key) {
@@ -20,10 +17,12 @@ export async function askAI(
       },
       body: JSON.stringify({
         model: "openai/gpt-4o-mini",
+        max_tokens: maxTokens,
         messages: [
           {
             role: "system",
-            content: role
+            content:
+              "You are the BLOODLINES Research Assistant. Provide structured RPG research notes."
           },
           {
             role: "user",

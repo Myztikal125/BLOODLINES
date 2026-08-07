@@ -1,20 +1,198 @@
 [
   {
-    "id": "fighter",
-    "name": "Fighter",
-    "description": "A master of martial combat.",
-    "hitDie": "d10"
-  },
-  {
     "id": "wizard",
     "name": "Wizard",
-    "description": "A scholar who commands arcane magic.",
-    "hitDie": "d6"
+    "description": "A master of arcane magic who harnesses the power of the cosmos and the elements to bend reality to their will.",
+    "hitDie": "d6",
+    "primaryAbility": "intelligence",
+    "savingThrows": [
+      "intelligence",
+      "wisdom"
+    ],
+    "armorProficiencies": [
+      "light armor"
+    ],
+    "weaponProficiencies": [
+      "simple weapons",
+      "daggers",
+      "quarterstaffs"
+    ],
+    "startingHP": 6,
+    "features": [
+      {
+        "level": 1,
+        "name": "Spellcasting",
+        "description": "Wizards can cast spells from their spellbook, spending spell slots to harness their magical abilities."
+      },
+      {
+        "level": 2,
+        "name": "Arcane Recovery",
+        "description": "Once per day during a short rest, a wizard can recover expended spell slots with a combined level that does not exceed half their wizard level (rounded up)."
+      }
+    ],
+    "bloodlineBonus": "Increased spell damage by 2 for spells of chosen bloodline type."
+  },
+  {
+    "id": "fighter",
+    "name": "Fighter",
+    "description": "A master of martial combat, skilled with a variety of weapons and armor. Fighters excel in physical prowess and adaptability, making them versatile in any combat situation.",
+    "hitDie": "d10",
+    "primaryAbility": "strength|dexterity",
+    "savingThrows": [
+      "strength",
+      "constitution"
+    ],
+    "armorProficiencies": [
+      "light armor",
+      "medium armor",
+      "heavy armor",
+      "shields"
+    ],
+    "weaponProficiencies": [
+      "simple weapons",
+      "martial weapons"
+    ],
+    "startingHP": 10,
+    "features": [
+      {
+        "level": 1,
+        "name": "Fighting Style",
+        "description": "Choose a fighting style that enhances your combat capabilities."
+      },
+      {
+        "level": 1,
+        "name": "Second Wind",
+        "description": "A surge of energy allows you to regain hit points equal to 1d10 + your fighter level once per short rest."
+      },
+      {
+        "level": 2,
+        "name": "Action Surge",
+        "description": "Take one additional action on your turn, usable once per short rest."
+      }
+    ],
+    "bloodlineBonus": "Increase your attack or damage rolls with weapons of your choice."
   },
   {
     "id": "rogue",
     "name": "Rogue",
-    "description": "A skilled expert in stealth and precision.",
-    "hitDie": "d8"
+    "description": "Rogues are cunning and skilled at stealth, deception, and infiltration. They thrive on agility and their sharp wits to navigate the challenges of the world.",
+    "hitDie": "d8",
+    "primaryAbility": "dexterity",
+    "savingThrows": [
+      "dexterity",
+      "intelligence"
+    ],
+    "armorProficiencies": [
+      "light armor"
+    ],
+    "weaponProficiencies": [
+      "simple weapons",
+      "hand crossbows",
+      "longbows",
+      "rapiers",
+      "shortswords"
+    ],
+    "startingHP": 8,
+    "features": [
+      {
+        "level": 1,
+        "name": "Sneak Attack",
+        "description": "You can deal extra damage when you have advantage on an attack roll or if an ally is within 5 feet of the target."
+      },
+      {
+        "level": 2,
+        "name": "Cunning Action",
+        "description": "You can take the Dash, Disengage, or Hide action as a bonus action on your turn."
+      },
+      {
+        "level": 3,
+        "name": "Roguish Archetype",
+        "description": "You choose an archetype that provides additional features and abilities."
+      }
+    ],
+    "bloodlineBonus": "Gain proficiency in dexterity saving throws and a bonus to stealth checks."
+  },
+  {
+    "id": "cleric",
+    "name": "Cleric",
+    "description": "Clerics are divine spellcasters who draw power from their deities, wielding magic to heal and smite. They serve as intermediaries between mortals and their gods, often being called upon to defend the faith and spread their deity's influence.",
+    "hitDie": "d8",
+    "primaryAbility": "wisdom",
+    "savingThrows": [
+      "wisdom",
+      "charisma"
+    ],
+    "armorProficiencies": [
+      "light armor",
+      "medium armor",
+      "shields"
+    ],
+    "weaponProficiencies": [
+      "simple weapons",
+      "martial weapons"
+    ],
+    "startingHP": 8,
+    "features": [
+      {
+        "level": 1,
+        "name": "Divine Magic",
+        "description": "Clerics can cast spells by channeling the divine power of their deity. They prepare spells from their spell list and can use them to heal or harm."
+      },
+      {
+        "level": 1,
+        "name": "Channel Divinity",
+        "description": "Once per short rest, the cleric can use their action to channel divine energy and either heal allies or turn undead."
+      },
+      {
+        "level": 2,
+        "name": "Divine Intervention",
+        "description": "Starting at 10th level, the cleric can call upon their deity for assistance, which may result in miraculous outcomes."
+      }
+    ],
+    "bloodlineBonus": "You gain proficiency in one additional skill of your choice related to your deity's domain."
+  },
+  {
+    "id": "ranger",
+    "name": "Ranger",
+    "description": "Rangers are skilled hunters and trackers, adept at navigating the wilderness and defending their allies from threats. They combine martial prowess with nature magic to become versatile combatants.",
+    "hitDie": "d10",
+    "primaryAbility": "dexterity",
+    "savingThrows": [
+      "Strength",
+      "Dexterity"
+    ],
+    "armorProficiencies": [
+      "Light Armor",
+      "Medium Armor",
+      "Shields"
+    ],
+    "weaponProficiencies": [
+      "Simple Weapons",
+      "Martial Weapons"
+    ],
+    "startingHP": 10,
+    "features": [
+      {
+        "level": 1,
+        "name": "Favored Enemy",
+        "description": "Choose a type of creature, gaining bonuses on tracking and attacking it."
+      },
+      {
+        "level": 1,
+        "name": "Natural Explorer",
+        "description": "You are adept at traversing a favored terrain, gaining benefits such as increased movement and survival skills."
+      },
+      {
+        "level": 2,
+        "name": "Fighting Style",
+        "description": "Choose a fighting style that enhances your combat capabilities."
+      },
+      {
+        "level": 2,
+        "name": "Spellcasting",
+        "description": "You gain the ability to cast spells from the ranger spell list."
+      }
+    ],
+    "bloodlineBonus": "You gain a +1 bonus to your Dexterity and have proficiency in survival checks."
   }
 ]
