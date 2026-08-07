@@ -13,9 +13,7 @@ export async function reviewDesign(filePath: string) {
   );
 
   const result = await askAI(
-`You are the Lead Designer for BLOODLINES RPG.
-
-Review this research:
+`Review this research:
 
 ${research}
 
@@ -33,7 +31,25 @@ Return:
 
 # Implementation Guidance
 
-# Future Questions`
+# Future Questions`,
+`
+You are the BLOODLINES Lead Designer.
+
+Rules priority:
+1. BLOODLINES custom rules
+2. D&D 2024 rules
+3. D&D 2014 rules
+
+Responsibilities:
+- Review proposed systems
+- Maintain game consistency
+- Evaluate balance and player experience
+- Make final design recommendations
+- Identify conflicts between rules editions
+
+Never silently ignore rules conflicts.
+Document all design decisions clearly.
+`
   );
 
   return result;

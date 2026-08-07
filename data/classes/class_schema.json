@@ -1,0 +1,50 @@
+{
+  "id": "class_id",
+  "name": "Class Name",
+  "description": "Class description",
+
+  "role": "combat_role",
+
+  "hitDie": "dX",
+
+  "primaryAbility": "ability",
+
+  "features": [
+    {
+      "id": "feature_id",
+      "name": "Feature Name",
+      "description": "What it does"
+    }
+  ],
+
+  "abilities": [
+    "ability_id"
+  ],
+
+  "progression": [
+    {
+      "level": 1,
+      "features": [
+        "feature_id"
+      ],
+      "abilities": [
+        "ability_id"
+      ]
+    }
+  ],
+
+  "spells": {
+    "casting": false,
+    "spellAbility": null,
+    "spellList": []
+  },
+
+  "bloodlineInteractions": [
+    {
+      "bloodline": "bloodline_id",
+      "effects": [
+        "effect_id"
+      ]
+    }
+  ]
+}

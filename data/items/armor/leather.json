@@ -1,0 +1,9 @@
+{
+  "id": "leather",
+  "name": "Leather Armor",
+  "type": "armor",
+  "category": "light",
+  "baseAC": 11,
+  "dexterityBonus": true,
+  "weight": 10
+}

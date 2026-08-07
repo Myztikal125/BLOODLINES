@@ -1,0 +1,9 @@
+{
+  "id": "chain_mail",
+  "name": "Chain Mail",
+  "type": "armor",
+  "category": "heavy",
+  "baseAC": 16,
+  "dexterityBonus": false,
+  "weight": 55
+}

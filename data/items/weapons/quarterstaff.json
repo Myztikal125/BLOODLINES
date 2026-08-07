@@ -1,0 +1,10 @@
+{
+  "id": "quarterstaff",
+  "name": "Quarterstaff",
+  "type": "weapon",
+  "category": "simple",
+  "damage": "1d6",
+  "damageType": "bludgeoning",
+  "finesse": false,
+  "weight": 4
+}

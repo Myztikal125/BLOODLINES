@@ -1,6 +1,9 @@
 import "dotenv/config";
 
-export async function askAI(prompt: string) {
+export async function askAI(
+  prompt: string,
+  role: string
+) {
   const key = process.env.OPENROUTER_API_KEY;
 
   if (!key) {
@@ -20,8 +23,7 @@ export async function askAI(prompt: string) {
         messages: [
           {
             role: "system",
-            content:
-              "You are the BLOODLINES Research Assistant. Provide structured RPG research notes."
+            content: role
           },
           {
             role: "user",

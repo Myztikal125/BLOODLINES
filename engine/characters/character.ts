@@ -2,6 +2,23 @@ import { AbilityScores } from "../core/attributes";
 
 export type Ruleset = "dnd2014" | "dnd2024" | "bloodlines";
 
+export interface CharacterClassData {
+  id: string;
+  name: string;
+  description?: string;
+  role?: string;
+  hitDie?: string;
+  primaryAbility?: string;
+
+  signatureSpellSlots?: number;
+  startingSpells?: string[];
+  abilities?: string[];
+  features?: any[];
+  progression?: any[];
+  spells?: any;
+  bloodlineInteractions?: any[];
+}
+
 export interface CharacterData {
   name: string;
   level: number;
@@ -10,6 +27,7 @@ export interface CharacterData {
   ancestry: string;
   background: string;
   className: string;
+  class: CharacterClassData;
   bloodline: string;
 
   ruleset: Ruleset;
@@ -25,6 +43,10 @@ export class Character {
 
   constructor(data: CharacterData) {
     this.data = data;
+  }
+
+  get class(): CharacterClassData {
+    return this.data.class;
   }
 
   getModifier(stat: keyof AbilityScores): number {

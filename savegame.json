@@ -8,7 +8,7 @@
     "className": "wizard",
     "bloodline": "shadowveil",
     "ruleset": "bloodlines",
-    "hitPoints": 10,
+    "hitPoints": 0,
     "armorClass": 10,
     "abilities": {
       "strength": 10,

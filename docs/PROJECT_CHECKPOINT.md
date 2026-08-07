@@ -1,105 +1,73 @@
-# BLOODLINES Project Checkpoint
+# BLOODLINES RPG - Project Checkpoint
 
-## Vision
+## Current Status
 
-BLOODLINES is an AI-assisted tabletop RPG system focused on:
-- Character identity
-- Meaningful choices
-- Living worlds
-- Tactical combat
-- Immersive storytelling
+Last Updated: 2026-08-06
 
 ## Completed Systems
 
-### Research Pipeline
-Complete:
-- Research documents
-- Lead Designer reviews
-- Rules Bible
-- Data architecture planning
+### Core Engine
+✅ Data-driven architecture  
+✅ JSON rule loading  
+✅ Character factory  
+✅ Class progression system  
+✅ Automated testing with Vitest  
 
-### Combat Design Approved
-- Dynamic initiative
-- Action economy
-- Conditional status effects
-- Action synergy
-- Adaptive monster AI
+### Character System
+✅ Wizard class data  
+✅ Level progression  
+✅ Feature unlocking  
+✅ Ability progression  
+✅ HP calculation  
+✅ Armor Class calculation  
 
-### Bloodline Design Approved
-- Dual bloodlines
-- Bloodline evolution
-- Legacy quests
-- Bloodline curses
+### Equipment System
+✅ Inventory foundation  
+✅ Equipment foundation  
+✅ Armor data loading  
+✅ Weapon data loading  
 
-### Wizard Magic Design Approved
-- Hybrid spellcasting
-- Mana/resource system
-- Spellcrafting
-- Modular magic themes
-- Tiered spell power
+### Combat Foundation
+✅ Attack calculation foundation  
+✅ Weapon-based attack data  
+✅ Attack bonus calculation  
 
-## Implemented Code
+## Current Test Status
 
-Working:
-- TypeScript engine
-- Class loader
-- Bloodline loader
-- Character data integration
-- Save/load system
+All tests passing.
 
-## Current Data
+Current coverage includes:
+- Wizard creation levels 1, 3, 5
+- Progression unlocks
+- Data loading
+- Armor/equipment systems
+- Weapon loading
+- Attack creation
 
-Classes:
-- wizard.json
+## Next Development Milestone
 
-Bloodlines:
-- shadowveil.json
+### Damage Engine
 
-## Current Character Test
+Planned:
+- Dice roller (1d4, 1d6, etc.)
+- Damage resolution
+- Critical hits
+- Damage types
+- Resistances and vulnerabilities
+- Combat integration
 
-Shadow:
-- Level 1
-- Wizard
-- Shadowveil
+## Architecture Goal
 
-## Next Development Phase
+Maintain a modular, data-driven RPG engine where:
+- Rules assistants can validate mechanics
+- Engineering assistants can safely add systems
+- Content assistants can create lore, quests, and encounters
+- QA assistants can expand automated testing
 
-Create:
+## Current Development Philosophy
 
-src/engine/bloodlineEngine.ts
-src/engine/characterFactory.ts
-src/engine/progressionEngine.ts
-
-Then connect:
-
-Character
- ├── Class
- ├── Bloodline
- ├── Traits
- ├── Evolutions
- ├── Spells
- └── Combat abilities
-
----
-
-# BLOODLINES Progress Update
-
-Completed:
-- Character Factory integration
-- Wizard class loading
-- Shadowveil bloodline integration
-- Bloodline progression engine
-- Evolution unlocking
-- Curse tracking
-- Effect resolution
-
-Current test status:
-- Character Factory: PASS
-- Bloodline Application: PASS
-- Evolution Unlock: PASS
-- Curse Acceptance: PASS
-- Bloodline Effects: PASS
-
-Next:
-Integrate resolved bloodline effects into gameplay systems.
+1. Test first
+2. Implement small systems
+3. Keep data-driven design
+4. Commit only after green tests
 

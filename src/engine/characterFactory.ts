@@ -1,4 +1,5 @@
 import { loadData } from "./dataLoader";
+import { createBaseCharacter } from "./character/character";
 
 export function createCharacter(data: {
   name: string;
@@ -30,32 +31,40 @@ export function createCharacter(data: {
     );
 
   const abilities = [
-    ...featureAbilities,
-    ...(classData.abilities ?? []),
-    ...progressionAbilities,
+    ...new Set([
+      ...featureAbilities,
+      ...(classData.abilities ?? []),
+      ...progressionAbilities
+    ])
   ];
 
-  const latestProgression =
-    unlockedProgression[unlockedProgression.length - 1] ?? {};
-
-  return {
+  const character = createBaseCharacter({
     name: data.name,
     level,
+    class: {
+      id: classData.id,
+      name: classData.name,
+      abilities
+    }
+  });
+
+  return {
+    ...character,
+
     bloodlineIds: data.bloodlineIds ?? [],
 
     class: {
       ...classData,
 
-      signatureSpellSlots:
-        latestProgression.signatureSpellSlots ??
-        (level >= 5 ? 3 : level >= 3 ? 2 : 1),
+      abilities,
 
       startingSpells:
         classData.spells?.spellList ?? [],
 
-      abilities: [
-        ...new Set(abilities),
-      ],
-    },
+      signatureSpellSlots:
+        classData.id === "wizard"
+          ? (level >= 5 ? 3 : level >= 3 ? 2 : 1)
+          : 0
+    }
   };
 }

@@ -1,0 +1,10 @@
+{
+  "id": "dagger",
+  "name": "Dagger",
+  "type": "weapon",
+  "category": "simple",
+  "damage": "1d4",
+  "damageType": "piercing",
+  "finesse": true,
+  "weight": 1
+}

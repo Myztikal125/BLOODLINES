@@ -3,63 +3,71 @@
   "name": "Wizard",
   "description": "A master of arcane knowledge who studies magic, discovers secrets, and shapes reality through spells.",
   "role": "arcane_caster",
-
+  "hitDie": "d6",
+  "primaryAbility": "intelligence",
   "features": [
     {
       "id": "spellbook",
       "name": "Spellbook",
-      "description": "A collection of discovered spells the wizard can prepare."
+      "description": "A collection of discovered spells the wizard can prepare and expand through research."
     },
     {
-      "id": "signature_spells",
-      "name": "Signature Spells",
-      "description": "A small number of mastered spells that can be cast without normal spell resources."
+      "id": "cantrips",
+      "name": "Cantrips",
+      "description": "Simple spells the wizard can cast without consuming spell resources."
+    },
+    {
+      "id": "ritual_casting",
+      "name": "Ritual Casting",
+      "description": "Allows the wizard to cast certain spells as rituals without using spell slots."
+    },
+    {
+      "id": "arcane_tradition",
+      "name": "Arcane Tradition",
+      "description": "A specialized magical path that defines the wizard's unique studies."
     },
     {
       "id": "spellcrafting",
       "name": "Spellcrafting",
-      "description": "Modify and create spells through research, ingredients, and rituals."
+      "description": "Modify and create spells through research, ingredients, and magical experimentation."
     }
   ],
-
-  "schools": [
-    "evocation",
-    "illusion",
-    "necromancy",
-    "transmutation",
-    "abjuration",
-    "conjuration",
-    "divination",
-    "enchantment"
+  "abilities": [
+    "arcane_learning",
+    "spell_preparation",
+    "magical_research"
   ],
-
-  "startingSpells": [
-    "firebolt",
-    "magic_missile"
-  ],
-
   "progression": [
     {
       "level": 1,
+      "signatureSpellSlots": 1,
       "abilities": [
-        "spellbook",
         "arcane_learning"
-      ],
-      "signatureSpellSlots": 1
+      ]
     },
     {
       "level": 3,
+      "signatureSpellSlots": 2,
       "abilities": [
         "arcane_specialization"
-      ],
-      "signatureSpellSlots": 2
+      ]
     },
     {
       "level": 5,
+      "signatureSpellSlots": 3,
       "abilities": [
         "advanced_spellcrafting"
-      ],
-      "signatureSpellSlots": 3
+      ]
     }
-  ]
+  ],
+  "spells": {
+    "casting": true,
+    "spellAbility": "intelligence",
+    "spellList": [
+      "firebolt",
+      "magic_missile",
+      "shield",
+      "detect_magic"
+    ]
+  }
 }

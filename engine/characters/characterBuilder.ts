@@ -10,14 +10,41 @@ export class CharacterBuilder {
     bloodline: string
   ): Character {
 
+    const classData = DataLoader.loadClasses()
+      .find((c: any) => c.id === className);
+
+    if (!classData) {
+      throw new Error(`Class not found: ${className}`);
+    }
+
+    const level = 1;
+
+    const characterClass = {
+      ...classData,
+
+      signatureSpellSlots:
+        className === "wizard"
+          ? 1
+          : 0,
+
+      startingSpells:
+        classData.spells?.spellList ?? [],
+
+      abilities:
+        classData.abilities ?? []
+    };
+
     const character = new Character({
       name,
-      level: 1,
+      level,
       experience: 0,
 
       ancestry,
       background,
+
       className,
+      class: characterClass,
+
       bloodline,
 
       ruleset: "bloodlines",
