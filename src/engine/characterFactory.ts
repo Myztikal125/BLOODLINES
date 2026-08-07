@@ -1,73 +1,61 @@
 import { loadData } from "./dataLoader";
 
-interface CharacterOptions {
+export function createCharacter(data: {
   name: string;
   classId: string;
-  bloodlineIds: string[];
   level?: number;
-}
+  bloodlineIds?: string[];
+}) {
+  const level = data.level ?? 1;
 
-export function createCharacter(options: CharacterOptions) {
-  const characterClass = loadData("classes", options.classId);
+  const classData = loadData("classes", data.classId);
 
-  const level = options.level ?? 1;
+  if (!classData) {
+    throw new Error(`Class not found: ${data.classId}`);
+  }
 
-  const progression =
-    characterClass.progression?.find(
-      (p: any) => p.level === level
+  const unlockedProgression =
+    classData.progression?.filter(
+      (p: any) => p.level <= level
+    ) ?? [];
+
+  const featureAbilities =
+    (classData.features ?? []).map(
+      (f: any) => f.id
     );
 
-  const signatureSpellSlots =
-    progression?.signatureSpellSlots ?? 0;
+  const progressionAbilities =
+    unlockedProgression.flatMap(
+      (p: any) => p.abilities ?? []
+    );
 
-  const abilities =
-    progression?.abilities ?? [];
+  const abilities = [
+    ...featureAbilities,
+    ...(classData.abilities ?? []),
+    ...progressionAbilities,
+  ];
 
-  const bloodlines = options.bloodlineIds.map((id) => {
-    const bloodline = loadData("bloodlines", id);
-
-    return {
-      id: bloodline.id,
-      name: bloodline.name,
-
-      traits: bloodline.traits ?? [],
-
-      evolutions: [],
-
-      curses: [],
-
-      state: {
-        awakeningLevel: 1,
-        evolutionPoints: 0,
-        completedQuests: [],
-        acceptedCurses: []
-      }
-    };
-  });
+  const latestProgression =
+    unlockedProgression[unlockedProgression.length - 1] ?? {};
 
   return {
-    name: options.name,
-
+    name: data.name,
     level,
+    bloodlineIds: data.bloodlineIds ?? [],
 
     class: {
-      id: characterClass.id,
-      name: characterClass.name,
-      features: characterClass.features,
-      schools: characterClass.schools ?? [],
-      startingSpells: characterClass.startingSpells ?? [],
-      signatureSpellSlots,
-      abilities
+      ...classData,
+
+      signatureSpellSlots:
+        latestProgression.signatureSpellSlots ??
+        (level >= 5 ? 3 : level >= 3 ? 2 : 1),
+
+      startingSpells:
+        classData.spells?.spellList ?? [],
+
+      abilities: [
+        ...new Set(abilities),
+      ],
     },
-
-    bloodlines,
-
-    experience: 0,
-
-    health: 10,
-
-    inventory: [],
-
-    statusEffects: []
   };
 }
