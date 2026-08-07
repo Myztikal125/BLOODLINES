@@ -3,17 +3,17 @@ import { NPCMemory, MemoryEntry } from "./types";
 export class NPCMemoryService {
   private memories: Map<string, NPCMemory> = new Map();
 
-  private getKey(npcId: string, playerId: string): string {
-    return `${npcId}:${playerId}`;
+  private getKey(npcId: string, subjectId: string): string {
+    return `${npcId}:${subjectId}`;
   }
 
-  getMemory(npcId: string, playerId: string): NPCMemory {
-    const key = this.getKey(npcId, playerId);
+  getMemory(npcId: string, subjectId: string): NPCMemory {
+    const key = this.getKey(npcId, subjectId);
 
     if (!this.memories.has(key)) {
       this.memories.set(key, {
         npcId,
-        playerId,
+        subjectId,
         trust: 0,
         respect: 0,
         fear: 0,
@@ -29,12 +29,12 @@ export class NPCMemoryService {
 
   addMemory(
     npcId: string,
-    playerId: string,
+    subjectId: string,
     event: string,
     impact: number
   ): NPCMemory {
 
-    const memory = this.getMemory(npcId, playerId);
+    const memory = this.getMemory(npcId, subjectId);
 
     const entry: MemoryEntry = {
       event,
@@ -58,11 +58,11 @@ export class NPCMemoryService {
 
   addFact(
     npcId: string,
-    playerId: string,
+    subjectId: string,
     fact: string
   ): NPCMemory {
 
-    const memory = this.getMemory(npcId, playerId);
+    const memory = this.getMemory(npcId, subjectId);
 
     if (!memory.knownFacts.includes(fact)) {
       memory.knownFacts.push(fact);
@@ -74,13 +74,13 @@ export class NPCMemoryService {
 
   completeQuest(
     npcId: string,
-    playerId: string,
+    subjectId: string,
     questId: string
   ): NPCMemory {
 
     const memory = this.getMemory(
       npcId,
-      playerId
+      subjectId
     );
 
     if (!memory.completedQuests.includes(questId)) {

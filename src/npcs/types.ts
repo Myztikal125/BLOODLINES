@@ -1,6 +1,6 @@
 export interface NPCMemory {
   npcId: string;
-  playerId: string;
+  subjectId: string;
 
   trust: number;
   respect: number;
