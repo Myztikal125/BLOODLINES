@@ -71,6 +71,25 @@ export class NPCMemoryService {
     return memory;
   }
 
+
+  completeQuest(
+    npcId: string,
+    playerId: string,
+    questId: string
+  ): NPCMemory {
+
+    const memory = this.getMemory(
+      npcId,
+      playerId
+    );
+
+    if (!memory.completedQuests.includes(questId)) {
+      memory.completedQuests.push(questId);
+    }
+
+    return memory;
+  }
+
   private updateRelationship(memory: NPCMemory) {
 
     if (memory.trust >= 50) {

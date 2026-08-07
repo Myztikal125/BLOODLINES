@@ -26,6 +26,12 @@ export class QuestMemoryBridge {
         playerId,
         `Helped complete ${quest.name}`
       );
+
+      this.npcService.completeQuest(
+        npcId,
+        playerId,
+        quest.id
+      );
     }
   }
 }

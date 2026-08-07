@@ -91,4 +91,16 @@ export class NPCService {
       fact
     );
   }
+
+  completeQuest(
+    npcId: string,
+    playerId: string,
+    questId: string
+  ) {
+    return this.memoryService.completeQuest(
+      npcId,
+      playerId,
+      questId
+    );
+  }
 }
