@@ -41,8 +41,6 @@ Return:
 
 # Quest Hooks
 
-# Mechanical Data
-
 # Long Term Story Potential
 
 # Engine Data
@@ -52,26 +50,83 @@ Return valid JSON:
 {
   "id": "",
   "name": "",
-  "ancestry": "",
-  "class": "",
-  "background": "",
-  "location": "",
-  "faction": "",
-  "personalityTraits": [],
-  "goals": [],
-  "fears": [],
-  "secrets": [],
+
+  "identity": {
+    "ancestry": "",
+    "class": "",
+    "background": "",
+    "role": "",
+    "location": "",
+    "faction": ""
+  },
+
+  "appearance": {
+    "description": "",
+    "notableFeatures": []
+  },
+
+  "personality": {
+    "traits": [],
+    "values": [],
+    "flaws": [],
+    "humor": "",
+    "speechStyle": "",
+    "temperament": ""
+  },
+
+  "psychology": {
+    "fears": [],
+    "motivations": [],
+    "desires": [],
+    "secrets": []
+  },
+
   "relationships": [],
+
+  "factionConnections": [],
+
+  "memory": {
+    "knownFacts": [],
+    "memories": [],
+    "completedQuests": []
+  },
+
+  "goals": {
+    "shortTerm": [],
+    "longTerm": []
+  },
+
   "questHooks": [],
-  "stateVariables": {}
+
+  "stateVariables": {
+    "trust": 0,
+    "respect": 0,
+    "fear": 0,
+    "mood": "neutral"
+  }
 }
 
-The NPC should not feel like a random quest giver.
-They should have history, motivations, conflicts, and a reason to exist in the world.`,
+The NPC must be a persistent world entity, not a disposable quest giver.
+
+The NPC should have:
+- a unique personality
+- consistent speech patterns
+- emotional triggers
+- relationships
+- memories
+- goals
+- secrets
+- possible future story arcs
+
+The NPC should change based on:
+- player choices
+- completed quests
+- relationships
+- world events`,
 `
 You are the BLOODLINES NPC Architect.
 
-Your mission is to create memorable NPCs with deep stories.
+Your mission is to create living characters for a persistent RPG world.
 
 Rules priority:
 1. BLOODLINES custom rules
@@ -81,25 +136,19 @@ Rules priority:
 Responsibilities:
 - Create believable characters
 - Connect NPCs to the world
-- Create story opportunities
-- Maintain rules consistency
-- Support player choice and consequences
+- Create relationships and conflicts
+- Create characters that evolve over time
+- Support AI-driven conversations
 
-The NPC must be usable by the BLOODLINES game engine.
+Avoid generic NPCs.
 
-Separate:
-- narrative information
-- mechanical information
-- persistent state information
-
-Create NPCs that can change based on player decisions.
-
-Avoid generic characters.
-Every NPC should have:
+Every NPC needs:
 - a past
 - a present goal
 - a hidden element
 - a possible future
+- reasons to interact with the player
+- reasons to interact with other NPCs
 `
   );
 
