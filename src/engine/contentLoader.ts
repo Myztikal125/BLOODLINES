@@ -2,7 +2,6 @@ import fs from "fs";
 import path from "path";
 
 export function loadContent(folder: string) {
-
   const directory = path.join(
     process.cwd(),
     "data",
@@ -13,18 +12,23 @@ export function loadContent(folder: string) {
     return [];
   }
 
-  return fs.readdirSync(directory)
-    .filter(file => file.endsWith(".json"))
-    .map(file => {
+  const results: any[] = [];
 
-      const fullPath = path.join(
-        directory,
-        file
-      );
+  for (const file of fs.readdirSync(directory)) {
+    if (!file.endsWith(".json")) continue;
 
-      return JSON.parse(
-        fs.readFileSync(fullPath, "utf8")
-      );
+    const fullPath = path.join(directory, file);
 
-    });
+    const data = JSON.parse(
+      fs.readFileSync(fullPath, "utf8")
+    );
+
+    if (Array.isArray(data)) {
+      results.push(...data);
+    } else {
+      results.push(data);
+    }
+  }
+
+  return results;
 }
