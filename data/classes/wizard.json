@@ -69,5 +69,7 @@
       "shield",
       "detect_magic"
     ]
-  }
+  },
+  "startingHP": 6,
+  "bloodlineBonus": "Increased spell damage by 2 for spells of chosen bloodline type."
 }

@@ -11,7 +11,7 @@ export class CharacterBuilder {
   ): Character {
 
     const classes = DataLoader.loadClasses();
-    const classData = classes.find((c: any) => c.id === className);
+    const classData = classes.find((c: any) => c.id === className) ?? {};
 
     const startingHP = classData?.startingHP ?? 8;
     const primaryAbility = classData?.primaryAbility ?? "strength";
@@ -36,14 +36,12 @@ export class CharacterBuilder {
       ancestry,
       background,
       className,
+      class: classData,
       bloodline,
       ruleset: "bloodlines",
       hitPoints: startingHP,
       armorClass: 10,
-      abilities,
-      features: classData?.features ?? [],
-      savingThrows: classData?.savingThrows ?? [],
-      bloodlineBonus: classData?.bloodlineBonus ?? ""
+      abilities
     });
 
     return character;

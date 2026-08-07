@@ -6,15 +6,90 @@
     "ancestry": "elf",
     "background": "scholar",
     "className": "wizard",
+    "class": {
+      "id": "wizard",
+      "name": "Wizard",
+      "description": "A master of arcane knowledge who studies magic, discovers secrets, and shapes reality through spells.",
+      "role": "arcane_caster",
+      "hitDie": "d6",
+      "primaryAbility": "intelligence",
+      "features": [
+        {
+          "id": "spellbook",
+          "name": "Spellbook",
+          "description": "A collection of discovered spells the wizard can prepare and expand through research."
+        },
+        {
+          "id": "cantrips",
+          "name": "Cantrips",
+          "description": "Simple spells the wizard can cast without consuming spell resources."
+        },
+        {
+          "id": "ritual_casting",
+          "name": "Ritual Casting",
+          "description": "Allows the wizard to cast certain spells as rituals without using spell slots."
+        },
+        {
+          "id": "arcane_tradition",
+          "name": "Arcane Tradition",
+          "description": "A specialized magical path that defines the wizard's unique studies."
+        },
+        {
+          "id": "spellcrafting",
+          "name": "Spellcrafting",
+          "description": "Modify and create spells through research, ingredients, and magical experimentation."
+        }
+      ],
+      "abilities": [
+        "arcane_learning",
+        "spell_preparation",
+        "magical_research"
+      ],
+      "progression": [
+        {
+          "level": 1,
+          "signatureSpellSlots": 1,
+          "abilities": [
+            "arcane_learning"
+          ]
+        },
+        {
+          "level": 3,
+          "signatureSpellSlots": 2,
+          "abilities": [
+            "arcane_specialization"
+          ]
+        },
+        {
+          "level": 5,
+          "signatureSpellSlots": 3,
+          "abilities": [
+            "advanced_spellcrafting"
+          ]
+        }
+      ],
+      "spells": {
+        "casting": true,
+        "spellAbility": "intelligence",
+        "spellList": [
+          "firebolt",
+          "magic_missile",
+          "shield",
+          "detect_magic"
+        ]
+      },
+      "startingHP": 6,
+      "bloodlineBonus": "Increased spell damage by 2 for spells of chosen bloodline type."
+    },
     "bloodline": "shadowveil",
     "ruleset": "bloodlines",
-    "hitPoints": 0,
+    "hitPoints": 6,
     "armorClass": 10,
     "abilities": {
       "strength": 10,
       "dexterity": 10,
       "constitution": 10,
-      "intelligence": 10,
+      "intelligence": 16,
       "wisdom": 10,
       "charisma": 10
     }

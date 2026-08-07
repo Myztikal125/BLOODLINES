@@ -2,13 +2,9 @@
   "id": "fighter",
   "name": "Fighter",
   "description": "A master of martial combat who relies on training, weapons, armor, and battlefield skill.",
-
   "role": "martial_warrior",
-
   "hitDie": "d10",
-
   "primaryAbility": "strength",
-
   "features": [
     {
       "id": "second_wind",
@@ -31,13 +27,11 @@
       "description": "A specialized path that defines the fighter's techniques."
     }
   ],
-
   "abilities": [
     "weapon_mastery",
     "armor_training",
     "combat_training"
   ],
-
   "progression": [
     {
       "level": 1,
@@ -67,5 +61,7 @@
         "extra_attack"
       ]
     }
-  ]
+  ],
+  "startingHP": 10,
+  "bloodlineBonus": "Increase your attack or damage rolls with weapons of your choice."
 }
