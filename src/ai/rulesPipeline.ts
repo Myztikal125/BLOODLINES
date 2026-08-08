@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import fs from "fs";
 import { compileRules } from "./rulesCompiler";
 
@@ -10,6 +11,16 @@ export const COMPILED_RULES_PATH = "data/rules/compiledRules.json";
 export async function compileRulesBible(
   rulesBiblePath = "docs/RULES_BIBLE.md"
 ): Promise<string> {
+  if (!fs.existsSync(rulesBiblePath)) {
+    throw new Error(`Rules Bible not found: ${rulesBiblePath}`);
+  }
+
+  const rulesBible = fs.readFileSync(rulesBiblePath, "utf8");
+  const sourceBibleSha256 = crypto
+    .createHash("sha256")
+    .update(rulesBible, "utf8")
+    .digest("hex");
+
   const raw = await compileRules(rulesBiblePath);
 
   let parsed: unknown;
@@ -17,15 +28,23 @@ export async function compileRulesBible(
   try {
     parsed = JSON.parse(raw);
   } catch {
-    throw new Error("Rules Compiler returned invalid JSON. Runtime rules were not updated.");
+    throw new Error(
+      "Rules Compiler returned invalid JSON. Runtime rules were not updated."
+    );
   }
 
   validateCompiledRules(parsed);
 
+  const compiled = {
+    ...parsed,
+    sourceBibleSha256,
+    compiledAt: new Date().toISOString()
+  };
+
   fs.mkdirSync("data/rules", { recursive: true });
   fs.writeFileSync(
     COMPILED_RULES_PATH,
-    `${JSON.stringify(parsed, null, 2)}\n`,
+    `${JSON.stringify(compiled, null, 2)}\n`,
     "utf8"
   );
 
