@@ -100,8 +100,22 @@ function getImplementationGuard(system: string): string {
 - Never turn research notes, examples, filenames, or inferred conventions into Rules Bible authority.`;
 }
 
+function getRulesBibleViolationGuard(system: string): string {
+  if (system.toLowerCase().includes("action economy")) return `RULES BIBLE SEMANTIC GUARD:
+- Preserve every explicit semantic qualifier from the Rules Bible exactly, including scope, timing, frequency, reset timing, authorization conditions, and exclusions.
+- Never replace an approved rule's timing or frequency with a different one. For example, "once per round" is not equivalent to "once per turn" unless the Rules Bible explicitly says so.
+- Implementation architecture is not gameplay authority. Field names, booleans, enums, class names, file names, or APIs may be proposed only as neutral engineering choices and must be labeled as such.
+- A neutral implementation choice must not silently encode an unspecified gameplay value, trigger, timing rule, or eligibility condition.
+- If the repository architecture requires an unspecified gameplay decision, stop at the boundary and put that decision under Human Decisions Required.
+- Required Changes must distinguish AUTHORIZED BEHAVIOR from IMPLEMENTATION CHOICE. The latter must not alter the former.`;
+  return `RULES BIBLE SEMANTIC GUARD:
+- Preserve explicit scope, timing, frequency, authorization conditions, and exclusions exactly.
+- Never substitute a different timing, frequency, trigger, or eligibility rule.
+- Implementation architecture is an engineering choice, not gameplay authority.
+- If architecture requires an unspecified gameplay decision, report it under Human Decisions Required rather than deciding it.`;
+}
+
 function validateImplementationPlan(system: string, output: string): string {
-  const normalized = output.toLowerCase();
   if (!system.toLowerCase().includes("action economy")) return output;
 
   const forbiddenPatterns = [
@@ -133,8 +147,9 @@ export async function implementDesign(dataFile: string, enginePath: string, requ
   const context = (request?.context ?? "Determine whether the requested approved system is already implemented or what authorized integration work remains.").slice(0, MAX_CONTEXT_CHARS);
   const completionGate = getRequiredEvidence(requestedSystem);
   const implementationGuard = getImplementationGuard(requestedSystem);
+  const semanticGuard = getRulesBibleViolationGuard(requestedSystem);
 
-  const output = await askAI(`BLOODLINES IMPLEMENTATION ANALYST\nAnalyze ONE requested system. Do not design mechanics.\n\nRULES BIBLE:\n${rulesSection}\n\nSYSTEM:\n${requestedSystem}\n\nCONTEXT:\n${context}\n\nTARGETED REPOSITORY EVIDENCE:\n${data}\n\nTARGETED ENGINE EVIDENCE:\n${engine}\n\n${completionGate}\n\n${implementationGuard}\n\nAUTHORITY ORDER:\n1. Rules Bible requirements explicitly supplied above.\n2. Direct repository code evidence.\n3. Nothing else. Research notes and AI suggestions are not authority.\n\nReturn exactly:\n# Implementation Status\n# Approved Requirements\n# Repository Findings\n# Human Decisions Required\n# Files Affected\n# Required Changes\n# Tests\n# Risks\n# Verification\n\nFor Required Changes, state only changes authorized by the Rules Bible. If a value, cost, trigger, ability, reset timing, regeneration rule, or other gameplay detail is not explicitly authorized, say it is unspecified instead of selecting a value.\n\nNever infer behavior from names or filenames. Never invent mechanics. Never claim code was changed. Never present an example value as an implementation requirement.`);
+  const output = await askAI(`BLOODLINES IMPLEMENTATION ANALYST\nAnalyze ONE requested system. Do not design mechanics.\n\nRULES BIBLE:\n${rulesSection}\n\nSYSTEM:\n${requestedSystem}\n\nCONTEXT:\n${context}\n\nTARGETED REPOSITORY EVIDENCE:\n${data}\n\nTARGETED ENGINE EVIDENCE:\n${engine}\n\n${completionGate}\n\n${implementationGuard}\n\n${semanticGuard}\n\nAUTHORITY ORDER:\n1. Rules Bible requirements explicitly supplied above.\n2. Direct repository code evidence.\n3. Nothing else. Research notes and AI suggestions are not authority.\n\nReturn exactly:\n# Implementation Status\n# Approved Requirements\n# Repository Findings\n# Human Decisions Required\n# Files Affected\n# Required Changes\n# Tests\n# Risks\n# Verification\n\nFor Required Changes, state only changes authorized by the Rules Bible. If a value, cost, trigger, ability, reset timing, regeneration rule, or other gameplay detail is not explicitly authorized, say it is unspecified instead of selecting a value. Clearly label neutral implementation architecture as an implementation choice, not a gameplay rule. Preserve approved timing and frequency exactly.\n\nNever infer behavior from names or filenames. Never invent mechanics. Never claim code was changed. Never present an example value as an implementation requirement. Never substitute one timing or frequency for another.`);
 
   return validateImplementationPlan(requestedSystem, output);
 }
