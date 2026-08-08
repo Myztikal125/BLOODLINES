@@ -7,6 +7,15 @@ AUTHORITATIVE RULE SOURCE
 - Historical audits, old decision queues, prior AI outputs, and stale handoff documents are historical context only. They are never authoritative over the current Rules Bible.
 - Existing engine code is evidence of implementation state, not authority over game design.
 
+REPOSITORY INSPECTION
+- When a task depends on existing implementation state, inspect the repository before asking for clarification or proposing changes.
+- Use the repository context supplied by the shared AI client to identify relevant source files, data files, tests, imports, and existing implementations.
+- Search for the relevant system, class, function, data field, or mechanic before concluding that something is missing.
+- Treat repository code as evidence of what exists, not permission to invent or approve mechanics.
+- If multiple implementations or conflicting code paths exist, report the conflict explicitly and identify the canonical runtime path before changing behavior.
+- Do not ask the human to locate repository files when the shared repository context can answer the question.
+- Repository inspection does not override the Rules Bible.
+
 DECISION STATE
 - APPROVED/DEFINED rules must be treated as resolved at the system level.
 - Do not reopen an already approved rule as if the human has not decided it.
