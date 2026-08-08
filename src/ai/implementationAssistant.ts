@@ -79,6 +79,51 @@ function getRequiredEvidence(system: string): string {
   return `COMPLETION GATE: ALREADY_IMPLEMENTED requires direct code evidence for every approved behavioral requirement. Never reopen requirements already approved.`;
 }
 
+function getImplementationGuard(system: string): string {
+  if (system.toLowerCase().includes("action economy")) return `ACTION ECONOMY IMPLEMENTATION GUARD:
+- Implement only the approved requirements explicitly evidenced in the Rules Bible.
+- The Rules Bible authorizes an energy/stamina resource framework but does NOT authorize specific stamina costs, maximums, regeneration amounts, or regeneration timing unless directly stated in the supplied Rules Bible section.
+- Do not assign any numeric stamina cost to AttackAction or any other action.
+- Do not invent Bonus Action abilities, Reaction abilities, reaction triggers, event windows, or example actions.
+- Do not create placeholder mechanics and label them as required changes.
+- Do not use fallback/default values such as staminaCost: 0 or staminaCost: 2 to make unspecified mechanics compile.
+- Neutral infrastructure is allowed only when it does not encode an unstated gameplay rule.
+- If a required implementation detail is unspecified, report it as an unspecified detail and leave it neutral; do not make the design decision.
+- Stamina must never be implemented as a way to purchase additional baseline Action or Bonus Action slots.
+- Required Changes must describe only authorized changes. Separate any unresolved/unspecified details into Human Decisions Required.
+- Never turn research notes, examples, filenames, or inferred conventions into Rules Bible authority.`;
+  return `IMPLEMENTATION GUARD:
+- Implement only requirements explicitly authorized by the Rules Bible.
+- Do not invent values, costs, triggers, abilities, timing rules, defaults, balancing, or resource behavior.
+- If a detail is unspecified, report it rather than deciding it.
+- Neutral infrastructure is allowed only when it does not encode an unstated gameplay rule.
+- Never turn research notes, examples, filenames, or inferred conventions into Rules Bible authority.`;
+}
+
+function validateImplementationPlan(system: string, output: string): string {
+  const normalized = output.toLowerCase();
+  if (!system.toLowerCase().includes("action economy")) return output;
+
+  const forbiddenPatterns = [
+    /staminacost\s*[:=]\s*\d+/i,
+    /stamina\s+cost\s+of\s+\d+/i,
+    /attackaction[^\n]{0,160}stamina[^\n]{0,80}\b\d+/i,
+    /quickspellaction/i,
+    /opportunityattackaction/i,
+    /regenerate[^\n]{0,100}stamina[^\n]{0,100}(turn|round|percent|%|amount)/i,
+    /stamina[^\n]{0,100}(regenerates|restores|recovers)[^\n]{0,100}\b\d+/i
+  ];
+
+  const violations = forbiddenPatterns.filter(pattern => pattern.test(output));
+  if (violations.length === 0) return output;
+
+  throw new Error(
+    `Implementation plan rejected by Action Economy safety gate: the AI proposed unspecified mechanics. ` +
+    `Do not implement invented stamina costs, placeholder abilities, reaction triggers, or regeneration values. ` +
+    `Re-run the analysis with the Rules Bible as the only authority.`
+  );
+}
+
 export async function implementDesign(dataFile: string, enginePath: string, request?: ImplementationRequest) {
   const requestedSystem = request?.system ?? "Review the supplied implementation against the Rules Bible.";
   const rulesBible = readRulesBible();
@@ -87,6 +132,9 @@ export async function implementDesign(dataFile: string, enginePath: string, requ
   const rulesSection = getRulesSection(rulesBible, requestedSystem);
   const context = (request?.context ?? "Determine whether the requested approved system is already implemented or what authorized integration work remains.").slice(0, MAX_CONTEXT_CHARS);
   const completionGate = getRequiredEvidence(requestedSystem);
+  const implementationGuard = getImplementationGuard(requestedSystem);
 
-  return await askAI(`BLOODLINES IMPLEMENTATION ANALYST\nAnalyze ONE requested system. Do not design mechanics.\n\nRULES BIBLE:\n${rulesSection}\n\nSYSTEM:\n${requestedSystem}\n\nCONTEXT:\n${context}\n\nTARGETED REPOSITORY EVIDENCE:\n${data}\n\nTARGETED ENGINE EVIDENCE:\n${engine}\n\n${completionGate}\n\nReturn exactly:\n# Implementation Status\n# Approved Requirements\n# Repository Findings\n# Human Decisions Required\n# Files Affected\n# Required Changes\n# Tests\n# Risks\n# Verification\n\nNever infer behavior from names or filenames. Never invent mechanics or claim code was changed.`);
+  const output = await askAI(`BLOODLINES IMPLEMENTATION ANALYST\nAnalyze ONE requested system. Do not design mechanics.\n\nRULES BIBLE:\n${rulesSection}\n\nSYSTEM:\n${requestedSystem}\n\nCONTEXT:\n${context}\n\nTARGETED REPOSITORY EVIDENCE:\n${data}\n\nTARGETED ENGINE EVIDENCE:\n${engine}\n\n${completionGate}\n\n${implementationGuard}\n\nAUTHORITY ORDER:\n1. Rules Bible requirements explicitly supplied above.\n2. Direct repository code evidence.\n3. Nothing else. Research notes and AI suggestions are not authority.\n\nReturn exactly:\n# Implementation Status\n# Approved Requirements\n# Repository Findings\n# Human Decisions Required\n# Files Affected\n# Required Changes\n# Tests\n# Risks\n# Verification\n\nFor Required Changes, state only changes authorized by the Rules Bible. If a value, cost, trigger, ability, reset timing, regeneration rule, or other gameplay detail is not explicitly authorized, say it is unspecified instead of selecting a value.\n\nNever infer behavior from names or filenames. Never invent mechanics. Never claim code was changed. Never present an example value as an implementation requirement.`);
+
+  return validateImplementationPlan(requestedSystem, output);
 }
