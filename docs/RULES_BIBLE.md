@@ -80,7 +80,16 @@ This structured overview sets the foundation for BLOODLINES, encapsulating core 
 
 **Human Decision:** Approve the introduction of advantage and disadvantage mechanics.
 
-**Governance:** This system is approved and must not be reopened as an unresolved system decision. Any implementation details not explicitly approved remain subject to future clarification.
+**Approved Implementation Rules:**
+- Advantage: roll two d20s and use the higher result.
+- Disadvantage: roll two d20s and use the lower result.
+- Specific conditions, abilities, environmental circumstances, or narrative situations may grant Advantage or Disadvantage.
+- The game engine applies Advantage or Disadvantage only when an explicit rule, ability, condition, or DM decision grants it.
+- If a roll has both Advantage and Disadvantage, they cancel and the roll is made normally.
+- Multiple sources of Advantage do not stack.
+- Multiple sources of Disadvantage do not stack.
+
+**Governance:** This system and the above implementation rules are explicitly approved and must not be reopened as unresolved decisions. Future clarification may define additional sources or edge cases without changing these approved rules.
 
 ### Death and Dying
 
