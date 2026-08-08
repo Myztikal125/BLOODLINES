@@ -4,6 +4,8 @@ import { askAI } from "./aiClient";
 import { IMPLEMENTATION_GOVERNANCE } from "./implementationGovernance";
 
 const RULES_BIBLE_PATH = "docs/RULES_BIBLE.md";
+const MAX_REPOSITORY_EVIDENCE_CHARS = 30000;
+const MAX_FILE_CHARS = 6000;
 
 export interface ImplementationRequest {
   system: string;
@@ -18,7 +20,7 @@ export function readRulesBible(): string {
   return fs.readFileSync(RULES_BIBLE_PATH, "utf8");
 }
 
-function readRepositoryEvidence(inputPath: string): string {
+function readRepositoryEvidence(inputPath: string, system: string): string {
   if (!fs.existsSync(inputPath)) {
     throw new Error(`Repository evidence path not found: ${inputPath}`);
   }
@@ -26,10 +28,14 @@ function readRepositoryEvidence(inputPath: string): string {
   const stat = fs.statSync(inputPath);
 
   if (stat.isFile()) {
-    return fs.readFileSync(inputPath, "utf8");
+    return fs.readFileSync(inputPath, "utf8").slice(0, MAX_FILE_CHARS);
   }
 
   const files: string[] = [];
+  const keywords = system
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter(word => word.length >= 4);
 
   function walk(directory: string) {
     for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
@@ -47,16 +53,35 @@ function readRepositoryEvidence(inputPath: string): string {
 
   walk(inputPath);
 
-  return files
-    .sort()
+  const ranked = files
     .map(file => {
-      try {
-        return `\n===== ${file} =====\n${fs.readFileSync(file, "utf8")}`;
-      } catch {
-        return `\n===== ${file} =====\n[Unable to read file]`;
-      }
+      const normalized = file.toLowerCase();
+      const score = keywords.reduce(
+        (total, keyword) => total + (normalized.includes(keyword) ? 1 : 0),
+        0
+      );
+      return { file, score };
     })
-    .join("\n");
+    .sort((a, b) => b.score - a.score || a.file.localeCompare(b.file));
+
+  let output = "";
+
+  for (const { file, score } of ranked) {
+    if (output.length >= MAX_REPOSITORY_EVIDENCE_CHARS) break;
+
+    try {
+      const content = fs.readFileSync(file, "utf8").slice(0, MAX_FILE_CHARS);
+      const section = `\n===== ${file} (relevance ${score}) =====\n${content}\n`;
+
+      if (output.length + section.length <= MAX_REPOSITORY_EVIDENCE_CHARS) {
+        output += section;
+      }
+    } catch {
+      // Ignore unreadable files; repository inspection should continue.
+    }
+  }
+
+  return output || "[No readable repository evidence matched the requested system.]";
 }
 
 export async function implementDesign(
@@ -64,12 +89,12 @@ export async function implementDesign(
   enginePath: string,
   request?: ImplementationRequest
 ) {
-  const data = readRepositoryEvidence(dataFile);
-  const engine = readRepositoryEvidence(enginePath);
-  const rulesBible = readRulesBible();
-
   const requestedSystem =
     request?.system ?? "Review the supplied implementation against the Rules Bible.";
+
+  const data = readRepositoryEvidence(dataFile, requestedSystem);
+  const engine = readRepositoryEvidence(enginePath, requestedSystem);
+  const rulesBible = readRulesBible();
 
   const context =
     request?.context ??
@@ -105,10 +130,10 @@ ENGINE / REPOSITORY EVIDENCE:
 ${engine}
 
 REPOSITORY INSPECTION:
-The supplied engine path may be a directory. Treat directory contents as repository evidence and inspect relevant source files, data files, tests, imports, and runtime paths before concluding what exists or what is missing. Repository evidence tells you WHAT EXISTS. It never authorizes a new mechanic.
+The supplied engine path may be a directory. Evidence is relevance-ranked for the requested system and capped to prevent unrelated repository files from overwhelming the analysis. Inspect the provided evidence carefully and use only factual repository findings.
 
 IMPORTANT FILE RULE:
-The supplied data path and engine path are analysis inputs, not automatically affected files. Only list a file under Files Affected if repository inspection establishes that the file must actually change for the requested system. Never list src/ai/implementationAssistant.ts merely because it produced this report.
+The supplied data path and engine path are analysis inputs, not automatically affected files. Only list a file under Files Affected if repository evidence establishes that the file must actually change for the requested system. Never list src/ai/implementationAssistant.ts merely because it produced this report.
 
 GOVERNANCE:
 - Analyze ONLY the requested system.
@@ -124,7 +149,7 @@ GOVERNANCE:
 - Never silently import D&D 2014 or D&D 2024 rules.
 - Never use recommendations, historical audits, old AI output, or tests as design authority.
 - Never invent numbers, formulas, dice behavior, costs, durations, ranges, probabilities, thresholds, triggers, stacking rules, progression rules, resource rules, balance values, or conditions.
-- Never invent file paths. Every named file must be supported by repository inspection.
+- Never invent file paths. Every named file must be supported by repository evidence.
 - Never claim code was changed. This assistant produces an assessment/plan only.
 
 BLOCKED STATE — ABSOLUTE STOP:
@@ -151,7 +176,7 @@ CONCRETE INVARIANTS:
 1. If Required Changes contains an unresolved mechanic, the response is invalid.
 2. If status is BLOCKED_BY_HUMAN_DECISION and Human Decisions Required is "None", the response is invalid.
 3. If status is BLOCKED_BY_HUMAN_DECISION and the response proposes a mechanic, the response is invalid.
-4. If a named affected file was not found by repository inspection, the response is invalid.
+4. If a named affected file was not found by repository evidence, the response is invalid.
 5. If status is READY and Required Changes says implementation is unauthorized, the response is invalid.
 6. If status is READY and Human Decisions Required is not "None", the response is invalid.
 
