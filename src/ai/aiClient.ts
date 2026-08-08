@@ -2,9 +2,11 @@ import "dotenv/config";
 import { BLOODLINES_ASSISTANT_PROTOCOL } from "./assistantProtocol";
 import { buildRepositoryContext } from "./repositoryContext";
 
+const DEFAULT_MAX_TOKENS = 1800;
+
 export async function askAI(
   prompt: string,
-  maxTokensOrSystemPrompt: number | string = 2000,
+  maxTokensOrSystemPrompt: number | string = DEFAULT_MAX_TOKENS,
   systemPrompt?: string
 ) {
   const key = process.env.OPENROUTER_API_KEY;
@@ -16,7 +18,7 @@ export async function askAI(
   const maxTokens =
     typeof maxTokensOrSystemPrompt === "number"
       ? maxTokensOrSystemPrompt
-      : 2000;
+      : DEFAULT_MAX_TOKENS;
 
   const assistantSystemPrompt =
     systemPrompt ??
