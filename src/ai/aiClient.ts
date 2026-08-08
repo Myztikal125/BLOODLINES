@@ -1,4 +1,5 @@
 import "dotenv/config";
+import { BLOODLINES_ASSISTANT_PROTOCOL } from "./assistantProtocol";
 
 export async function askAI(
   prompt: string,
@@ -16,13 +17,15 @@ export async function askAI(
       ? maxTokensOrSystemPrompt
       : 2000;
 
-  const resolvedSystemPrompt =
+  const assistantSystemPrompt =
     systemPrompt ??
     (
       typeof maxTokensOrSystemPrompt === "string"
         ? maxTokensOrSystemPrompt
         : "You are the BLOODLINES Research Assistant. Provide structured RPG research notes."
     );
+
+  const resolvedSystemPrompt = `${BLOODLINES_ASSISTANT_PROTOCOL}\n\nASSIGNED ASSISTANT ROLE\n\n${assistantSystemPrompt}`;
 
   const response = await fetch(
     "https://openrouter.ai/api/v1/chat/completions",
