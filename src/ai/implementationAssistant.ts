@@ -69,23 +69,22 @@ ALREADY_IMPLEMENTED requires direct code evidence for ALL nine approved behavior
 5. Bonus Action consumption/prevention of a second baseline Bonus Action;
 6. Reaction consumption/reset;
 7. turn transition/reset of action state;
-8. energy/stamina framework exists, with no unapproved stamina costs;
+8. an energy/stamina RESOURCE FRAMEWORK exists, with no unapproved stamina costs;
 9. stamina cannot buy extra baseline Actions or Bonus Actions.
-Definitions/enums/resolvers alone are insufficient.
+Definitions/enums/resolvers alone are insufficient for ALREADY_IMPLEMENTED.
 
-HUMAN-DECISION FILTER:
-- Treat requirements 1-9 above as already approved. NEVER ask the human to redefine them.
-- In particular, NEVER ask whether stamina may buy extra Actions/Bonus Actions; requirement 9 already forbids that.
-- NEVER ask whether there should be one Action or one Bonus Action; requirements 1-2 already establish that.
-- NEVER ask for a reaction reset rule if requirement 6/7 is already explicitly defined by the Rules Bible.
-- Ask a human question only when a genuinely implementation-critical mechanic is absent from BOTH the Rules Bible and the approved requirements/context.
-- If a missing detail is not required to implement the approved behavior, do not ask about it.
-- If missing detail is required and no authorization exists, return BLOCKED_BY_HUMAN_DECISION and ask only that unresolved question.
-- If all required behavior is authorized but not implemented, return READY.`;
+IMPORTANT AUTHORIZATION INTERPRETATION:
+- Requirements 1-9 are already approved. Never reopen them as human decisions.
+- Requirement 8 authorizes a framework/state for energy/stamina. It does NOT require invented costs, maximums, regeneration rates, or numerical mechanics.
+- Requirements 1-7 fully authorize tracking, consumption, and turn reset behavior. Do not demand additional design choices for those behaviors.
+- Requirement 9 explicitly forbids stamina from purchasing extra baseline Actions or Bonus Actions.
+- If approved behavior is missing from code but its behavior is fully defined above, return READY, not BLOCKED_BY_HUMAN_DECISION.
+- Return BLOCKED_BY_HUMAN_DECISION only when an implementation-critical behavior is genuinely required but absent from BOTH the approved requirements and the Rules Bible.
+- Missing implementation is an implementation gap, not automatically a missing human decision.`;
   }
   return `COMPLETION GATE: ALREADY_IMPLEMENTED requires direct repository evidence for every approved behavioral requirement. Names, types, enums, comments, or related files alone are insufficient.
 
-HUMAN-DECISION FILTER: Never reopen, contradict, or ask the human to re-decide requirements already explicitly approved in the Rules Bible or request context. Ask only genuinely unresolved implementation-critical questions.`;
+HUMAN-DECISION FILTER: Never reopen, contradict, or ask the human to re-decide requirements already explicitly approved in the Rules Bible or request context.`;
 }
 
 export async function implementDesign(dataFile: string, enginePath: string, request?: ImplementationRequest) {
@@ -119,10 +118,10 @@ ${completionGate}
 
 GOVERNANCE:
 - Analyze ONLY the requested system.
-- APPROVED does not authorize unspecified mechanics.
-- READY only when all required implementation mechanics are explicitly authorized.
+- APPROVED does not authorize unspecified mechanics, but explicit approved requirements DO authorize their stated behavior.
+- READY only when all missing implementation work is explicitly authorized.
 - ALREADY_IMPLEMENTED only with direct code evidence for every approved behavioral requirement.
-- If evidence is incomplete, identify exactly what behavior is missing.
+- If approved behavior is missing from code, that is an implementation gap, not automatically a human decision.
 - Never infer behavior from names, interfaces, enums, comments, or filenames.
 - Never invent mechanics, numbers, costs, durations, triggers, formulas, or stacking rules.
 - Never silently import D&D rules.
