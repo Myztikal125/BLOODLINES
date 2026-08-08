@@ -9,7 +9,7 @@ const DEFAULT_MAX_TOKENS = 1600;
 const GROQ_MODEL = process.env.GROQ_MODEL ?? "groq/compound";
 const GROQ_FALLBACK_MODEL = process.env.GROQ_FALLBACK_MODEL ?? "groq/compound-mini";
 const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL ?? "openai/gpt-4o-mini";
-const GEMINI_MODEL = process.env.GEMINI_MODEL ?? "gemini-3.1-flash-lite";
+const GEMINI_MODEL = process.env.GEMINI_MODEL ?? "gemini-3.1-flash-lite-preview";
 
 interface ProviderBudget { remainingTokens?: number; remainingRequests?: number; resetTokensAt?: number; resetRequestsAt?: number; retryAfterAt?: number; }
 const groqBudget: ProviderBudget = {};
