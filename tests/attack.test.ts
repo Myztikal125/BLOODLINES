@@ -22,7 +22,9 @@ describe("Attack System", () => {
 });
 
 describe("BLOODLINES Attack Resolver", () => {
-  afterEach(() => vi.restoreAllMocks());
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
 
   const attacker: Combatant = {
     id: "attacker",
