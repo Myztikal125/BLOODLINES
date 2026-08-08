@@ -1,4 +1,5 @@
 import fs from "fs";
+import path from "path";
 import { askAI } from "./aiClient";
 import { IMPLEMENTATION_GOVERNANCE } from "./implementationGovernance";
 
@@ -17,13 +18,54 @@ export function readRulesBible(): string {
   return fs.readFileSync(RULES_BIBLE_PATH, "utf8");
 }
 
+function readRepositoryEvidence(inputPath: string): string {
+  if (!fs.existsSync(inputPath)) {
+    throw new Error(`Repository evidence path not found: ${inputPath}`);
+  }
+
+  const stat = fs.statSync(inputPath);
+
+  if (stat.isFile()) {
+    return fs.readFileSync(inputPath, "utf8");
+  }
+
+  const files: string[] = [];
+
+  function walk(directory: string) {
+    for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+      if (entry.name === "node_modules" || entry.name === ".git") continue;
+
+      const fullPath = path.join(directory, entry.name);
+
+      if (entry.isDirectory()) {
+        walk(fullPath);
+      } else if (/\.(ts|tsx|js|json|md)$/.test(entry.name)) {
+        files.push(fullPath);
+      }
+    }
+  }
+
+  walk(inputPath);
+
+  return files
+    .sort()
+    .map(file => {
+      try {
+        return `\n===== ${file} =====\n${fs.readFileSync(file, "utf8")}`;
+      } catch {
+        return `\n===== ${file} =====\n[Unable to read file]`;
+      }
+    })
+    .join("\n");
+}
+
 export async function implementDesign(
   dataFile: string,
-  engineFile: string,
+  enginePath: string,
   request?: ImplementationRequest
 ) {
-  const data = fs.readFileSync(dataFile, "utf8");
-  const engine = fs.readFileSync(engineFile, "utf8");
+  const data = readRepositoryEvidence(dataFile);
+  const engine = readRepositoryEvidence(enginePath);
   const rulesBible = readRulesBible();
 
   const requestedSystem =
@@ -56,19 +98,17 @@ ${context}
 RULES BIBLE:
 ${rulesBible}
 
-SUPPLIED DATA FILE:
-${dataFile}
+SUPPLIED DATA / REPOSITORY EVIDENCE:
 ${data}
 
-SUPPLIED ENGINE FILE:
-${engineFile}
+ENGINE / REPOSITORY EVIDENCE:
 ${engine}
 
 REPOSITORY INSPECTION:
-Inspect relevant repository source files, data files, tests, imports, and runtime paths before concluding what exists or what is missing. Repository evidence tells you WHAT EXISTS. It never authorizes a new mechanic.
+The supplied engine path may be a directory. Treat directory contents as repository evidence and inspect relevant source files, data files, tests, imports, and runtime paths before concluding what exists or what is missing. Repository evidence tells you WHAT EXISTS. It never authorizes a new mechanic.
 
 IMPORTANT FILE RULE:
-The supplied data file and engine file are analysis inputs, not automatically affected files. Only list a file under Files Affected if repository inspection establishes that the file must actually change for the requested system. Never list src/ai/implementationAssistant.ts merely because it produced this report.
+The supplied data path and engine path are analysis inputs, not automatically affected files. Only list a file under Files Affected if repository inspection establishes that the file must actually change for the requested system. Never list src/ai/implementationAssistant.ts merely because it produced this report.
 
 GOVERNANCE:
 - Analyze ONLY the requested system.
