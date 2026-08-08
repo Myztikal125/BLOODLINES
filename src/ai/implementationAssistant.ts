@@ -75,14 +75,15 @@ function getRulesSection(rulesBible: string, system: string): string {
 function getGuard(system: string): string {
   const common = `RULES GUARD:
 - Rules Bible is the only gameplay authority; repository code is evidence only.
-- Implement approved behavior only. Never invent values, costs, abilities, triggers, timing, defaults, regeneration, or balancing.
+- Implement every approved requirement; never silently omit one.
+- Never invent values, costs, abilities, triggers, timing, defaults, regeneration, or balancing.
 - Unspecified gameplay details must be reported, not decided.
 - Neutral architecture is allowed only if it does not encode an unstated rule.
 - Preserve approved scope, timing, frequency, authorization, and exclusions exactly.
 - Architecture names/fields/APIs are engineering choices, not gameplay authority.
 - Do not claim code was changed.`;
   if (system.toLowerCase().includes("action economy")) return `${common}
-ACTION ECONOMY: stamina is a resource framework only; no numeric costs, max, or regeneration may be invented. Stamina cannot buy extra baseline Action/Bonus Action slots. Do not invent Bonus Action or Reaction abilities/triggers. "Once per round" must never become "once per turn".`;
+ACTION ECONOMY: account for all approved Action, Bonus Action, Reaction, consumption/reset, turn-reset, stamina-resource, and no-extra-slot requirements. Stamina has no invented numeric costs, max, or regeneration. Do not invent Bonus Action or Reaction abilities/triggers. "Once per round" must never become "once per turn".`;
   return common;
 }
 
@@ -95,8 +96,24 @@ function validateImplementationPlan(system: string, output: string): string {
     /opportunityattackaction/i,
     /stamina[^\n]{0,100}(regenerates|restores|recovers)[^\n]{0,80}\b\d+/i
   ];
-  if (forbidden.some(pattern => pattern.test(output))) {
-    throw new Error("Implementation plan rejected: unspecified Action Economy mechanics were invented.");
+  if (forbidden.some(pattern => pattern.test(output))) throw new Error("Implementation plan rejected: unspecified Action Economy mechanics were invented.");
+
+  const required = [
+    ["action", /one\s+action|action\s+per\s+turn|action\s+slot/i],
+    ["bonus action", /bonus\s+action/i],
+    ["reaction", /reaction/i],
+    ["action consumption", /action\s+consumption|consum(e|ption).*action|action.*consum(e|ption)/i],
+    ["bonus consumption", /bonus.*consum(e|ption)|consum(e|ption).*bonus/i],
+    ["reaction reset", /reaction.*(reset|round)|reset.*reaction/i],
+    ["turn reset", /turn.*reset|reset.*turn/i],
+    ["stamina resource", /stamina|energy/i],
+    ["no extra baseline slots", /stamina.*(extra|additional).*action|extra.*(action|bonus).*stamina|stamina.*buy/i]
+  ] as const;
+  const missing = required.filter(([, pattern]) => !pattern.test(output)).map(([name]) => name);
+  if (missing.length) throw new Error(`Implementation plan rejected: approved requirements were omitted: ${missing.join(", ")}`);
+
+  if (/once\s+per\s+turn/i.test(output) && /once\s+per\s+round/i.test(output) === false && /reaction/i.test(output)) {
+    throw new Error("Implementation plan rejected: Reaction frequency may have been changed from the approved round-based rule.");
   }
   return output;
 }
@@ -130,7 +147,7 @@ ${engine}
 
 ${guard}
 
-Completion means direct code evidence for every approved requirement. Missing approved behavior is an implementation gap, not permission to invent a rule.
+Completion requires every approved requirement to be explicitly accounted for. Missing approved behavior is an implementation gap, not permission to invent a rule.
 
 Return exactly:
 # Implementation Status
