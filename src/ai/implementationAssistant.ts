@@ -73,14 +73,15 @@ ALREADY_IMPLEMENTED requires direct code evidence for ALL nine approved behavior
 9. stamina cannot buy extra baseline Actions or Bonus Actions.
 Definitions/enums/resolvers alone are insufficient for ALREADY_IMPLEMENTED.
 
-IMPORTANT AUTHORIZATION INTERPRETATION:
-- Requirements 1-9 are already approved. Never reopen them as human decisions.
-- Requirement 8 authorizes a framework/state for energy/stamina. It does NOT require invented costs, maximums, regeneration rates, or numerical mechanics.
-- Requirements 1-7 fully authorize tracking, consumption, and turn reset behavior. Do not demand additional design choices for those behaviors.
+APPROVAL BOUNDARY:
+- Requirements 1-9 are already approved. Never ask the human to re-approve or redefine them.
+- Requirement 8 authorizes implementation of a resource framework/state. Do NOT invent or require numerical costs, maximums, regeneration rates, or other unstated stamina mechanics.
+- Requirements 1-7 authorize their stated tracking, consumption, availability, and reset behavior. Do not ask for additional design choices merely to implement those behaviors.
 - Requirement 9 explicitly forbids stamina from purchasing extra baseline Actions or Bonus Actions.
-- If approved behavior is missing from code but its behavior is fully defined above, return READY, not BLOCKED_BY_HUMAN_DECISION.
-- Return BLOCKED_BY_HUMAN_DECISION only when an implementation-critical behavior is genuinely required but absent from BOTH the approved requirements and the Rules Bible.
-- Missing implementation is an implementation gap, not automatically a missing human decision.`;
+- If approved behavior is missing from code but fully specified by requirements 1-9, return READY.
+- BLOCKED_BY_HUMAN_DECISION is reserved exclusively for a behavior that is necessary to implement the requested system but is genuinely absent from BOTH the approved requirements AND the Rules Bible.
+- Missing code is not a human decision.
+- A desire for more detailed mechanics is not a human decision unless those details are necessary to implement an already-approved requirement.`;
   }
   return `COMPLETION GATE: ALREADY_IMPLEMENTED requires direct repository evidence for every approved behavioral requirement. Names, types, enums, comments, or related files alone are insufficient.
 
