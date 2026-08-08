@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { BLOODLINES_ASSISTANT_PROTOCOL } from "./assistantProtocol";
+import { buildRepositoryContext } from "./repositoryContext";
 
 export async function askAI(
   prompt: string,
@@ -26,6 +27,7 @@ export async function askAI(
     );
 
   const resolvedSystemPrompt = `${BLOODLINES_ASSISTANT_PROTOCOL}\n\nASSIGNED ASSISTANT ROLE\n\n${assistantSystemPrompt}`;
+  const repositoryContext = buildRepositoryContext(prompt);
 
   const response = await fetch(
     "https://openrouter.ai/api/v1/chat/completions",
@@ -45,7 +47,7 @@ export async function askAI(
           },
           {
             role: "user",
-            content: prompt
+            content: `${prompt}\n\n${repositoryContext}`
           }
         ]
       })
