@@ -71,3 +71,117 @@ BLOODLINES is an AI-assisted tabletop RPG system designed around:
 5. Balance of limitations on spell customization in Spellcrafting System for maintainability. 
 
 This structured overview sets the foundation for BLOODLINES, encapsulating core gameplay rules while allowing for future development based on player feedback and testing.
+
+## Approved Decisions
+
+### Advantage and Disadvantage
+
+**Status:** APPROVED
+
+**Human Decision:** Approve the introduction of advantage and disadvantage mechanics.
+
+**Governance:** This system is approved and must not be reopened as an unresolved system decision. Any implementation details not explicitly approved remain subject to future clarification.
+
+### Death and Dying
+
+**Status:** APPROVED
+
+**Human Decision:** Approve the implementation of death and dying mechanics.
+
+**Governance:** This system is approved and must not be reopened as an unresolved system decision. Any implementation details not explicitly approved remain subject to future clarification.
+
+### NPC Relationships and Memory
+
+**Status:** APPROVED
+
+**Human Decision:** Approve a framework for NPC relationships and memory.
+
+**Governance:** This system is approved and must not be reopened as an unresolved system decision. Any implementation details not explicitly approved remain subject to future clarification.
+
+### Quest System
+
+**Status:** APPROVED
+
+**Human Decision:** Approve a structured quest system.
+
+**Governance:** This system is approved and must not be reopened as an unresolved system decision. Any implementation details not explicitly approved remain subject to future clarification.
+
+### Rewards System
+
+**Status:** APPROVED
+
+**Human Decision:** Approve enhancements to the rewards system.
+
+**Governance:** This system is approved and must not be reopened as an unresolved system decision. Any implementation details not explicitly approved remain subject to future clarification.
+
+### Skills and Proficiency
+
+**Status:** APPROVED
+
+**Human Decision:** Implement a dynamic proficiency system based on character actions or context.
+
+**Governance:** This system is approved and must not be reopened as an unresolved system decision. Any implementation details not explicitly approved remain subject to future clarification.
+
+### Combat Rounds
+
+**Status:** APPROVED
+
+**Human Decision:** Define fixed-duration combat rounds with standardized actions.
+
+**Governance:** This system is approved and must not be reopened as an unresolved system decision. Any implementation details not explicitly approved remain subject to future clarification.
+
+### Attacks
+
+**Status:** APPROVED
+
+**Human Decision:** Use defined dice-roll mechanics for attacks, including hit and miss conditions.
+
+**Governance:** This system is approved and must not be reopened as an unresolved system decision. Any implementation details not explicitly approved remain subject to future clarification.
+
+### Damage
+
+**Status:** APPROVED
+
+**Human Decision:** Use a simple damage system based on dice rolls and fixed modifiers.
+
+**Governance:** This system is approved and must not be reopened as an unresolved system decision. Any implementation details not explicitly approved remain subject to future clarification.
+
+### Armor Class
+
+**Status:** APPROVED
+
+**Human Decision:** Establish fixed Armor Class based on character attributes and equipment.
+
+**Governance:** This system is approved and must not be reopened as an unresolved system decision. Any implementation details not explicitly approved remain subject to future clarification.
+
+### Conditions
+
+**Status:** APPROVED
+
+**Human Decision:** Create a basic set of common conditions with standardized effects.
+
+**Governance:** This system is approved and must not be reopened as an unresolved system decision. Any implementation details not explicitly approved remain subject to future clarification.
+
+### Rest and Recovery
+
+**Status:** APPROVED
+
+**Human Decision:** Implement a more complex rest and recovery system including resource management and time factors.
+
+**Governance:** This system is approved and must not be reopened as an unresolved system decision. Any implementation details not explicitly approved remain subject to future clarification.
+
+### Spell Slots
+
+**Status:** APPROVED
+
+**Human Decision:** Allow spell slots to be regained through specific actions or events.
+
+**Governance:** This system is approved and must not be reopened as an unresolved system decision. Any implementation details not explicitly approved remain subject to future clarification.
+
+### Action Economy
+
+**Status:** APPROVED
+
+**Human Decision:** Clarify standard action, bonus action, and reaction types.
+
+**Governance:** This system is approved and must not be reopened as an unresolved system decision. Any implementation details not explicitly approved remain subject to future clarification.
