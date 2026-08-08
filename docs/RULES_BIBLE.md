@@ -8,7 +8,7 @@ BLOODLINES is an AI-assisted tabletop RPG system designed around:
 - **Deep Character Identity**: Encourage players to shape distinct characters.
 - **Meaningful Choices**: Player decisions have lasting impacts on the world.
 - **Evolving Worlds**: The narrative develops based on player interactions.
-- **Strategic Combat**: Promote critical thinking in gameplay.
+- **Strategic Combat**: Promote critical thinking through gameplay.
 - **Immersive Storytelling**: Create rich narratives driven by players’ actions.
 
 ## Character System
@@ -68,8 +68,8 @@ BLOODLINES is an AI-assisted tabletop RPG system designed around:
 2. Mechanics or bonuses for different schools that enhance gameplay and world interaction.
 3. Potential for tiered complexity in spells for advanced players.
 4. Level of focus on environmental interactions for spellcasting.
-5. Balance of limitations on spell customization in Spellcrafting System for maintainability. 
-
+5. Balance of limitations on spell customization in Spellcrafting System for maintainability.
+ 
 This structured overview sets the foundation for BLOODLINES, encapsulating core gameplay rules while allowing for future development based on player feedback and testing.
 
 ## Approved Decisions
@@ -85,6 +85,8 @@ This structured overview sets the foundation for BLOODLINES, encapsulating core 
 - Disadvantage: roll two d20s and use the lower result.
 - Specific conditions, abilities, environmental circumstances, or narrative situations may grant Advantage or Disadvantage.
 - The game engine applies Advantage or Disadvantage only when an explicit rule, ability, condition, or DM decision grants it.
+- The roll state is explicitly represented as NORMAL, ADVANTAGE, or DISADVANTAGE.
+- Authorized rules, abilities, conditions, or DM decisions determine the roll state before the roll is resolved.
 - If a roll has both Advantage and Disadvantage, they cancel and the roll is made normally.
 - Multiple sources of Advantage do not stack.
 - Multiple sources of Disadvantage do not stack.
