@@ -2,6 +2,8 @@ import { Dice } from "../core/dice";
 import { modifier } from "../core/attributes";
 import { Combatant } from "./combatant";
 
+export type RollState = "NORMAL" | "ADVANTAGE" | "DISADVANTAGE";
+
 export interface AttackResult {
   hit: boolean;
   roll: number;
@@ -16,10 +18,26 @@ export class AttackResolver {
     target: Combatant,
     attackBonus: number,
     damageDie: number,
-    abilityScore: number
+    abilityScore: number,
+    rollState: RollState = "NORMAL"
   ): AttackResult {
 
-    const roll = Dice.d20();
+    // The caller is responsible for determining the roll state from
+    // authorized rules, abilities, conditions, or DM decisions.
+    let roll: number;
+
+    switch (rollState) {
+      case "ADVANTAGE":
+        roll = Dice.advantage();
+        break;
+      case "DISADVANTAGE":
+        roll = Dice.disadvantage();
+        break;
+      case "NORMAL":
+      default:
+        roll = Dice.d20();
+        break;
+    }
 
     const total =
       roll +
