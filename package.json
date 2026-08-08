@@ -1,7 +1,8 @@
 {
   "scripts": {
     "test": "vitest",
-    "start": "tsx src/index.ts"
+    "start": "tsx src/index.ts",
+    "compile:rules": "tsx -e \"import { compileRulesBible } from './src/ai/rulesPipeline'; compileRulesBible().then(path => console.log('Compiled Rules:', path)).catch(error => { console.error(error); process.exit(1); })\""
   },
   "devDependencies": {
     "@types/node": "^26.1.2",
