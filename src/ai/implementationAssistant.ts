@@ -75,8 +75,6 @@ function getRulesSection(rulesBible: string, system: string): string {
   const section = lines.slice(Math.max(0, start - 1), end).join("\n");
   if (section.length <= MAX_RULES_SECTION_CHARS) return section;
 
-  // Do not silently truncate approved requirements. Preserve requirement-like
-  // lines first, then fill the remaining budget with surrounding context.
   const requirementLines = lines.slice(Math.max(0, start - 1), end).filter(line =>
     /approved|required|must|one action|bonus action|reaction|stamina|energy|resource|reset|consum|round|turn|advantage|disadvantage|defined|authorized/i.test(line)
   );
@@ -99,6 +97,18 @@ function getGuard(system: string): string {
 ACTION ECONOMY: account for all approved Action, Bonus Action, Reaction, consumption/reset, turn-reset, stamina-resource, and no-extra-slot requirements. Stamina has no invented numeric costs, max, or regeneration. Do not invent Bonus Action or Reaction abilities/triggers. "Once per round" must never become "once per turn".`;
   return common;
 }
+
+const ACTION_ECONOMY_CHECKLIST = `APPROVED ACTION ECONOMY CHECKLIST — ACCOUNT FOR EVERY ITEM:
+1. One Action per combat turn (baseline).
+2. One Bonus Action per combat turn, if granted.
+3. Authorized Reaction availability.
+4. Action consumption.
+5. Bonus Action consumption.
+6. Reaction consumption/reset according to the Rules Bible.
+7. Turn-state reset.
+8. Stamina/energy resource framework, with unspecified costs/regeneration left neutral.
+9. Stamina cannot purchase extra baseline Actions or Bonus Actions.
+This checklist restates approved requirements; it does not add mechanics.`;
 
 function validateImplementationPlan(system: string, output: string): string {
   if (!system.toLowerCase().includes("action economy")) return output;
@@ -139,6 +149,7 @@ export async function implementDesign(dataFile: string, enginePath: string, requ
   const rules = getRulesSection(rulesBible, system);
   const context = (request?.context ?? "Determine implementation status and authorized integration work.").slice(0, MAX_CONTEXT_CHARS);
   const guard = getGuard(system);
+  const checklist = system.toLowerCase().includes("action economy") ? `\n\n${ACTION_ECONOMY_CHECKLIST}` : "";
 
   const output = await askAI(`BLOODLINES IMPLEMENTATION ANALYST
 Analyze ONE system. Do not design mechanics.
@@ -158,7 +169,7 @@ ${data}
 ENGINE EVIDENCE:
 ${engine}
 
-${guard}
+${guard}${checklist}
 
 Completion requires every approved requirement to be explicitly accounted for. Missing approved behavior is an implementation gap, not permission to invent a rule.
 
@@ -175,5 +186,10 @@ Return exactly:
 
 Required Changes may contain only authorized behavior plus clearly labeled neutral implementation choices. If a gameplay detail is unspecified, say so. Never substitute one timing/frequency for another.`);
 
-  return validateImplementationPlan(system, output);
+  try {
+    return validateImplementationPlan(system, output);
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : "Unknown governance rejection";
+    return `${output}\n\n# GOVERNANCE VALIDATION\nREJECTED — DO NOT IMPLEMENT\n${reason}`;
+  }
 }
