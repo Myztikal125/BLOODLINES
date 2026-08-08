@@ -8,10 +8,7 @@ const MAX_REPOSITORY_EVIDENCE_CHARS = 7000;
 const MAX_FILE_CHARS = 2200;
 const MAX_FILES = 5;
 
-export interface ImplementationRequest {
-  system: string;
-  context?: string;
-}
+export interface ImplementationRequest { system: string; context?: string; }
 
 export function readRulesBible(): string {
   if (!fs.existsSync(RULES_BIBLE_PATH)) throw new Error(`Rules Bible not found: ${RULES_BIBLE_PATH}`);
@@ -21,10 +18,8 @@ export function readRulesBible(): string {
 function readRepositoryEvidence(inputPath: string, system: string): string {
   if (!fs.existsSync(inputPath)) throw new Error(`Repository evidence path not found: ${inputPath}`);
   if (fs.statSync(inputPath).isFile()) return fs.readFileSync(inputPath, "utf8").slice(0, MAX_FILE_CHARS);
-
   const files: string[] = [];
   const keywords = system.toLowerCase().split(/[^a-z0-9]+/).filter(word => word.length >= 4);
-
   function walk(directory: string) {
     for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
       if (entry.name === "node_modules" || entry.name === ".git") continue;
@@ -33,15 +28,12 @@ function readRepositoryEvidence(inputPath: string, system: string): string {
       else if (/\.(ts|tsx|js|json|md)$/.test(entry.name)) files.push(fullPath);
     }
   }
-
   walk(inputPath);
-
   const ranked = files.map(file => {
     const normalized = file.toLowerCase();
     const score = keywords.reduce((total, keyword) => total + (normalized.includes(keyword) ? 1 : 0), 0);
     return { file, score };
   }).sort((a, b) => b.score - a.score || a.file.localeCompare(b.file)).slice(0, MAX_FILES);
-
   let output = "";
   for (const { file, score } of ranked) {
     try {
@@ -59,13 +51,9 @@ function getRulesSection(rulesBible: string, system: string): string {
   const target = system.toLowerCase();
   const start = lines.findIndex(line => line.toLowerCase().includes(target));
   if (start < 0) return rulesBible.slice(0, 4500);
-
   let end = lines.length;
   for (let i = start + 1; i < lines.length; i++) {
-    if (/^#{2,3}\s/.test(lines[i]) && i > start) {
-      end = i;
-      break;
-    }
+    if (/^#{2,3}\s/.test(lines[i])) { end = i; break; }
   }
   return lines.slice(Math.max(0, start - 3), end).join("\n").slice(0, 5000);
 }
@@ -73,7 +61,7 @@ function getRulesSection(rulesBible: string, system: string): string {
 function getRequiredEvidence(system: string): string {
   if (system.toLowerCase().includes("action economy")) {
     return `ACTION ECONOMY COMPLETION GATE:
-ALREADY_IMPLEMENTED requires direct code evidence for ALL:
+ALREADY_IMPLEMENTED requires direct code evidence for ALL nine approved behaviors:
 1. exactly one Action per combat turn;
 2. exactly one Bonus Action per combat turn;
 3. Reaction availability outside the turn on an authorized trigger;
@@ -83,10 +71,21 @@ ALREADY_IMPLEMENTED requires direct code evidence for ALL:
 7. turn transition/reset of action state;
 8. energy/stamina framework exists, with no unapproved stamina costs;
 9. stamina cannot buy extra baseline Actions or Bonus Actions.
-Action declarations, enums, or action resolver functions alone do not prove these behaviors.
-If any behavior lacks direct evidence, do not return ALREADY_IMPLEMENTED.`;
+Definitions/enums/resolvers alone are insufficient.
+
+HUMAN-DECISION FILTER:
+- Treat requirements 1-9 above as already approved. NEVER ask the human to redefine them.
+- In particular, NEVER ask whether stamina may buy extra Actions/Bonus Actions; requirement 9 already forbids that.
+- NEVER ask whether there should be one Action or one Bonus Action; requirements 1-2 already establish that.
+- NEVER ask for a reaction reset rule if requirement 6/7 is already explicitly defined by the Rules Bible.
+- Ask a human question only when a genuinely implementation-critical mechanic is absent from BOTH the Rules Bible and the approved requirements/context.
+- If a missing detail is not required to implement the approved behavior, do not ask about it.
+- If missing detail is required and no authorization exists, return BLOCKED_BY_HUMAN_DECISION and ask only that unresolved question.
+- If all required behavior is authorized but not implemented, return READY.`;
   }
-  return `COMPLETION GATE: ALREADY_IMPLEMENTED requires direct repository evidence for every approved behavioral requirement. Names, types, enums, comments, or related files alone are insufficient.`;
+  return `COMPLETION GATE: ALREADY_IMPLEMENTED requires direct repository evidence for every approved behavioral requirement. Names, types, enums, comments, or related files alone are insufficient.
+
+HUMAN-DECISION FILTER: Never reopen, contradict, or ask the human to re-decide requirements already explicitly approved in the Rules Bible or request context. Ask only genuinely unresolved implementation-critical questions.`;
 }
 
 export async function implementDesign(dataFile: string, enginePath: string, request?: ImplementationRequest) {
@@ -97,7 +96,6 @@ export async function implementDesign(dataFile: string, enginePath: string, requ
   const rulesSection = getRulesSection(rulesBible, requestedSystem);
   const context = request?.context ?? "Determine whether the requested approved system is already implemented or what authorized integration work remains.";
   const completionGate = getRequiredEvidence(requestedSystem);
-
   return await askAI(`You are the BLOODLINES Implementation Assistant.
 
 Analyze ONE requested system as an implementation analyst, not a game designer.
@@ -130,7 +128,7 @@ GOVERNANCE:
 - Never silently import D&D rules.
 - Never invent affected files.
 - Never claim code was changed.
-- If BLOCKED_BY_HUMAN_DECISION, list concrete questions only.
+- If BLOCKED_BY_HUMAN_DECISION, list concrete unresolved questions only.
 
 OUTPUT EXACTLY:
 # Implementation Status
