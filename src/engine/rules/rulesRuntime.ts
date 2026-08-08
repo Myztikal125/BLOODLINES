@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import fs from "fs";
 
 export interface CompiledRuleSystem {
@@ -17,9 +18,12 @@ export interface CompiledRules {
   }>;
   engineData: Record<string, unknown>;
   implementationRestrictions: string[];
+  sourceBibleSha256: string;
+  compiledAt: string;
 }
 
 const COMPILED_RULES_PATH = "data/rules/compiledRules.json";
+const RULES_BIBLE_PATH = "docs/RULES_BIBLE.md";
 
 export class RulesRuntime {
   private readonly rules: CompiledRules;
@@ -34,6 +38,7 @@ export class RulesRuntime {
     const raw = fs.readFileSync(filePath, "utf8");
     this.rules = JSON.parse(raw) as CompiledRules;
     this.validate();
+    this.verifySourceBible();
   }
 
   getAll(): CompiledRules {
@@ -55,9 +60,31 @@ export class RulesRuntime {
     return this.getSystem(system)?.requiresHumanDecision ?? true;
   }
 
+  private verifySourceBible(): void {
+    if (!fs.existsSync(RULES_BIBLE_PATH)) {
+      throw new Error(`Rules Bible not found: ${RULES_BIBLE_PATH}`);
+    }
+
+    const currentBible = fs.readFileSync(RULES_BIBLE_PATH, "utf8");
+    const currentHash = crypto
+      .createHash("sha256")
+      .update(currentBible, "utf8")
+      .digest("hex");
+
+    if (currentHash !== this.rules.sourceBibleSha256) {
+      throw new Error(
+        "Compiled Rules are stale. The Rules Bible changed after compilation. Recompile before starting the game."
+      );
+    }
+  }
+
   private validate(): void {
     if (!Array.isArray(this.rules.systems)) {
       throw new Error("Compiled Rules are invalid: systems must be an array.");
+    }
+
+    if (!this.rules.sourceBibleSha256 || !this.rules.compiledAt) {
+      throw new Error("Compiled Rules are missing source/version metadata.");
     }
 
     for (const system of this.rules.systems) {
