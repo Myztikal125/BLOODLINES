@@ -84,6 +84,19 @@ IMPORTANT GOVERNANCE:
 - Identify only files actually relevant to the requested system and supported by repository inspection.
 - Never claim code was changed. This assistant produces an implementation assessment/plan only.
 
+BLOCKED-MODE HARD STOP:
+When status is BLOCKED_BY_HUMAN_DECISION:
+- Do NOT provide an implementation design for the missing mechanic.
+- Do NOT provide examples of possible mechanics that could be mistaken for the intended rule.
+- Do NOT state or recommend a default behavior.
+- Do NOT prescribe exact formulas, dice selection, costs, triggers, thresholds, durations, or other missing values.
+- Do NOT put any unresolved mechanic under Required Changes.
+- Do NOT put unapproved behavior under Tests.
+- Required Changes may contain only safe work that follows directly from already-defined rules, or "None until human decision".
+- Tests may contain only tests for already-defined behavior, or "Blocked until human decision".
+- Human Decisions Required must state the missing decision without answering it.
+- If the repository already contains a candidate implementation of the missing mechanic, report it only as repository evidence; existing code is not authorization.
+
 STATUS DECISION RULES:
 - READY: approved/defined behavior is sufficiently specified and the repository gap is actionable without a human design decision.
 - BLOCKED_BY_HUMAN_DECISION: the system is approved or relevant, but at least one implementation-critical mechanic is absent from the Rules Bible.
@@ -110,9 +123,10 @@ Return exactly these sections:
 
 # Verification
 
-In # Human Decisions Required, list only decisions genuinely required to implement the requested system. If none are required, say "None".
+In # Human Decisions Required, list only decisions genuinely required to implement the requested system. State the question, not an answer. If none are required, say "None".
 In # Repository Findings, distinguish evidence of existing code from authorized rules.
 In # Approved Requirements, quote/paraphrase only rules explicitly established by the Rules Bible.
+In # Required Changes, never include an unresolved mechanic when status is BLOCKED_BY_HUMAN_DECISION.
 `
   );
 
