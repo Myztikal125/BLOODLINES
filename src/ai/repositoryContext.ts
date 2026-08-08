@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { execFileSync } from "child_process";
 
 const IGNORED_DIRECTORIES = new Set([
   ".git",
@@ -19,12 +20,12 @@ const ALLOWED_EXTENSIONS = new Set([
   ".md"
 ]);
 
-const MAX_FILES = 12;
-const MAX_LINES_PER_FILE = 80;
-const MAX_TOTAL_CHARS = 18000;
+const MAX_FILES = 18;
+const MAX_LINES_PER_FILE = 100;
+const MAX_TOTAL_CHARS = 24000;
 
 function collectFiles(root: string, current = root, files: string[] = []): string[] {
-  if (files.length >= 250) return files;
+  if (files.length >= 500) return files;
 
   for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
     if (IGNORED_DIRECTORIES.has(entry.name)) continue;
@@ -46,10 +47,15 @@ function collectFiles(root: string, current = root, files: string[] = []): strin
 
 function scoreFile(file: string, terms: string[]): number {
   const normalized = file.toLowerCase();
-  return terms.reduce(
-    (score, term) => score + (normalized.includes(term) ? 5 : 0),
-    0
-  );
+  const basename = path.basename(normalized);
+
+  return terms.reduce((score, term) => {
+    if (basename === term || basename === `${term}.ts` || basename === `${term}.json` || basename === `${term}.md`) {
+      return score + 20;
+    }
+
+    return score + (normalized.includes(term) ? 5 : 0);
+  }, 0);
 }
 
 function findRelevantFiles(root: string, query: string): string[] {
@@ -57,7 +63,7 @@ function findRelevantFiles(root: string, query: string): string[] {
     .toLowerCase()
     .split(/[^a-z0-9_]+/)
     .filter((term) => term.length >= 4)
-    .slice(0, 20);
+    .slice(0, 30);
 
   const files = collectFiles(root);
   const scored = files
@@ -78,13 +84,34 @@ function readSafe(root: string, relativePath: string): string | null {
   }
 }
 
+function gitSnapshot(root: string): string {
+  try {
+    const head = execFileSync("git", ["log", "-1", "--oneline"], { cwd: root, encoding: "utf8" }).trim();
+    const recent = execFileSync("git", ["log", "-5", "--oneline"], { cwd: root, encoding: "utf8" }).trim();
+    const status = execFileSync("git", ["status", "--short"], { cwd: root, encoding: "utf8" }).trim();
+
+    return [
+      "Repository history:",
+      `- Current HEAD: ${head || "unknown"}`,
+      "- Recent commits:",
+      recent ? recent.split("\n").map((line) => `  ${line}`).join("\n") : "  none",
+      "- Working-tree changes:",
+      status ? status.split("\n").slice(0, 30).map((line) => `  ${line}`).join("\n") : "  clean"
+    ].join("\n");
+  } catch {
+    return "Repository history: unavailable; rely on inspected files only.";
+  }
+}
+
 /**
  * Builds a bounded repository snapshot for assistants.
- * Repository code describes implementation state; it never overrides the Rules Bible.
+ * Repository code and data describe implementation state; they never override the Rules Bible.
+ * The snapshot also includes recent Git history so assistants can distinguish current work
+ * from stale historical context.
  */
 export function buildRepositoryContext(query: string, root = process.cwd()): string {
   const files = findRelevantFiles(root, query);
-  let output = "Repository inspection results:\n";
+  let output = `${gitSnapshot(root)}\n\nRepository inspection results:\n`;
   output += files.length
     ? files.map((file) => `- ${file}`).join("\n")
     : "- No relevant source files found.";
