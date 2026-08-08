@@ -1,5 +1,6 @@
 import { askAI } from "./aiClient";
 import fs from "fs";
+import { compileRulesBible } from "./rulesPipeline";
 
 const RULES_BIBLE_PATH = "docs/RULES_BIBLE.md";
 const AI_HANDOFF_PATH = "docs/AI_HANDOFF.md";
@@ -16,9 +17,6 @@ export interface RulesBibleState {
   decision: string;
 }
 
-/**
- * Reads the current authoritative Rules Bible.
- */
 export function readRulesBible(): string {
   if (!fs.existsSync(RULES_BIBLE_PATH)) {
     throw new Error(`Rules Bible not found: ${RULES_BIBLE_PATH}`);
@@ -27,9 +25,6 @@ export function readRulesBible(): string {
   return fs.readFileSync(RULES_BIBLE_PATH, "utf8");
 }
 
-/**
- * Normalizes a system name so comparisons are deterministic.
- */
 function normalizeSystemName(system: string): string {
   return system
     .trim()
@@ -37,28 +32,11 @@ function normalizeSystemName(system: string): string {
     .replace(/\s+/g, " ");
 }
 
-/**
- * Creates the canonical approved-decision entry.
- */
 function createApprovedEntry(decision: ApprovedDecision): string {
-  return `### ${decision.system}
-
-**Status:** APPROVED
-
-**Human Decision:** ${decision.decision}
-
-**Governance:** This system is approved and must not be reopened as an unresolved system decision. Any implementation details not explicitly approved remain subject to future clarification.
-`;
+  return `### ${decision.system}\n\n**Status:** APPROVED\n\n**Human Decision:** ${decision.decision}\n\n**Governance:** This system is approved and must not be reopened as an unresolved system decision. Any implementation details not explicitly approved remain subject to future clarification.\n`;
 }
 
-/**
- * Creates a canonical Approved Decisions section.
- *
- * This section is the authoritative governance registry.
- */
-function createApprovedSection(
-  decisions: ApprovedDecision[]
-): string {
+function createApprovedSection(decisions: ApprovedDecision[]): string {
   const unique = new Map<string, ApprovedDecision>();
 
   for (const decision of decisions) {
@@ -69,20 +47,10 @@ function createApprovedSection(
     .map(createApprovedEntry)
     .join("\n");
 
-  return `## Approved Decisions
-
-${entries}`.trimEnd();
+  return `## Approved Decisions\n\n${entries}`.trimEnd();
 }
 
-/**
- * Extracts currently approved systems from the existing Bible.
- *
- * This prevents a new batch from accidentally deleting previous
- * approvals.
- */
-function extractApprovedDecisions(
-  bible: string
-): ApprovedDecision[] {
+function extractApprovedDecisions(bible: string): ApprovedDecision[] {
   const sectionMatch = bible.match(
     /## Approved Decisions\s*([\s\S]*?)(?=\n## |\s*$)/
   );
@@ -106,13 +74,6 @@ function extractApprovedDecisions(
   }));
 }
 
-/**
- * Rebuilds the authoritative Approved Decisions registry.
- *
- * Existing approvals are preserved.
- * New human approvals are merged.
- * No AI output is allowed to modify this registry.
- */
 export function applyApprovedDecisions(
   decisions: ApprovedDecision[]
 ): string {
@@ -121,9 +82,7 @@ export function applyApprovedDecisions(
   }
 
   let bible = readRulesBible();
-
   const existing = extractApprovedDecisions(bible);
-
   const merged = new Map<string, ApprovedDecision>();
 
   for (const decision of existing) {
@@ -138,8 +97,7 @@ export function applyApprovedDecisions(
     Array.from(merged.values())
   );
 
-  const sectionRegex =
-    /## Approved Decisions[\s\S]*?(?=\n## |\s*$)/;
+  const sectionRegex = /## Approved Decisions[\s\S]*?(?=\n## |\s*$)/;
 
   if (sectionRegex.test(bible)) {
     bible = bible.replace(sectionRegex, approvedSection);
@@ -147,21 +105,23 @@ export function applyApprovedDecisions(
     bible = `${bible.trim()}\n\n${approvedSection}\n`;
   }
 
-  fs.writeFileSync(
-    RULES_BIBLE_PATH,
-    bible,
-    "utf8"
-  );
+  fs.writeFileSync(RULES_BIBLE_PATH, bible, "utf8");
 
   return bible;
 }
 
 /**
- * Sends an explicitly approved batch to the Scribe.
- *
- * The Scribe produces a report only.
- * The deterministic apply function controls the actual Bible.
+ * Applies human approvals and immediately recompiles the authoritative Bible
+ * into runtime data. If compilation fails, the existing runtime data is left
+ * untouched by the compiler.
  */
+export async function applyApprovedDecisionsAndCompile(
+  decisions: ApprovedDecision[]
+): Promise<string> {
+  applyApprovedDecisions(decisions);
+  return compileRulesBible();
+}
+
 export async function prepareRulesBibleUpdate(
   decisions: ApprovedDecision[]
 ): Promise<string> {
@@ -174,9 +134,7 @@ export async function prepareRulesBibleUpdate(
   const decisionText = decisions
     .map(
       (decision) =>
-        `Decision ${decision.id}
-System: ${decision.system}
-Human Decision: ${decision.decision}`
+        `Decision ${decision.id}\nSystem: ${decision.system}\nHuman Decision: ${decision.decision}`
     )
     .join("\n\n");
 
@@ -222,12 +180,7 @@ For each supplied decision:
   return askAI(prompt);
 }
 
-/**
- * Creates a normal project checkpoint.
- */
-export async function createCheckpoint(
-  update: string
-): Promise<string> {
+export async function createCheckpoint(update: string): Promise<string> {
   const rulesBible = readRulesBible();
 
   const prompt = `
