@@ -1,6 +1,37 @@
 import fs from "fs";
 import { askAI } from "./aiClient";
 
+/**
+ * The model is instructed to return JSON only, but providers can still wrap
+ * valid JSON in markdown fences or a short preamble. Normalize that transport
+ * noise here; never invent or repair rule content.
+ */
+function normalizeCompilerOutput(raw: string): string {
+  const text = raw.trim();
+
+  if (!text) {
+    throw new Error("Rules Compiler returned an empty response.");
+  }
+
+  const fenced = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+  if (fenced?.[1]) {
+    return fenced[1].trim();
+  }
+
+  if (text.startsWith("{")) {
+    return text;
+  }
+
+  const firstBrace = text.indexOf("{");
+  const lastBrace = text.lastIndexOf("}");
+
+  if (firstBrace >= 0 && lastBrace > firstBrace) {
+    return text.slice(firstBrace, lastBrace + 1).trim();
+  }
+
+  return text;
+}
+
 export async function compileRules(filePath: string) {
   if (!fs.existsSync(filePath)) {
     throw new Error(`Rules file not found: ${filePath}`);
@@ -107,7 +138,10 @@ Do not convert an implementation question into an implementation rule.
 OUTPUT
 ==================================================
 
-Return VALID JSON ONLY.
+Return exactly ONE JSON object and nothing else.
+Do not use Markdown.
+Do not wrap the JSON in code fences.
+Do not prepend or append commentary.
 
 Use:
 
@@ -145,5 +179,5 @@ CURRENT RULES BIBLE
 ${rules}`
   );
 
-  return result;
+  return normalizeCompilerOutput(result);
 }
