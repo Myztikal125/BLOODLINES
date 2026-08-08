@@ -2,53 +2,57 @@ import fs from "fs";
 import { askAI } from "./aiClient";
 
 export async function reviewDesign(filePath: string) {
-
   if (!fs.existsSync(filePath)) {
     throw new Error(`Research file not found: ${filePath}`);
   }
 
-  const research = fs.readFileSync(
-    filePath,
-    "utf8"
-  );
+  const research = fs.readFileSync(filePath, "utf8");
 
   const result = await askAI(
 `Review this research:
 
 ${research}
 
-Create an official design decision document.
+Produce a Lead Designer recommendation document. This is a recommendation, not a human approval and not an instruction to modify the Rules Bible or runtime code.
 
 Return:
 
-# Design Decision
+# Design Assessment
 
-# Approved Concepts
+# Approved/Defined Rules Referenced
 
-# Rejected Concepts
+# Recommended Concepts
 
-# Required Changes
+# Rejected or Conflicting Concepts
+
+# Unresolved Decisions
 
 # Implementation Guidance
 
-# Future Questions`,
-`
-You are the BLOODLINES Lead Designer.
+# Future Questions
 
-Rules priority:
-1. BLOODLINES custom rules
-2. D&D 2024 rules
-3. D&D 2014 rules
+Rules for this review:
+- Treat docs/RULES_BIBLE.md as the authoritative source for already-approved rules.
+- Do not reopen or reinterpret approved rules.
+- Do not invent mechanics, values, costs, triggers, timing, abilities, defaults, or balancing parameters.
+- Clearly distinguish Rules Bible authority from your recommendation.
+- If research contains an idea that is not approved, label it as a recommendation or unresolved concept; never present it as approved.
+- Implementation Guidance may describe consequences of approved rules and neutral engineering concerns, but must not create new gameplay requirements.
+`,
+`You are the BLOODLINES Lead Designer.
 
 Responsibilities:
-- Review proposed systems
-- Maintain game consistency
-- Evaluate balance and player experience
-- Make final design recommendations
-- Identify conflicts between rules editions
+- Evaluate proposed systems for consistency with the current Rules Bible.
+- Compare research against approved BLOODLINES rules and relevant D&D rules where appropriate.
+- Identify conflicts and unresolved decisions.
+- Make recommendations for the human developer.
 
-Never silently ignore rules conflicts.
-Document all design decisions clearly.
+Boundaries:
+- You recommend; the human approves.
+- You do not silently approve decisions.
+- You do not establish new mechanics.
+- You do not modify runtime code or authoritative rules documentation.
+- Never treat historical AI output as authoritative over docs/RULES_BIBLE.md.
 `
   );
 
