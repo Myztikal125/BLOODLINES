@@ -56,13 +56,47 @@ export class NPCMemoryService {
     return memory;
   }
 
+  adjustRelationship(
+    npcId: string,
+    subjectId: string,
+    trust: number,
+    respect: number,
+    fear: number,
+    event?: string
+  ): NPCMemory {
+
+    const memory = this.getMemory(
+      npcId,
+      subjectId
+    );
+
+    memory.trust += trust;
+    memory.respect += respect;
+    memory.fear += fear;
+
+    if (event) {
+      memory.memories.push({
+        event,
+        impact: trust,
+        timestamp: Date.now()
+      });
+    }
+
+    this.updateRelationship(memory);
+
+    return memory;
+  }
+
   addFact(
     npcId: string,
     subjectId: string,
     fact: string
   ): NPCMemory {
 
-    const memory = this.getMemory(npcId, subjectId);
+    const memory = this.getMemory(
+      npcId,
+      subjectId
+    );
 
     if (!memory.knownFacts.includes(fact)) {
       memory.knownFacts.push(fact);
@@ -70,7 +104,6 @@ export class NPCMemoryService {
 
     return memory;
   }
-
 
   completeQuest(
     npcId: string,
@@ -92,14 +125,26 @@ export class NPCMemoryService {
 
   private updateRelationship(memory: NPCMemory) {
 
+    if (memory.trust < 0 && memory.fear < 10) {
+      memory.relationshipStage = "enemy";
+      return;
+    }
+
+    if (memory.fear >= 10 && memory.trust < 20) {
+      memory.relationshipStage = "afraid";
+      return;
+    }
+
     if (memory.trust >= 50) {
       memory.relationshipStage = "ally";
-    } else if (memory.trust >= 20) {
-      memory.relationshipStage = "friend";
-    } else if (memory.trust < 0) {
-      memory.relationshipStage = "enemy";
-    } else {
-      memory.relationshipStage = "stranger";
+      return;
     }
+
+    if (memory.trust >= 20) {
+      memory.relationshipStage = "friend";
+      return;
+    }
+
+    memory.relationshipStage = "stranger";
   }
 }

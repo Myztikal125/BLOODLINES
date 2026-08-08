@@ -1,5 +1,6 @@
 import { Command } from "./command";
 import { NPCDialogueService } from "../../../src/npcs/npcDialogueService";
+import { NPCLoader } from "../../world/npcs/npcLoader";
 
 export class TalkCommand implements Command {
 
@@ -11,17 +12,25 @@ export class TalkCommand implements Command {
 
   execute(args?: string[]): string {
 
-    const npcId = args?.[0];
-
-    if (!npcId) {
+    if (!args || args.length === 0) {
       return "Talk to who?";
     }
 
-    const result =
-      this.dialogue.talk(
-        npcId,
-        "shadow"
-      );
+    const input = args.join(" ").toLowerCase();
+
+    // Fuzzy match NPC by name or id
+    const allNPCs = NPCLoader.loadNPCs();
+    const match = allNPCs.find((n: any) =>
+      n.id.toLowerCase().includes(input) ||
+      n.name.toLowerCase().includes(input) ||
+      input.includes(n.name.split(" ")[0].toLowerCase())
+    );
+
+    if (!match) {
+      return `Unknown NPC: "${args.join(" ")}". Try exploring to find someone nearby.`;
+    }
+
+    const result = this.dialogue.talk(match.id, "shadow");
 
     if (typeof result === "string") {
       return result;
@@ -33,5 +42,4 @@ ${result.npc}
 ${result.dialogue}
 `;
   }
-
 }

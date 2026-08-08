@@ -3,12 +3,78 @@ import { NPCMemoryService } from "./npcMemory";
 export interface NPC {
   id: string;
   name: string;
+
   role?: string;
   location?: string;
   description?: string;
   faction?: string;
+
+  // Legacy/simple runtime fields
   trust?: number;
   quests?: string[];
+
+  // NPC Architect identity
+  identity?: {
+    ancestry?: string;
+    class?: string;
+    background?: string;
+    role?: string;
+    location?: string;
+    faction?: string;
+  };
+
+  appearance?: {
+    description?: string;
+    notableFeatures?: string[];
+  };
+
+  personality?: {
+    traits?: string[];
+    values?: string[];
+    flaws?: string[];
+    humor?: string;
+    speechStyle?: string;
+    temperament?: string;
+  };
+
+  psychology?: {
+    fears?: string[];
+    motivations?: string[];
+    desires?: string[];
+    secrets?: string[];
+  };
+
+  dialogue?: {
+    greetingStyle?: string;
+    speechPatterns?: string[];
+    topicsTheyAvoid?: string[];
+    emotionalTriggers?: string[];
+  };
+
+  // NPC-to-NPC relationships
+  relationships?: {
+    npcId?: string;
+    name?: string;
+    type?: string;
+    history?: string;
+    trust?: number;
+    importance?: string;
+  }[];
+
+  factionConnections?: string[];
+
+  goals?: {
+    shortTerm?: string[];
+    longTerm?: string[];
+  };
+
+  questHooks?: string[];
+
+  // Dynamic state belonging to the NPC itself.
+  // Player-specific trust/fear/memories remain in NPCMemoryService.
+  stateVariables?: {
+    mood?: string;
+  };
 }
 
 export class NPCService {

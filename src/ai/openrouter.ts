@@ -7,13 +7,13 @@ const client = new OpenAI({
 
 export async function askDungeonMaster(prompt: string) {
   const completion = await client.chat.completions.create({
-    model: "openai/gpt-4o",
-    max_tokens: 1000,
+    model: "openai/gpt-4o-mini",
+    max_tokens: 500,
     messages: [
       {
         role: "system",
         content:
-          "You are the Bloodlines Dungeon Master. Use D&D 2014, D&D 2024, and Bloodlines custom rules.",
+          "You are the Bloodlines Dungeon Master. Use D&D 2014, D&D 2024, and Bloodlines custom rules. Be concise.",
       },
       {
         role: "user",

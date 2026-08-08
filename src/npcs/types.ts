@@ -1,3 +1,10 @@
+export type RelationshipStage =
+  | "stranger"
+  | "friend"
+  | "ally"
+  | "afraid"
+  | "enemy";
+
 export interface NPCMemory {
   npcId: string;
   subjectId: string;
@@ -11,7 +18,7 @@ export interface NPCMemory {
 
   completedQuests: string[];
 
-  relationshipStage: string;
+  relationshipStage: RelationshipStage;
 }
 
 export interface MemoryEntry {

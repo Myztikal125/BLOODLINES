@@ -1,55 +1,73 @@
-# BLOODLINES Version 0.1 Rules Bible
+# BLOODLINES Rules Bible v0.1
 
-This document outlines the approved design decisions and structured rules for the BLOODLINES RPG.
+This document outlines the officially approved rules and systems for BLOODLINES, providing a structured overview of gameplay mechanics.
 
 ## Core Vision
 
 BLOODLINES is an AI-assisted tabletop RPG system designed around:
-- Deep character identity
-- Meaningful choices
-- Evolving worlds
-- Strategic combat
-- Immersive storytelling
+- **Deep Character Identity**: Encourage players to shape distinct characters.
+- **Meaningful Choices**: Player decisions have lasting impacts on the world.
+- **Evolving Worlds**: The narrative develops based on player interactions.
+- **Strategic Combat**: Promote critical thinking in gameplay.
+- **Immersive Storytelling**: Create rich narratives driven by players’ actions.
 
 ## Character System
 
-- **Classes**: Character classes will define unique play styles and specializations.
-- **Backgrounds**: Player characters will choose backgrounds that offer narrative hooks and initial skills.
-- **Bloodlines**: All characters belong to a bloodline, which impacts abilities, powers, and character identity.
+### Character Creation
+1. **Classes**: Players can choose distinct classes that define their roles and abilities.
+2. **Backgrounds**: Backgrounds provide additional skills and context to characters’ histories.
+3. **Bloodlines**: Characters inherit traits and abilities from specific bloodlines, enhancing uniqueness.
+   - **Dual Bloodlines**: Characters can inherit traits from two bloodlines, providing deeper customization.
+
+### Character Evolution
+- **Bloodline Evolution**: Players can evolve their bloodline powers through in-game decisions, reinforcing player agency and growth.
+- **Legacy Quests**: Special quests tied to bloodlines unlock new abilities and enrich lore.
 
 ## Bloodline Rules
 
-1. **Dual Bloodlines**: Characters may inherit traits from two different bloodlines to enhance customization.
-2. **Bloodline Evolution**: Characters evolve their bloodline powers through player choices, promoting growth.
-3. **Legacy Quests**: Special quests will unlock new powers and expand lore related to a character's bloodline.
-4. **Bloodline Curses**: Players may accept curses in exchange for enhanced powers, adding narrative depth and moral complexity.
-
+- Bloodline traits must allow for evolution and player input.
+- **Bloodline Curses**: Players can accept curses for enhanced powers, adding moral complexity.
+  
 ## Combat Rules
 
-1. **Dynamic Initiative System**: Players can gather "initiative points" through certain actions to influence turn order.
-2. **Action Economy Variability**: Actions will have different resource costs, promoting tactical resource management.
-3. **Conditional Status Effects**: Status effects will be influenced by in-game conditions (e.g., weather effects).
-4. **Action Synergy**: Abilities can enhance each other, fostering teamwork within party dynamics.
-5. **Adaptive Monster AI**: Enemies will adapt basic strategies based on player actions to introduce dynamic challenges.
+### Initiative System
+- **Dynamic Initiative System**: Players gather "initiative points" through actions to influence turn order.
+
+### Action Economy
+- **Resource Management**: Introduce an energy or stamina system where different actions cost varying resources.
+
+### Status Effects
+- **Conditional Status Effects**: In-game conditions (e.g., environmental factors) can influence status effects.
+
+### Team Strategy
+- **Action Synergy**: Abilities that enhance each other's effectiveness foster teamwork.
+
+### Enemy AI
+- **Adaptive Monster AI**: AI learns basic patterns from players, implementing dynamic strategies.
 
 ## Magic Rules
 
-1. **Signature Spells**: Wizards can select a number of signature spells to cast without using spell slots.
-2. **Spellcrafting System**: Players may combine spells or modify them using unique ingredients and rituals.
-3. **Loyalty to Schools**: Bonuses will be provided for wizards focusing on their chosen school of magic.
-4. **Arcane Tutor System**: NPC mentors will offer unique spells and knowledge, enhancing role-playing opportunities.
-5. **Dynamic Spell Economy**: Additional costs for spells (e.g., material components) will encourage resource management.
+### Spellcasting Mechanics
+1. **Signature Spells**: Wizards choose signature spells that can be cast without consuming spell slots.
+2. **Spellcrafting System**: Players can modify or combine spells with unique ingredients, promoting creativity.
+3. **Loyalty to Schools**: Focusing on a chosen magic school grants bonuses, fostering specialization.
+4. **Dynamic Spell Economy**: Additional costs (e.g., material components) for spells incentivize resource management.
+
+### Accessibility
+- Streamline the spell selection interface for user-friendliness.
+- Develop a structured tutorial to ease new players into spellcasting mechanics.
 
 ## Progression Rules
 
-- **Experience Points**: Characters gain experience through quests and defeating foes, allowing them to level up and gain new abilities.
-- **Skill Proficiencies**: Players choose skill proficiencies during character creation, influencing their capabilities and interactions.
-- **Character Customization**: Progression allows players to modify their characters through abilities, skills, and bloodline traits.
+1. Mechanics will provide depth without overwhelming players through gradual introduction and complexity layering.
+2. Balancing disparities between bloodline powers to maintain equitable gameplay.
 
 ## Open Decisions
 
-1. What specific themes of wizardry do we want to emphasize within the narrative?
-2. Should there be distinct mechanics or bonuses for different schools beyond signature spells?
-3. Are we considering a tiered complexity system for advanced spells?
-4. How much focus should we place on environmental interactions, and how can we keep them engaging?
-5. Should there be limits on spell customization in the Spellcrafting System for balance?
+1. Themes of wizardry to emphasize within the narrative.
+2. Mechanics or bonuses for different schools that enhance gameplay and world interaction.
+3. Potential for tiered complexity in spells for advanced players.
+4. Level of focus on environmental interactions for spellcasting.
+5. Balance of limitations on spell customization in Spellcrafting System for maintainability. 
+
+This structured overview sets the foundation for BLOODLINES, encapsulating core gameplay rules while allowing for future development based on player feedback and testing.

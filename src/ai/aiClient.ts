@@ -1,11 +1,28 @@
 import "dotenv/config";
 
-export async function askAI(prompt: string, maxTokens: number = 2000) {
+export async function askAI(
+  prompt: string,
+  maxTokensOrSystemPrompt: number | string = 2000,
+  systemPrompt?: string
+) {
   const key = process.env.OPENROUTER_API_KEY;
 
   if (!key) {
     throw new Error("Missing OPENROUTER_API_KEY");
   }
+
+  const maxTokens =
+    typeof maxTokensOrSystemPrompt === "number"
+      ? maxTokensOrSystemPrompt
+      : 2000;
+
+  const resolvedSystemPrompt =
+    systemPrompt ??
+    (
+      typeof maxTokensOrSystemPrompt === "string"
+        ? maxTokensOrSystemPrompt
+        : "You are the BLOODLINES Research Assistant. Provide structured RPG research notes."
+    );
 
   const response = await fetch(
     "https://openrouter.ai/api/v1/chat/completions",
@@ -21,8 +38,7 @@ export async function askAI(prompt: string, maxTokens: number = 2000) {
         messages: [
           {
             role: "system",
-            content:
-              "You are the BLOODLINES Research Assistant. Provide structured RPG research notes."
+            content: resolvedSystemPrompt
           },
           {
             role: "user",
