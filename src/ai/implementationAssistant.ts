@@ -122,15 +122,15 @@ function validateImplementationPlan(system: string, output: string): string {
   if (forbidden.some(pattern => pattern.test(output))) throw new Error("Implementation plan rejected: unspecified Action Economy mechanics were invented.");
 
   const required = [
-    ["action", /one\s+action|action\s+per\s+turn|action\s+slot/i],
+    ["action", /(?:one\s+)?action\s+per\s+(?:combat\s+)?turn|baseline\s+of\s+one\s+per\s+(?:combat\s+)?turn|one\s+action|action\s+slot/i],
     ["bonus action", /bonus\s+action/i],
     ["reaction", /reaction/i],
     ["action consumption", /action\s+consumption|consum(e|ption).*action|action.*consum(e|ption)/i],
     ["bonus consumption", /bonus.*consum(e|ption)|consum(e|ption).*bonus/i],
     ["reaction reset", /reaction.*(reset|round)|reset.*reaction/i],
-    ["turn reset", /turn.*reset|reset.*turn/i],
+    ["turn reset", /turn.*reset|reset.*turn|reset.*start.*turn|start.*new\s+turn/i],
     ["stamina resource", /stamina|energy/i],
-    ["no extra baseline slots", /stamina.*(extra|additional).*action|extra.*(action|bonus).*stamina|stamina.*buy/i]
+    ["no extra baseline slots", /stamina.*(extra|additional).*action|extra.*(action|bonus).*stamina|stamina.*buy|cannot.*purchase.*extra.*(action|bonus)|cannot.*gain.*extra.*(action|bonus)/i]
   ] as const;
   const missing = required.filter(([, pattern]) => !pattern.test(output)).map(([name]) => name);
   if (missing.length) throw new Error(`Implementation plan rejected: approved requirements were omitted: ${missing.join(", ")}`);
