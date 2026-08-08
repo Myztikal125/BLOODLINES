@@ -30,100 +30,56 @@ import { NPCMemoryService } from "../../src/npcs/npcMemory";
 import { RelationshipService } from "../../src/npcs/relationships/relationshipService";
 import { NPCDialogueService } from "../../src/npcs/npcDialogueService";
 import { narrateEvent } from "../../src/ai/gameNarrator";
+import { RulesRuntime } from "../rules/rulesRuntime";
 
 export class GameController {
 
   private commands = new CommandManager();
-
   private encounters = new EncounterDirector();
-
-  private world =
-    new WorldState();
-
-  private quests =
-    new QuestManager();
-
-  private progress =
-    new PlayerProgress();
-
-  private rewards =
-    new RewardHandler(this.progress);
-
-  private saves =
-    new SaveManager();
-
-  private inventory =
-    new Inventory();
+  private world = new WorldState();
+  private quests = new QuestManager();
+  private progress = new PlayerProgress();
+  private rewards = new RewardHandler(this.progress);
+  private saves = new SaveManager();
+  private inventory = new Inventory();
 
   constructor(
     private state: GameState,
     private combat: CombatController,
     private npcService: NPCService,
-    private relationshipService: RelationshipService
+    private relationshipService: RelationshipService,
+    private rules?: RulesRuntime
   ) {
 
+    this.commands.register(new HelpCommand());
+    this.commands.register(new CharacterCommand(this.state));
+
     this.commands.register(
-      new HelpCommand()
+      new ExploreCommand(this.state, this.world, this.quests)
     );
 
     this.commands.register(
-      new CharacterCommand(this.state)
+      new InvestigateCommand(this.world, this.quests)
     );
 
     this.commands.register(
-      new ExploreCommand(
-        this.state,
-        this.world,
-        this.quests
-      )
+      new CombatCommand(this.combat, this.state)
     );
 
     this.commands.register(
-      new InvestigateCommand(
-        this.world,
-        this.quests
-      )
+      new EncounterCommand(this.encounters, this.combat, this.state)
+    );
+
+    this.commands.register(new WorldCommand(this.world));
+    this.commands.register(new QuestCommand(this.quests));
+    this.commands.register(new StatsCommand(this.progress));
+
+    this.commands.register(
+      new CompleteQuestCommand(this.quests, this.rewards)
     );
 
     this.commands.register(
-      new CombatCommand(
-        this.combat,
-        this.state
-      )
-    );
-
-    this.commands.register(
-      new EncounterCommand(
-        this.encounters,
-        this.combat,
-        this.state
-      )
-    );
-
-    this.commands.register(
-      new WorldCommand(this.world)
-    );
-
-    this.commands.register(
-      new QuestCommand(this.quests)
-    );
-
-    this.commands.register(
-      new StatsCommand(this.progress)
-    );
-
-    this.commands.register(
-      new CompleteQuestCommand(
-        this.quests,
-        this.rewards
-      )
-    );
-
-    this.commands.register(
-      new ObjectiveCommand(
-        this.quests,
-        this.rewards
-      )
+      new ObjectiveCommand(this.quests, this.rewards)
     );
 
     this.commands.register(
@@ -136,17 +92,9 @@ export class GameController {
       )
     );
 
-    this.commands.register(
-      new InventoryCommand(this.inventory)
-    );
-
-    this.commands.register(
-      new AddItemCommand(this.inventory)
-    );
-
-    this.commands.register(
-      new RemoveItemCommand(this.inventory)
-    );
+    this.commands.register(new InventoryCommand(this.inventory));
+    this.commands.register(new AddItemCommand(this.inventory));
+    this.commands.register(new RemoveItemCommand(this.inventory));
 
     this.commands.register(
       new TalkCommand(
@@ -167,19 +115,18 @@ export class GameController {
         this.inventory
       )
     );
+  }
 
+  getRules(): RulesRuntime | undefined {
+    return this.rules;
   }
 
   async handle(input: string) {
-
     const result = await this.commands.execute(input);
 
     console.log(result);
 
-    if (
-      input === "explore" ||
-      input === "combat"
-    ) {
+    if (input === "explore" || input === "combat") {
       const story = await narrateEvent(
         result,
         this.state.character,
@@ -188,7 +135,5 @@ export class GameController {
 
       console.log("\n" + story);
     }
-
   }
-
 }
