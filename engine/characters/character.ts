@@ -36,6 +36,9 @@ export interface CharacterData {
   armorClass: number;
 
   abilities: AbilityScores;
+
+  /** Current stamina/energy resource; no max, cost, or regeneration is defined here. */
+  stamina?: number;
 }
 
 export class Character {
