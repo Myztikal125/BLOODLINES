@@ -195,4 +195,13 @@ This structured overview sets the foundation for BLOODLINES, encapsulating core 
 
 **Human Decision:** Clarify standard action, bonus action, and reaction types.
 
-**Governance:** This system is approved and must not be reopened as an unresolved system decision. Any implementation details not explicitly approved remain subject to future clarification.
+**Approved Implementation Rules:**
+- Each combat turn provides one Action.
+- Each combat turn provides one Bonus Action.
+- Each combatant has one Reaction available outside its own turn when an authorized trigger occurs.
+- The Action Economy framework includes an energy/stamina resource system, but the initial implementation does not assign stamina costs to Actions, Bonus Actions, or Reactions.
+- Actions, Bonus Actions, and Reactions therefore have no stamina cost until an additional human-approved rule explicitly defines such costs.
+- A character cannot perform additional Actions or Bonus Actions in the same turn merely by spending stamina.
+- Specific abilities or other explicitly approved rules may later authorize additional actions without changing these baseline rules.
+
+**Governance:** This system and the above implementation rules are explicitly approved and must not be reopened as unresolved decisions. Future clarification may define resource costs or authorized exceptions without changing the approved baseline action types and turn limits.
