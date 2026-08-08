@@ -30,7 +30,6 @@ function buildMessages(prompt: string, systemPrompt: string) {
 
 function estimateTokens(messages: Array<{ role: string; content: string }>, maxTokens: number) {
   const inputCharacters = messages.reduce((total, message) => total + message.content.length, 0);
-  // Conservative approximation used only for provider selection; the provider remains authoritative.
   return Math.ceil(inputCharacters / 4) + maxTokens;
 }
 
@@ -72,6 +71,14 @@ function providerCanHandle(budget: ProviderBudget, estimatedTokens: number) {
   return true;
 }
 
+function safeProviderError(data: unknown) {
+  if (!data || typeof data !== "object") return "unknown provider error";
+  const record = data as { error?: { message?: unknown; code?: unknown } };
+  const message = typeof record.error?.message === "string" ? record.error.message : "unknown provider error";
+  const code = record.error?.code !== undefined ? String(record.error.code) : "unknown";
+  return `${code}: ${message}`.slice(0, 500);
+}
+
 async function callGroq(
   key: string,
   model: string,
@@ -91,10 +98,15 @@ async function callGroq(
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(`Groq request failed (${response.status})`);
+    throw new Error(`Groq request failed (${response.status}) [${model}]: ${safeProviderError(data)}`);
   }
 
-  return data.choices[0].message.content;
+  const content = data?.choices?.[0]?.message?.content;
+  if (typeof content !== "string" || !content.trim()) {
+    throw new Error(`Groq returned no usable content [${model}]`);
+  }
+
+  return content;
 }
 
 async function callOpenRouter(
@@ -115,10 +127,15 @@ async function callOpenRouter(
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(`OpenRouter request failed (${response.status})`);
+    throw new Error(`OpenRouter request failed (${response.status}) [${safeProviderError(data)}]`);
   }
 
-  return data.choices[0].message.content;
+  const content = data?.choices?.[0]?.message?.content;
+  if (typeof content !== "string" || !content.trim()) {
+    throw new Error("OpenRouter returned no usable content");
+  }
+
+  return content;
 }
 
 export async function askAI(
@@ -137,6 +154,7 @@ export async function askAI(
   const estimatedTokens = estimateTokens(messages, maxTokens);
   const groqKey = process.env.GROQ_API_KEY;
   const openRouterKey = process.env.OPENROUTER_API_KEY;
+  const failures: string[] = [];
 
   if (groqKey) {
     const groqModels = [GROQ_MODEL, GROQ_FALLBACK_MODEL].filter(
@@ -144,25 +162,34 @@ export async function askAI(
     );
 
     for (const model of groqModels) {
-      if (!providerCanHandle(groqBudget, estimatedTokens)) break;
+      if (!providerCanHandle(groqBudget, estimatedTokens)) {
+        failures.push(`Groq ${model}: unavailable based on known rate limits`);
+        continue;
+      }
 
       try {
         return await callGroq(groqKey, model, messages, maxTokens);
-      } catch {
-        // Try the next capable provider/model without exposing provider internals to assistants.
+      } catch (error) {
+        failures.push(error instanceof Error ? error.message : `Groq ${model}: unknown error`);
       }
     }
+  } else {
+    failures.push("Groq: GROQ_API_KEY is not available to the Node process");
   }
 
   if (openRouterKey && providerCanHandle(openRouterBudget, estimatedTokens)) {
-    return await callOpenRouter(openRouterKey, messages, maxTokens);
-  }
-
-  if (groqKey && providerCanHandle(groqBudget, estimatedTokens)) {
-    return await callGroq(groqKey, GROQ_FALLBACK_MODEL, messages, maxTokens);
+    try {
+      return await callOpenRouter(openRouterKey, messages, maxTokens);
+    } catch (error) {
+      failures.push(error instanceof Error ? error.message : "OpenRouter: unknown error");
+    }
+  } else if (!openRouterKey) {
+    failures.push("OpenRouter: OPENROUTER_API_KEY is not available to the Node process");
+  } else {
+    failures.push("OpenRouter: unavailable based on known rate limits");
   }
 
   throw new Error(
-    `No AI provider currently has sufficient capacity for this request (estimated ${estimatedTokens} tokens).`
+    `No AI provider could handle this request (estimated ${estimatedTokens} tokens).\n${failures.join("\n")}`
   );
 }
