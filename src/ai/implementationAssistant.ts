@@ -56,14 +56,19 @@ ${context}
 RULES BIBLE:
 ${rulesBible}
 
-SUPPLIED DATA:
+SUPPLIED DATA FILE:
+${dataFile}
 ${data}
 
-SUPPLIED ENGINE:
+SUPPLIED ENGINE FILE:
+${engineFile}
 ${engine}
 
 REPOSITORY INSPECTION:
 Inspect relevant repository source files, data files, tests, imports, and runtime paths before concluding what exists or what is missing. Repository evidence tells you WHAT EXISTS. It never authorizes a new mechanic.
+
+IMPORTANT FILE RULE:
+The supplied data file and engine file are analysis inputs, not automatically affected files. Only list a file under Files Affected if repository inspection establishes that the file must actually change for the requested system. Never list src/ai/implementationAssistant.ts merely because it produced this report.
 
 GOVERNANCE:
 - Analyze ONLY the requested system.
@@ -72,7 +77,8 @@ GOVERNANCE:
 - PARTIALLY_DEFINED means the Rules Bible establishes some behavior but one or more implementation-critical mechanics are missing.
 - UNRESOLVED means the Rules Bible does not establish the requested system.
 - If an implementation-critical mechanic is missing, status MUST be BLOCKED_BY_HUMAN_DECISION.
-- Use READY only when every mechanic required for the requested implementation is explicitly authorized.
+- Use READY only when every mechanic required for the requested implementation is explicitly authorized AND the repository gap can be translated into concrete implementation work.
+- If status is READY, Required Changes MUST contain concrete, authorized implementation changes. A READY response with "no implementation authorized" or equivalent is INVALID.
 - Use ALREADY_IMPLEMENTED only when repository evidence proves the requested behavior is already implemented and integrated.
 - Existing code may prove behavior exists. Existing code MUST NOT be treated as permission to reproduce, extend, or normalize an unspecified mechanic.
 - Never silently import D&D 2014 or D&D 2024 rules.
@@ -88,17 +94,26 @@ If status is BLOCKED_BY_HUMAN_DECISION:
 - Do NOT answer that question.
 - Do NOT give an example answer.
 - Do NOT describe a possible implementation for the missing mechanic.
-- Do NOT use phrases such as "for example", "could involve", "typically", "use the higher/lower", "roll two", or equivalent design suggestions for the missing mechanic.
 - Do NOT place the unresolved mechanic under Required Changes.
-- Required Changes must either be limited to independently authorized work or state: "No implementation of the blocked behavior is authorized until the human decision is recorded in the Rules Bible."
+- Required Changes must either be limited to independently authorized work or state exactly: "No implementation of the blocked behavior is authorized until the human decision is recorded in the Rules Bible."
 - Tests may cover only existing or explicitly defined behavior. Do not specify tests for an unapproved mechanic.
 - Risks and Verification must not smuggle in a proposed mechanic.
+
+READY STATE — IMPLEMENTATION GATE:
+If status is READY:
+- Every Required Change must be directly traceable to an approved rule and a repository finding.
+- State the actual source file(s), symbol(s), or integration point(s) that need modification when repository evidence supports them.
+- Do not merely say that implementation "needs to be added"; describe the authorized change precisely enough for an implementation engineer to execute without designing a rule.
+- Tests must verify the approved behavior only.
+- Human Decisions Required MUST be "None".
 
 CONCRETE INVARIANTS:
 1. If Required Changes contains an unresolved mechanic, the response is invalid.
 2. If status is BLOCKED_BY_HUMAN_DECISION and Human Decisions Required is "None", the response is invalid.
 3. If status is BLOCKED_BY_HUMAN_DECISION and the response proposes a mechanic, the response is invalid.
 4. If a named affected file was not found by repository inspection, the response is invalid.
+5. If status is READY and Required Changes says implementation is unauthorized, the response is invalid.
+6. If status is READY and Human Decisions Required is not "None", the response is invalid.
 
 OUTPUT:
 Return exactly:
@@ -126,7 +141,7 @@ Rules for each section:
 - Repository Findings: factual repository evidence only; distinguish existing behavior from authorization.
 - Human Decisions Required: questions only; no answers or suggested mechanics.
 - Files Affected: actual inspected files only.
-- Required Changes: authorized changes only. If blocked, explicitly state that blocked behavior cannot be implemented yet.
+- Required Changes: authorized changes only. READY requires concrete authorized changes; BLOCKED requires no blocked implementation.
 - Tests: existing or explicitly defined behavior only.
 - Risks: implementation risks without proposing a design solution.
 - Verification: verification steps that do not assume an unapproved mechanic.
