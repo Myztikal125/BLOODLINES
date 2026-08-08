@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import { BLOODLINES_ASSISTANT_PROTOCOL } from "./assistantProtocol";
+import { BLOODLINES_AI_GOVERNANCE } from "./aiGovernance";
 import { buildRepositoryContext } from "./repositoryContext";
 
 dotenv.config({ override: true });
@@ -14,7 +15,7 @@ const groqBudget: ProviderBudget = {};
 const openRouterBudget: ProviderBudget = {};
 
 function buildMessages(prompt: string, systemPrompt: string) {
-  const resolvedSystemPrompt = `${BLOODLINES_ASSISTANT_PROTOCOL}\n\nASSIGNED ASSISTANT ROLE\n\n${systemPrompt}`;
+  const resolvedSystemPrompt = `${BLOODLINES_AI_GOVERNANCE}\n\n${BLOODLINES_ASSISTANT_PROTOCOL}\n\nASSIGNED ASSISTANT ROLE\n\n${systemPrompt}`;
   const repositoryContext = buildRepositoryContext(prompt);
   return [{ role: "system", content: resolvedSystemPrompt }, { role: "user", content: `${prompt}\n\n${repositoryContext}` }];
 }
