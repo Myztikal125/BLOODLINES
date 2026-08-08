@@ -6,7 +6,7 @@ const RULES_BIBLE_PATH = "docs/RULES_BIBLE.md";
 const MAX_REPOSITORY_EVIDENCE_CHARS = 1600;
 const MAX_FILE_CHARS = 500;
 const MAX_FILES = 2;
-const MAX_RULES_SECTION_CHARS = 1000;
+const MAX_RULES_SECTION_CHARS = 2600;
 const MAX_CONTEXT_CHARS = 600;
 
 export interface ImplementationRequest { system: string; context?: string; }
@@ -63,13 +63,26 @@ function readRepositoryEvidence(inputPath: string, system: string): string {
 
 function getRulesSection(rulesBible: string, system: string): string {
   const lines = rulesBible.split("\n");
-  const start = lines.findIndex(line => line.toLowerCase().includes(system.toLowerCase()));
+  const normalizedSystem = system.toLowerCase();
+  const start = lines.findIndex(line => line.toLowerCase().includes(normalizedSystem));
   if (start < 0) return rulesBible.slice(0, MAX_RULES_SECTION_CHARS);
+
   let end = lines.length;
   for (let i = start + 1; i < lines.length; i++) {
     if (/^#{2,3}\s/.test(lines[i])) { end = i; break; }
   }
-  return lines.slice(Math.max(0, start - 1), end).join("\n").slice(0, MAX_RULES_SECTION_CHARS);
+
+  const section = lines.slice(Math.max(0, start - 1), end).join("\n");
+  if (section.length <= MAX_RULES_SECTION_CHARS) return section;
+
+  // Do not silently truncate approved requirements. Preserve requirement-like
+  // lines first, then fill the remaining budget with surrounding context.
+  const requirementLines = lines.slice(Math.max(0, start - 1), end).filter(line =>
+    /approved|required|must|one action|bonus action|reaction|stamina|energy|resource|reset|consum|round|turn|advantage|disadvantage|defined|authorized/i.test(line)
+  );
+  const compactRequirements = requirementLines.join("\n");
+  if (compactRequirements.length <= MAX_RULES_SECTION_CHARS) return compactRequirements;
+  return compactRequirements.slice(0, MAX_RULES_SECTION_CHARS);
 }
 
 function getGuard(system: string): string {
