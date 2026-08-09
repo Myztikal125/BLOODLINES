@@ -1,7 +1,7 @@
 import { buildRepositoryContext } from "./repositoryContext";
 import { implementDesign } from "./implementationAssistant";
 import { runAuditedImplementation } from "./auditedImplementationAssistant";
-import { resolveLeadDesignerCase } from "./leadDesigner";
+import { resolveLeadDesignerCase, type LeadDesignerDecision } from "./leadDesigner";
 
 function getArgument(name: string): string | undefined {
   const index = process.argv.indexOf(name);
@@ -12,24 +12,60 @@ function getSystemRequest(): string {
   return getArgument("--system") ?? process.argv.slice(2).filter(argument => !argument.startsWith("--")).join(" ") ?? "Review the approved implementation requirements.";
 }
 
+const HUMAN_DECISIONS: LeadDesignerDecision[] = [
+  "IMPLEMENT_REQUIRED",
+  "NO_CHANGE_REQUIRED",
+  "APPROVED",
+  "APPROVED_WITH_MODIFICATIONS",
+  "REJECTED",
+  "DEFERRED",
+  "BLOCKED",
+  "HUMAN_DECISION_REQUIRED",
+];
+
+function parseHumanDecision(): LeadDesignerDecision | undefined {
+  const value = getArgument("--lead-decision")?.toUpperCase() as LeadDesignerDecision | undefined;
+  if (!value) return undefined;
+  if (!HUMAN_DECISIONS.includes(value)) {
+    throw new Error(`Invalid --lead-decision '${value}'. Expected one of: ${HUMAN_DECISIONS.join(", ")}`);
+  }
+  return value;
+}
+
 async function main() {
   const system = getSystemRequest();
   const context = getArgument("--context") ?? `Inspect the repository for the '${system}' system. Search the relevant Rules Bible entries, runtime rules, existing implementation, and tests. Determine whether the approved rules are already implemented, ready for implementation, or blocked by a missing human decision. Do not invent mechanics.`;
   const dataFile = getArgument("--data") ?? "data/rules/compiledRules.json";
   const engineFile = getArgument("--engine") ?? "engine";
+  const humanDecision = parseHumanDecision();
   const result = await runAuditedImplementation({ system, context, dataFile, enginePath: engineFile });
 
   console.log(result.report);
   console.log(`\nReport Auditor verdict: ${result.auditVerdict} (revision ${result.auditRevision})`);
 
   if (result.auditVerdict === "ESCALATE") {
-    const decision = await resolveLeadDesignerCase({
-      system,
-      problem: result.report,
-      repositoryEvidence: buildRepositoryContext(`${system} ${context}`),
-      assistantReport: result.report,
-      auditorFeedback: result.report,
-    });
+    // A supplied human decision is binding and intentionally bypasses the AI Lead Designer.
+    const decision = humanDecision
+      ? {
+          id: "HUMAN-LEAD-DESIGNER",
+          system,
+          decision: humanDecision,
+          problem: result.report,
+          reasoning: "Binding decision supplied directly by the human Lead Designer.",
+          requiredAction: humanDecision === "NO_CHANGE_REQUIRED" || humanDecision === "APPROVED"
+            ? "Preserve the existing implementation; make no repository changes."
+            : "Follow the explicit Lead Designer decision.",
+          requiredFiles: [],
+          prohibitedChanges: ["Do not invent mechanics or bypass governance."],
+          verification: [],
+        }
+      : await resolveLeadDesignerCase({
+          system,
+          problem: result.report,
+          repositoryEvidence: buildRepositoryContext(`${system} ${context}`),
+          assistantReport: result.report,
+          auditorFeedback: result.report,
+        });
 
     console.log(`\nLEAD DESIGNER DECISION ${decision.id}: ${decision.decision}`);
     console.log(decision.reasoning);
