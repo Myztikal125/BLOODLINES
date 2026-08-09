@@ -18,10 +18,10 @@ const groqBudget: ProviderBudget = {};
 const openRouterBudget: ProviderBudget = {};
 const geminiBudget: ProviderBudget = {};
 
-function buildMessages(prompt: string, systemPrompt: string) {
+function buildMessages(prompt: string, systemPrompt: string, includeRepositoryContext = true) {
   const resolvedSystemPrompt = `${BLOODLINES_AI_GOVERNANCE}\n\n${BLOODLINES_ASSISTANT_PROTOCOL}\n\nASSIGNED ASSISTANT ROLE\n\n${systemPrompt}`;
-  const repositoryContext = buildRepositoryContext(prompt);
-  return [{ role: "system", content: resolvedSystemPrompt }, { role: "user", content: `${prompt}\n\n${repositoryContext}` }];
+  const repositoryContext = includeRepositoryContext ? buildRepositoryContext(prompt) : "";
+  return [{ role: "system", content: resolvedSystemPrompt }, { role: "user", content: repositoryContext ? `${prompt}\n\n${repositoryContext}` : prompt }];
 }
 
 function estimateTokens(messages: Array<{ role: string; content: string }>, maxTokens: number) {
@@ -108,11 +108,11 @@ function isRepairRequest(prompt: string, systemPrompt: string) {
   return /repair|self-repair|typescript errors|compiler errors|tsc --noEmit/.test(text);
 }
 
-export async function askAI(prompt: string, maxTokensOrSystemPrompt: number | string = DEFAULT_MAX_TOKENS, systemPrompt?: string) {
+export async function askAI(prompt: string, maxTokensOrSystemPrompt: number | string = DEFAULT_MAX_TOKENS, systemPrompt?: string, includeRepositoryContext = true) {
   const requestedMaxTokens = typeof maxTokensOrSystemPrompt === "number" ? maxTokensOrSystemPrompt : DEFAULT_MAX_TOKENS;
   const assistantSystemPrompt = systemPrompt ?? (typeof maxTokensOrSystemPrompt === "string" ? maxTokensOrSystemPrompt : "You are the BLOODLINES Research Assistant. Provide structured RPG research notes.");
   const maxTokens = isRepairRequest(prompt, assistantSystemPrompt) ? Math.min(requestedMaxTokens, REPAIR_MAX_TOKENS) : requestedMaxTokens;
-  const messages = buildMessages(prompt, assistantSystemPrompt);
+  const messages = buildMessages(prompt, assistantSystemPrompt, includeRepositoryContext);
   const estimatedTokens = estimateTokens(messages, maxTokens);
   const failures: string[] = [];
   let groqKey: string | undefined;
