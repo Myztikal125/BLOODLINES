@@ -67,7 +67,7 @@ function getRulesSection(rulesBible: string, system: string): string {
 function gitState(): string { try { const head = execFileSync("git", ["rev-parse", "--short", "HEAD"], { encoding: "utf8" }).trim(); const status = execFileSync("git", ["status", "--short"], { encoding: "utf8" }).trim(); return `Repository HEAD: ${head}\nWorking tree: ${status || "clean"}`; } catch { return "Repository Git state unavailable."; } }
 
 function getGuard(system: string): string {
-  const common = `RULES GUARD:\n- Rules Bible is the gameplay authority; repository code/data is implementation evidence.\n- Implement every approved requirement; never silently omit one.\n- Never invent values, costs, abilities, triggers, timing, defaults, regeneration, scaling, or balancing.\n- Unspecified gameplay details must be reported, not decided.\n- Suggestions are allowed and encouraged, but clearly label them as suggestions.\n- An accepted plan requires an actual repository patch.\n- Never claim a patch happened unless files were written successfully.\n- Only modify paths inside this repository.\n- Do not commit/push from the assistant.`;
+  const common = `RULES GUARD:\n- Rules Bible is the gameplay authority; repository code/data is implementation evidence.\n- Implement every approved requirement; never silently omit one.\n- Never invent values, costs, abilities, triggers, timing, defaults, regeneration, scaling, or balancing.\n- Unspecified gameplay details must be reported, not decided.\n- Suggestions are allowed and encouraged, but clearly label them as suggestions.\n- An accepted plan requires an actual repository patch.\n- Never claim a patch happened unless files were written successfully.\n- Only modify paths inside this repository.\n- Do not commit/push from the assistant.\n- PRESERVATION RULE: extend existing files; never replace a file with a small snippet when it already contains exports, classes, functions, or behavior. Preserve every existing public export/API unless the approved requirement explicitly authorizes a breaking change.\n- Before patching, inspect the complete current contents of every target file and preserve unrelated behavior.\n- After patching, compile. If compiler/test failures are caused by your patch, repair the patch and re-run verification. Do not stop at the first self-caused failure.`;
   if (system.toLowerCase().includes("action economy")) return `${common}\nACTION ECONOMY: account for Action, Bonus Action, Reaction, consumption/reset, turn reset, stamina resource, and no-extra-slot requirements. Stamina has no invented numeric costs, max, or regeneration.`;
   return common;
 }
@@ -111,34 +111,60 @@ function applyPatches(patches: ImplementationPatch[]): string[] {
   const changed: string[] = [];
   for (const patch of patches) {
     const target = safeRepositoryPath(patch.path); const existed = fs.existsSync(target);
-    fs.mkdirSync(path.dirname(target), { recursive: true });
-    fs.writeFileSync(target, patch.content, "utf8");
-    if (!existed || fs.readFileSync(target, "utf8") === patch.content) changed.push(patch.path);
+    if (existed) {
+      const current = fs.readFileSync(target, "utf8");
+      if (current === patch.content) continue;
+      if (patch.content.length < Math.max(200, Math.floor(current.length * 0.5))) throw new Error(`Patch rejected for ${patch.path}: replacement is suspiciously smaller than the existing file. Preserve existing exports and behavior.`);
+    }
+    fs.mkdirSync(path.dirname(target), { recursive: true }); fs.writeFileSync(target, patch.content, "utf8"); changed.push(patch.path);
   }
   return changed;
 }
 
-function verifyImplementation(): string {
-  const results: string[] = [];
-  try { results.push(`tsc --noEmit: ${execFileSync("npx", ["tsc", "--noEmit"], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim() || "PASS"}`); }
-  catch (error) { throw new Error(`Typecheck failed after implementation: ${error instanceof Error ? error.message : String(error)}`); }
-  try { results.push(`vitest run: ${execFileSync("npx", ["vitest", "run"], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim() || "PASS"}`); }
-  catch (error) { throw new Error(`Tests failed after implementation: ${error instanceof Error ? error.message : String(error)}`); }
-  return results.join("\n");
+function runVerification(): string {
+  const tsc = execFileSync("npx", ["tsc", "--noEmit"], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim() || "PASS";
+  const tests = execFileSync("npx", ["vitest", "run"], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim() || "PASS";
+  return `tsc --noEmit: ${tsc}\nvitest run: ${tests}`;
+}
+
+function verificationFailure(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
+async function repairFailedImplementation(system: string, rules: string, patches: ImplementationPatch[], error: string): Promise<ImplementationPatch[]> {
+  const files = patches.map(patch => `\n== ${patch.path} ==\n${fs.existsSync(patch.path) ? fs.readFileSync(patch.path, "utf8") : patch.content}`).join("\n");
+  const repairPrompt = `BLOODLINES IMPLEMENTATION REPAIR AGENT\nThe previous authorized implementation caused verification failure. Repair only the implementation you just made.\n\nRULES:\n${rules}\n\nSYSTEM: ${system}\n\nVERIFICATION ERROR:\n${error}\n\nCURRENT TARGET FILES:\n${files}\n\nREPAIR REQUIREMENTS:\n- Diagnose the actual compiler/test error; do not guess.\n- Preserve every existing export, class, function, constructor, and public API unless the approved requirement explicitly changes it.\n- Extend existing code instead of replacing it.\n- Restore anything accidentally removed by the previous patch.\n- Do not invent gameplay mechanics to make tests pass.\n- Return complete contents for only the files that need repair.\n- Explain each repair reason.\n\nReturn exactly:\n<IMPLEMENTATION_PATCHES>\n[{"path":"relative/path","content":"complete corrected file contents","reason":"diagnosis and repair"}]\n</IMPLEMENTATION_PATCHES>`;
+  return parsePatchResponse(await askAI(repairPrompt));
 }
 
 export async function implementDesign(dataFile: string, enginePath: string, request?: ImplementationRequest): Promise<ImplementationResult> {
   const system = request?.system ?? "Review the supplied implementation against the Rules Bible.";
   const rulesBible = readRulesBible(); const data = readRepositoryEvidence(dataFile, system); const engine = readRepositoryEvidence(enginePath, system); const rules = getRulesSection(rulesBible, system); const context = (request?.context ?? "Determine implementation status and authorized integration work.").slice(0, MAX_CONTEXT_CHARS); const guard = getGuard(system); const checklist = system.toLowerCase().includes("action economy") ? `\n\n${ACTION_ECONOMY_CHECKLIST}` : "";
-  const planPrompt = `BLOODLINES IMPLEMENTATION ASSISTANT — PLAN AND EXECUTION\nPhase 1: inspect repository and Rules Bible; identify approved work and useful suggestions.\nPhase 2: produce the required report.\nPhase 3: after governance acceptance, return an explicit patch payload containing ONLY authorized changes. Do not stop at instructions for a human.\nPhase 4: the host will write the patch and run verification.\n\n${rules}\nSYSTEM: ${system}\nCONTEXT: ${context}\nREPOSITORY EVIDENCE:\n${data}\nENGINE EVIDENCE:\n${engine}\n${gitState()}\n${guard}${checklist}\n\nReturn the report first using exactly these headings:\n${REQUIRED_SECTIONS.join("\n")}\n\nIf the plan is valid and implementation is authorized, append:\n<IMPLEMENTATION_PATCHES>\n[{"path":"relative/path","content":"complete file contents","reason":"why this exact change is authorized"}]\n</IMPLEMENTATION_PATCHES>\nIf implementation is blocked or governance rejects the plan, omit the patch block.`;
+  const planPrompt = `BLOODLINES IMPLEMENTATION ASSISTANT — PLAN AND EXECUTION\nPhase 1: inspect repository and Rules Bible; identify approved work and useful suggestions.\nPhase 2: produce the required report.\nPhase 3: after governance acceptance, return an explicit patch payload containing ONLY authorized changes. Do not stop at instructions for a human.\nPhase 4: the host will write the patch and run verification. If verification fails because of your patch, you will be given the compiler/test output and must repair it.\n\n${rules}\nSYSTEM: ${system}\nCONTEXT: ${context}\nREPOSITORY EVIDENCE:\n${data}\nENGINE EVIDENCE:\n${engine}\n${gitState()}\n${guard}${checklist}\n\nReturn the report first using exactly these headings:\n${REQUIRED_SECTIONS.join("\n")}\n\nIf the plan is valid and implementation is authorized, append:\n<IMPLEMENTATION_PATCHES>\n[{"path":"relative/path","content":"complete file contents","reason":"why this exact change is authorized"}]\n</IMPLEMENTATION_PATCHES>\nIf implementation is blocked or governance rejects the plan, omit the patch block.`;
   const output = await askAI(planPrompt);
-  let report = output;
+  let report: string;
   try { report = validateImplementationPlan(system, output); } catch (error) { return { report: `${output}\n\n# GOVERNANCE VALIDATION\nREJECTED — DO NOT IMPLEMENT\n${error instanceof Error ? error.message : String(error)}`, patches: [], applied: false }; }
-  const patches = parsePatchResponse(output);
+  let patches: ImplementationPatch[];
+  try { patches = parsePatchResponse(output); } catch (error) { return { report: `${report}\n\n# IMPLEMENTATION EXECUTION\nBLOCKED — ${verificationFailure(error)}`, patches: [], applied: false }; }
   if (!patches.length) return { report: `${report}\n\n# IMPLEMENTATION EXECUTION\nBLOCKED — No explicit implementation patch was supplied.`, patches: [], applied: false };
-  const changed = applyPatches(patches);
-  let verification: string;
-  try { verification = verifyImplementation(); }
-  catch (error) { return { report: `${report}\n\n# IMPLEMENTATION EXECUTION\nPATCHED: ${changed.join(", ")}\nVERIFICATION FAILED: ${error instanceof Error ? error.message : String(error)}`, patches, applied: true }; }
-  return { report: `${report}\n\n# IMPLEMENTATION EXECUTION\nPATCHED: ${changed.join(", ")}\nVERIFICATION:\n${verification}`, patches, applied: true, verification };
+
+  let changed = applyPatches(patches);
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    try {
+      const verification = runVerification();
+      return { report: `${report}\n\n# IMPLEMENTATION EXECUTION\nPATCHED: ${changed.join(", ")}\nVERIFICATION PASSED (repair attempts: ${attempt - 1})\n${verification}`, patches, applied: true, verification };
+    } catch (error) {
+      const failure = verificationFailure(error);
+      if (attempt === 2) return { report: `${report}\n\n# IMPLEMENTATION EXECUTION\nPATCHED: ${changed.join(", ")}\nVERIFICATION FAILED AFTER SELF-REPAIR ATTEMPTS: ${failure}`, patches, applied: true };
+      try {
+        const repairs = await repairFailedImplementation(system, rules, patches, failure);
+        const repairedChanged = applyPatches(repairs);
+        changed = [...new Set([...changed, ...repairedChanged])];
+        patches = [...patches, ...repairs];
+      } catch (repairError) {
+        return { report: `${report}\n\n# IMPLEMENTATION EXECUTION\nPATCHED: ${changed.join(", ")}\nSELF-REPAIR FAILED: ${verificationFailure(repairError)}\nORIGINAL VERIFICATION FAILURE: ${failure}`, patches, applied: true };
+      }
+    }
+  }
+  return { report, patches, applied: true };
 }
