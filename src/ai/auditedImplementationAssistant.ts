@@ -63,68 +63,37 @@ export async function runAuditedImplementation(request: AuditedImplementationReq
 
     let raw: string;
     try {
-      raw = await askAI(
-        prompt,
-        1800,
-        "You are the BLOODLINES Implementation Assistant preparing a report for independent audit. Do not modify code during the report stage. Stay grounded in supplied repository evidence. Correct the actual implementation/report issue described by the feedback.",
-        false,
-      );
+      raw = await askAI(prompt, 1800, "You are the BLOODLINES Implementation Assistant preparing a report for independent audit. Do not modify code during the report stage. Stay grounded in supplied repository evidence. Correct the actual implementation/report issue described by the feedback.", false);
     } catch (error) {
-      return {
-        report: `REPORT GENERATION FAILED\n\n${error instanceof Error ? error.message : String(error)}`,
-        patches: [], applied: false, auditVerdict: "ESCALATE", auditRevision: revision, humanActionRequired: true,
-      };
+      return { report: `REPORT GENERATION FAILED\n\n${error instanceof Error ? error.message : String(error)}`, patches: [], applied: false, auditVerdict: "ESCALATE", auditRevision: revision, humanActionRequired: true };
     }
 
-    try {
-      currentReport = validateReportShape(raw);
-    } catch (error) {
-      if (revision >= (request.maxAutomaticRevisions ?? 3)) {
-        return { report: `${raw}\n\nREPORT AUDITOR\nESCALATE — ${error instanceof Error ? error.message : String(error)}`, patches: [], applied: false, auditVerdict: "ESCALATE", auditRevision: revision, humanActionRequired: true };
-      }
-      feedback = error instanceof Error ? error.message : String(error);
-      revision += 1;
-      continue;
+    try { currentReport = validateReportShape(raw); }
+    catch (error) {
+      if (revision >= (request.maxAutomaticRevisions ?? 3)) return { report: `${raw}\n\nREPORT AUDITOR\nESCALATE — ${error instanceof Error ? error.message : String(error)}`, patches: [], applied: false, auditVerdict: "ESCALATE", auditRevision: revision, humanActionRequired: true };
+      feedback = error instanceof Error ? error.message : String(error); revision += 1; continue;
     }
 
-    const audit = await auditor.review(
-      { assistant: "Implementation Assistant", system: request.system, report: currentReport, revision },
-      rules,
-      repositoryEvidence,
-      auditor.getHistory().filter(record => record.assistant !== "Implementation Assistant" || record.system !== request.system),
-    );
+    const audit = await auditor.review({ assistant: "Implementation Assistant", system: request.system, report: currentReport, revision }, rules, repositoryEvidence, auditor.getHistory().filter(record => record.assistant !== "Implementation Assistant" || record.system !== request.system));
 
     if (audit.verdict === "APPROVED") {
-      try {
-        validateImplementationPlan(request.system, currentReport);
-      } catch (error) {
-        if (revision >= (request.maxAutomaticRevisions ?? 3)) {
-          return { report: `${currentReport}\n\nIMPLEMENTATION GOVERNANCE\nESCALATE — ${error instanceof Error ? error.message : String(error)}`, patches: [], applied: false, auditVerdict: "ESCALATE", auditRevision: revision, humanActionRequired: true };
-        }
-        feedback = `The central Report Auditor approved this report, but deterministic implementation governance rejected it. Correct the actual report while remaining grounded in the supplied repository evidence. Do not invent repository structure.\n\n${error instanceof Error ? error.message : String(error)}`;
-        revision += 1;
-        continue;
+      try { validateImplementationPlan(request.system, currentReport); }
+      catch (error) {
+        if (revision >= (request.maxAutomaticRevisions ?? 3)) return { report: `${currentReport}\n\nIMPLEMENTATION GOVERNANCE\nESCALATE — ${error instanceof Error ? error.message : String(error)}`, patches: [], applied: false, auditVerdict: "ESCALATE", auditRevision: revision, humanActionRequired: true };
+        feedback = `The central Report Auditor approved this report, but deterministic implementation governance rejected it. Correct the actual report while remaining grounded in the supplied repository evidence. Do not invent repository structure.\n\n${error instanceof Error ? error.message : String(error)}`; revision += 1; continue;
       }
-
-      const implementation = await implementDesign(dataFile, enginePath, {
-        system: request.system,
-        context: `${request.context ?? ""}\n\nAUDITOR-APPROVED REPORT:\n${currentReport}\n\nThe report above passed the central Report Auditor and deterministic implementation governance. Implement only the approved changes.`.slice(0, 12000),
-      });
+      const implementation = await implementDesign(dataFile, enginePath, { system: request.system, context: `${request.context ?? ""}\n\nAUDITOR-APPROVED REPORT:\n${currentReport}\n\nThe report above passed the central Report Auditor and deterministic implementation governance. Implement only the approved changes.`.slice(0, 12000) });
       return { ...implementation, auditVerdict: audit.verdict, auditRevision: revision, humanActionRequired: false };
     }
 
-    if (audit.verdict === "REVISION_REQUIRED" && !audit.humanActionRequired) {
-      feedback = audit.feedback;
-      revision += 1;
-      continue;
-    }
+    if (audit.verdict === "REVISION_REQUIRED" && !audit.humanActionRequired) { feedback = audit.feedback; revision += 1; continue; }
 
     return {
       report: `${currentReport}\n\nREPORT AUDITOR\n${audit.verdict} — ${audit.feedback}`,
       patches: [], applied: false,
       auditVerdict: audit.verdict,
       auditRevision: revision,
-      humanActionRequired: audit.humanActionRequired || audit.verdict !== "APPROVED",
+      humanActionRequired: audit.humanActionRequired,
     };
   }
 }
