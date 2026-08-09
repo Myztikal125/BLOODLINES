@@ -1,5 +1,5 @@
 import { askAI } from "./aiClient";
-import { implementDesign, readRulesBible, type ImplementationResult } from "./implementationAssistant";
+import { implementDesign, readRulesBible, validateImplementationPlan, type ImplementationResult } from "./implementationAssistant";
 import { ReportAuditor } from "./reportAuditor";
 
 export interface AuditedImplementationRequest {
@@ -60,16 +60,31 @@ export async function runAuditedImplementation(request: AuditedImplementationReq
       ? `BLOODLINES IMPLEMENTATION REPORT\n\nInspect the repository and produce the implementation report for ${request.system}. Do not patch code during this audit stage.\n\nCONTEXT:\n${request.context ?? "Determine implementation status and authorized changes."}\n\nRULES AUTHORITY:\n${rules}\n\nReturn exactly these nine sections in this order:\n${sections.join("\n")}\n\nKeep each section concise. Do not invent mechanics. Do not emit tool-call markup.`
       : buildRevisionPrompt(request, rules, currentReport, feedback);
 
-    // The prompt already contains the rules and the task-specific evidence. Do not
-    // append the generic repository snapshot a second time; governance reports must
-    // stay small enough for the provider fallback chain to handle reliably.
-    const raw = await askAI(
-      prompt,
-      1800,
-      "You are the BLOODLINES Implementation Assistant preparing a report for independent audit. Do not modify code during the report stage.",
-      false,
-    );
-    currentReport = validateReportShape(raw);
+    let raw: string;
+    try {
+      raw = await askAI(
+        prompt,
+        1800,
+        "You are the BLOODLINES Implementation Assistant preparing a report for independent audit. Do not modify code during the report stage. Correct the actual implementation/report issue described by the feedback.",
+        false,
+      );
+    } catch (error) {
+      return {
+        report: `REPORT GENERATION FAILED\n\n${error instanceof Error ? error.message : String(error)}`,
+        patches: [], applied: false, auditVerdict: "ESCALATE", auditRevision: revision, humanActionRequired: true,
+      };
+    }
+
+    try {
+      currentReport = validateReportShape(raw);
+    } catch (error) {
+      if (revision >= (request.maxAutomaticRevisions ?? 3)) {
+        return { report: `${raw}\n\nREPORT AUDITOR\nESCALATE — ${error instanceof Error ? error.message : String(error)}`, patches: [], applied: false, auditVerdict: "ESCALATE", auditRevision: revision, humanActionRequired: true };
+      }
+      feedback = error instanceof Error ? error.message : String(error);
+      revision += 1;
+      continue;
+    }
 
     const audit = await auditor.review(
       { assistant: "Implementation Assistant", system: request.system, report: currentReport, revision },
@@ -79,9 +94,23 @@ export async function runAuditedImplementation(request: AuditedImplementationReq
     );
 
     if (audit.verdict === "APPROVED") {
+      // Keep the historical implementation requirement validator as a second,
+      // deterministic gate. If it rejects the report, that is feedback for the
+      // originating assistant rather than a reason to bypass the Auditor.
+      try {
+        validateImplementationPlan(request.system, currentReport);
+      } catch (error) {
+        if (revision >= (request.maxAutomaticRevisions ?? 3)) {
+          return { report: `${currentReport}\n\nIMPLEMENTATION GOVERNANCE\nESCALATE — ${error instanceof Error ? error.message : String(error)}`, patches: [], applied: false, auditVerdict: "ESCALATE", auditRevision: revision, humanActionRequired: true };
+        }
+        feedback = `The central Report Auditor approved this report, but deterministic implementation governance rejected it. Correct the report and resubmit.\n\n${error instanceof Error ? error.message : String(error)}`;
+        revision += 1;
+        continue;
+      }
+
       const implementation = await implementDesign(dataFile, enginePath, {
         system: request.system,
-        context: `${request.context ?? ""}\n\nAUDITOR-APPROVED REPORT:\n${currentReport}\n\nThe report above passed the central Report Auditor. Implement only the approved changes.`.slice(0, 12000),
+        context: `${request.context ?? ""}\n\nAUDITOR-APPROVED REPORT:\n${currentReport}\n\nThe report above passed the central Report Auditor and deterministic implementation governance. Implement only the approved changes.`.slice(0, 12000),
       });
       return { ...implementation, auditVerdict: audit.verdict, auditRevision: revision, humanActionRequired: false };
     }
@@ -94,8 +123,7 @@ export async function runAuditedImplementation(request: AuditedImplementationReq
 
     return {
       report: `${currentReport}\n\nREPORT AUDITOR\n${audit.verdict} — ${audit.feedback}`,
-      patches: [],
-      applied: false,
+      patches: [], applied: false,
       auditVerdict: audit.verdict,
       auditRevision: revision,
       humanActionRequired: audit.humanActionRequired || audit.verdict !== "APPROVED",
