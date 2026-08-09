@@ -9,6 +9,8 @@ const MAX_FILE_CHARS = 900;
 const MAX_FILES = 6;
 const MAX_RULES_SECTION_CHARS = 3200;
 const MAX_CONTEXT_CHARS = 900;
+const MAX_REPAIR_FILES = 8;
+const MAX_REPAIR_FILE_CHARS = 7000;
 
 export interface ImplementationRequest { system: string; context?: string; }
 export interface ImplementationPatch { path: string; content: string; reason: string; }
@@ -126,12 +128,47 @@ function applyPatches(patches: ImplementationPatch[]): string[] {
 }
 
 function runCommand(command:string,args:string[]):string { return execFileSync(command,args,{encoding:"utf8",stdio:["ignore","pipe","pipe"]}).trim() || "PASS"; }
-function runVerification():string { return `tsc --noEmit: ${runCommand("npx",["tsc","--noEmit"])}\nvitest run: ${runCommand("npx",["vitest","run"])}`; }
-function errorText(error:unknown):string { return error instanceof Error ? error.message : String(error); }
+
+function runVerification():string {
+  try {
+    const typecheck = runCommand("npx",["tsc","--noEmit"]);
+    const tests = runCommand("npx",["vitest","run"]);
+    return `tsc --noEmit: ${typecheck}\nvitest run: ${tests}`;
+  } catch (error) {
+    const message = error as { message?: string; stdout?: string; stderr?: string };
+    const stdout = typeof message.stdout === "string" ? message.stdout : "";
+    const stderr = typeof message.stderr === "string" ? message.stderr : "";
+    const details = [message.message ?? String(error), stdout, stderr].filter(Boolean).join("\n");
+    throw new Error(details.slice(-12000));
+  }
+}
+
+function extractErrorPaths(error: string): string[] {
+  const paths = new Set<string>();
+  const re = /(?:^|\n)([^\s:]+\.(?:ts|tsx|js|json)):\d+:\d+/g;
+  let match: RegExpExecArray | null;
+  while ((match = re.exec(error))) {
+    try { safePath(match[1]); paths.add(match[1]); } catch {}
+  }
+  return [...paths].slice(0, MAX_REPAIR_FILES);
+}
+
+function collectRepairFiles(patches: ImplementationPatch[], error: string): string {
+  const paths = new Set<string>(patches.map(p => p.path));
+  for (const p of extractErrorPaths(error)) paths.add(p);
+  let output = "";
+  for (const file of [...paths].slice(0, MAX_REPAIR_FILES)) {
+    try {
+      const content = fs.readFileSync(safePath(file), "utf8");
+      output += `\n== ${file} ==\n${content.slice(0, MAX_REPAIR_FILE_CHARS)}\n`;
+    } catch {}
+  }
+  return output || "[No affected files could be read.]";
+}
 
 async function repairFailedImplementation(system:string, rules:string, patches:ImplementationPatch[], error:string):Promise<ImplementationPatch[]> {
-  const files=patches.map(p=>`== ${p.path} ==\n${fs.existsSync(p.path)?fs.readFileSync(p.path,"utf8"):p.content}`).join("\n");
-  const prompt=`BLOODLINES REPAIR ONLY\nSystem: ${system}\nRules summary: ${rules.slice(0,1200)}\nACTUAL VERIFICATION FAILURE:\n${error.slice(0,5000)}\nAFFECTED CURRENT FILES:\n${files.slice(0,10000)}\n\nRepair the previous patch only. Diagnose the actual error. Preserve ALL existing exports/classes/functions/public APIs. Do not replace populated files with snippets. Restore anything removed accidentally. Do not invent gameplay mechanics. Return only complete contents of files that must change:\n<IMPLEMENTATION_PATCHES>[{"path":"relative/path","content":"complete file","reason":"specific repair diagnosis"}]</IMPLEMENTATION_PATCHES>`;
+  const files=collectRepairFiles(patches,error);
+  const prompt=`BLOODLINES REPAIR ONLY\nSystem: ${system}\nRules summary: ${rules.slice(0,1200)}\nACTUAL VERIFICATION FAILURE:\n${error.slice(-7000)}\nAFFECTED CURRENT FILES:\n${files.slice(0,26000)}\n\nRepair the previous patch only. Diagnose the actual compiler/test failure. Preserve ALL existing exports/classes/functions/public APIs. If an earlier patch removed an export or class, restore the real existing implementation; do not add fake placeholder exports just to satisfy TypeScript. Do not replace populated files with snippets. Restore anything removed accidentally. Do not invent gameplay mechanics. Return only complete contents of files that must change:\n<IMPLEMENTATION_PATCHES>[{"path":"relative/path","content":"complete file","reason":"specific repair diagnosis"}]</IMPLEMENTATION_PATCHES>`;
   return parsePatchResponse(await askAI(prompt));
 }
 
@@ -149,9 +186,11 @@ export async function implementDesign(dataFile:string, enginePath:string, reques
     catch(e) {
       lastError=errorText(e);
       if(attempt===2) break;
-      try { const repair=await repairFailedImplementation(system,rules,patches,lastError); if(!repair.length) break; const repairChanged=applyPatches(repair); changed=[...new Set([...changed,...repairChanged])]; patches=repair; }
+      try { const repair=await repairFailedImplementation(system,rules,patches,lastError); if(!repair.length) break; const repairChanged=applyPatches(repair); changed=[...new Set([...changed,...repairChanged])]; patches=[...patches,...repair]; }
       catch(repairError) { lastError=`${lastError}\nSELF-REPAIR ERROR: ${errorText(repairError)}`; break; }
     }
   }
   return {report:`${report}\n\n# IMPLEMENTATION EXECUTION\nPATCHED: ${changed.join(", ")}\nVERIFICATION FAILED\n${lastError}`,patches,applied:true,verification:lastError};
 }
+
+function errorText(error:unknown): string { return error instanceof Error ? error.message : String(error); }
