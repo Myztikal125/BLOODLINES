@@ -1,6 +1,6 @@
 import { askAI } from "./aiClient";
 import { implementDesign, readRulesBible, validateImplementationPlan, type ImplementationResult } from "./implementationAssistant";
-import { ReportAuditor, type AssistantReport } from "./reportAuditor";
+import { ReportAuditor } from "./reportAuditor";
 
 export interface AuditedImplementationRequest {
   system: string;
@@ -28,29 +28,23 @@ const sections = [
   "Verification",
 ];
 
-function extractSection(report: string, heading: string): string {
-  const escaped = heading.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&");
-  const match = report.match(new RegExp(`(?:^|\\n)#?\\s*${escaped}\\s*\\n([\\s\\S]*?)(?=\\n#?\\s*(?:${sections.map(s => s.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")).join("|")})\\s*\\n|$)`, "i"));
-  return match?.[1]?.trim() ?? "";
-}
-
 function buildRevisionPrompt(request: AuditedImplementationRequest, rules: string, report: string, feedback: string): string {
   return `BLOODLINES IMPLEMENTATION REPORT REVISION\n\nRevise the implementation report using the auditor feedback below. You are correcting your own work, not merely changing wording. Reinspect the repository evidence and preserve all previously satisfied requirements. Do not invent mechanics.\n\nSYSTEM: ${request.system}\nCONTEXT: ${request.context ?? ""}\nRULES AUTHORITY:\n${rules}\n\nCURRENT REPORT:\n${report}\n\nAUDITOR FEEDBACK:\n${feedback}\n\nReturn exactly these nine sections in this order:\n${sections.join("\n")}\n\nIf and only if an actual repository change is required, append <IMPLEMENTATION_PATCHES> containing a valid JSON array. Do not emit fake tool calls, unified diffs, Markdown fences, YAML, or prose outside the report and optional patch payload.`;
 }
 
 export async function runAuditedImplementation(request: AuditedImplementationRequest): Promise<AuditedImplementationResult> {
   const auditor = new ReportAuditor({ maxAutomaticRevisions: request.maxAutomaticRevisions ?? 3 });
-  const rulesBible = readRulesBible();
-  const rules = rulesBible;
+  const rules = readRulesBible();
   const dataFile = request.dataFile ?? "data/rules/compiledRules.json";
   const enginePath = request.enginePath ?? "engine";
   let currentReport = "";
   let revision = 1;
+  let feedback = "";
 
   for (;;) {
     const prompt = revision === 1
       ? `BLOODLINES IMPLEMENTATION REPORT\n\nInspect the repository and produce the implementation report for ${request.system}. Do not patch code during this audit stage.\n\nCONTEXT:\n${request.context ?? "Determine implementation status and authorized changes."}\n\nRULES AUTHORITY:\n${rules}\n\nReturn exactly these nine sections in this order:\n${sections.join("\n")}\n\nKeep each section concise. Do not invent mechanics. Do not emit tool-call markup.`
-      : buildRevisionPrompt(request, rules, currentReport, lastFeedback);
+      : buildRevisionPrompt(request, rules, currentReport, feedback);
 
     const raw = await askAI(prompt, 3000, "You are the BLOODLINES Implementation Assistant preparing a report for independent audit. Do not modify code during the report stage.");
     currentReport = validateImplementationPlan(request.system, raw);
@@ -70,17 +64,19 @@ export async function runAuditedImplementation(request: AuditedImplementationReq
       return { ...implementation, auditVerdict: audit.verdict, auditRevision: revision, humanActionRequired: false };
     }
 
-    if (audit.verdict === "REVISION_REQUIRED") {
-      if (audit.humanActionRequired) {
-        return { report: `${currentReport}\n\nREPORT AUDITOR\nESCALATED — ${audit.feedback}`, patches: [], applied: false, auditVerdict: audit.verdict, auditRevision: revision, humanActionRequired: true };
-      }
-      lastFeedback = audit.feedback;
+    if (audit.verdict === "REVISION_REQUIRED" && !audit.humanActionRequired) {
+      feedback = audit.feedback;
       revision += 1;
       continue;
     }
 
-    return { report: `${currentReport}\n\nREPORT AUDITOR\n${audit.verdict} — ${audit.feedback}`, patches: [], applied: false, auditVerdict: audit.verdict, auditRevision: revision, humanActionRequired: audit.humanActionRequired };
+    return {
+      report: `${currentReport}\n\nREPORT AUDITOR\n${audit.verdict} — ${audit.feedback}`,
+      patches: [],
+      applied: false,
+      auditVerdict: audit.verdict,
+      auditRevision: revision,
+      humanActionRequired: audit.humanActionRequired || audit.verdict !== "APPROVED",
+    };
   }
 }
-
-let lastFeedback = "";
