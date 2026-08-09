@@ -1,13 +1,14 @@
 import fs from "fs";
 import path from "path";
+import { execFileSync } from "child_process";
 import { askAI } from "./aiClient";
 
 const RULES_BIBLE_PATH = "docs/RULES_BIBLE.md";
-const MAX_REPOSITORY_EVIDENCE_CHARS = 1600;
-const MAX_FILE_CHARS = 500;
-const MAX_FILES = 2;
-const MAX_RULES_SECTION_CHARS = 2600;
-const MAX_CONTEXT_CHARS = 600;
+const MAX_REPOSITORY_EVIDENCE_CHARS = 3200;
+const MAX_FILE_CHARS = 900;
+const MAX_FILES = 6;
+const MAX_RULES_SECTION_CHARS = 3200;
+const MAX_CONTEXT_CHARS = 900;
 
 export interface ImplementationRequest { system: string; context?: string; }
 
@@ -18,7 +19,8 @@ export function readRulesBible(): string {
 
 function getTargetKeywords(system: string): string[] {
   const normalized = system.toLowerCase();
-  if (normalized.includes("action economy")) return ["action", "turn", "bonus", "reaction", "stamina", "energy", "combat"];
+  if (normalized.includes("action economy")) return ["action", "turn", "bonus", "reaction", "stamina", "energy", "combat", "resolver"];
+  if (normalized.includes("advantage") || normalized.includes("disadvantage")) return ["advantage", "disadvantage", "roll", "dice", "d20", "rules", "runtime"];
   return normalized.split(/[^a-z0-9]+/).filter(word => word.length >= 4);
 }
 
@@ -33,7 +35,7 @@ function readRepositoryEvidence(inputPath: string, system: string): string {
       if (["node_modules", ".git", "dist", "coverage"].includes(entry.name)) continue;
       const fullPath = path.join(directory, entry.name);
       if (entry.isDirectory()) walk(fullPath);
-      else if (/\.(ts|tsx|js)$/.test(entry.name)) files.push(fullPath);
+      else if (/\.(ts|tsx|js|json|md)$/.test(entry.name)) files.push(fullPath);
     }
   }
   walk(inputPath);
@@ -43,8 +45,9 @@ function readRepositoryEvidence(inputPath: string, system: string): string {
     const basename = path.basename(file).toLowerCase();
     let score = 0;
     for (const keyword of keywords) {
-      if (basename.includes(keyword)) score += 4;
-      else if (normalized.includes(keyword)) score += 1;
+      if (basename === keyword || basename === `${keyword}.ts` || basename === `${keyword}.json` || basename === `${keyword}.md`) score += 20;
+      else if (basename.includes(keyword)) score += 6;
+      else if (normalized.includes(keyword)) score += 2;
     }
     return { file, score };
   }).filter(item => item.score > 0)
@@ -76,23 +79,32 @@ function getRulesSection(rulesBible: string, system: string): string {
   if (section.length <= MAX_RULES_SECTION_CHARS) return section;
 
   const requirementLines = lines.slice(Math.max(0, start - 1), end).filter(line =>
-    /approved|required|must|one action|bonus action|reaction|stamina|energy|resource|reset|consum|round|turn|advantage|disadvantage|defined|authorized/i.test(line)
+    /approved|required|must|one action|bonus action|reaction|stamina|energy|resource|reset|consum|round|turn|advantage|disadvantage|defined|authorized|stack/i.test(line)
   );
   const compactRequirements = requirementLines.join("\n");
-  if (compactRequirements.length <= MAX_RULES_SECTION_CHARS) return compactRequirements;
-  return compactRequirements.slice(0, MAX_RULES_SECTION_CHARS);
+  return (compactRequirements || section).slice(0, MAX_RULES_SECTION_CHARS);
+}
+
+function gitState(): string {
+  try {
+    const head = execFileSync("git", ["rev-parse", "--short", "HEAD"], { encoding: "utf8" }).trim();
+    const status = execFileSync("git", ["status", "--short"], { encoding: "utf8" }).trim();
+    return `Repository HEAD: ${head}\nWorking tree: ${status || "clean"}`;
+  } catch { return "Repository Git state unavailable."; }
 }
 
 function getGuard(system: string): string {
   const common = `RULES GUARD:
-- Rules Bible is the only gameplay authority; repository code is evidence only.
+- Rules Bible is the gameplay authority; repository code/data is implementation evidence.
 - Implement every approved requirement; never silently omit one.
-- Never invent values, costs, abilities, triggers, timing, defaults, regeneration, or balancing.
+- Never invent values, costs, abilities, triggers, timing, defaults, regeneration, scaling, or balancing.
 - Unspecified gameplay details must be reported, not decided.
-- Neutral architecture is allowed only if it does not encode an unstated rule.
-- Preserve approved scope, timing, frequency, authorization, and exclusions exactly.
+- Neutral architecture is allowed only when it does not encode an unstated rule.
 - Architecture names/fields/APIs are engineering choices, not gameplay authority.
-- Do not claim code was changed.`;
+- Suggestions are allowed and encouraged, but clearly label them as suggestions.
+- An accepted plan is not implementation completion: the repository must actually be patched.
+- Do not claim a patch happened unless files were written successfully.
+- After patching, report changed files, verification commands/results, and any unresolved items.`;
   if (system.toLowerCase().includes("action economy")) return `${common}
 ACTION ECONOMY: account for all approved Action, Bonus Action, Reaction, consumption/reset, turn-reset, stamina-resource, and no-extra-slot requirements. Stamina has no invented numeric costs, max, or regeneration. Do not invent Bonus Action or Reaction abilities/triggers. "Once per round" must never become "once per turn".`;
   return common;
@@ -110,8 +122,11 @@ const ACTION_ECONOMY_CHECKLIST = `APPROVED ACTION ECONOMY CHECKLIST — ACCOUNT 
 9. Stamina cannot purchase extra baseline Actions or Bonus Actions.
 This checklist restates approved requirements; it does not add mechanics.`;
 
+const REQUIRED_SECTIONS = ["# Implementation Status", "# Approved Requirements", "# Repository Findings", "# Human Decisions Required", "# Files Affected", "# Required Changes", "# Tests", "# Risks", "# Verification"];
+
 function validateImplementationPlan(system: string, output: string): string {
-  if (!system.toLowerCase().includes("action economy")) return output;
+  if (!REQUIRED_SECTIONS.every(section => output.includes(section))) throw new Error("Implementation plan rejected: required report sections were omitted.");
+
   const forbidden = [
     /staminacost\s*[:=]\s*\d+/i,
     /stamina\s+cost\s+of\s+\d+/i,
@@ -119,8 +134,9 @@ function validateImplementationPlan(system: string, output: string): string {
     /opportunityattackaction/i,
     /stamina[^\n]{0,100}(regenerates|restores|recovers)[^\n]{0,80}\b\d+/i
   ];
-  if (forbidden.some(pattern => pattern.test(output))) throw new Error("Implementation plan rejected: unspecified Action Economy mechanics were invented.");
+  if (forbidden.some(pattern => pattern.test(output))) throw new Error("Implementation plan rejected: unspecified mechanics were invented.");
 
+  if (!system.toLowerCase().includes("action economy")) return output;
   const required = [
     ["action", /(?:one\s+)?action\s+per\s+(?:combat\s+)?turn|baseline\s+of\s+one\s+per\s+(?:combat\s+)?turn|one\s+action|action\s+slot/i],
     ["bonus action", /bonus\s+action/i],
@@ -134,11 +150,15 @@ function validateImplementationPlan(system: string, output: string): string {
   ] as const;
   const missing = required.filter(([, pattern]) => !pattern.test(output)).map(([name]) => name);
   if (missing.length) throw new Error(`Implementation plan rejected: approved requirements were omitted: ${missing.join(", ")}`);
-
-  if (/once\s+per\s+turn/i.test(output) && /once\s+per\s+round/i.test(output) === false && /reaction/i.test(output)) {
-    throw new Error("Implementation plan rejected: Reaction frequency may have been changed from the approved round-based rule.");
-  }
   return output;
+}
+
+function runLocal(command: string, args: string[]): string {
+  try { return execFileSync(command, args, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim(); }
+  catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    throw new Error(`${command} ${args.join(" ")} failed: ${detail}`);
+  }
 }
 
 export async function implementDesign(dataFile: string, enginePath: string, request?: ImplementationRequest) {
@@ -150,11 +170,32 @@ export async function implementDesign(dataFile: string, enginePath: string, requ
   const context = (request?.context ?? "Determine implementation status and authorized integration work.").slice(0, MAX_CONTEXT_CHARS);
   const guard = getGuard(system);
   const checklist = system.toLowerCase().includes("action economy") ? `\n\n${ACTION_ECONOMY_CHECKLIST}` : "";
+  const output = await askAI(`BLOODLINES IMPLEMENTATION ASSISTANT
+You are an implementation agent, not merely a report generator.
 
-  const output = await askAI(`BLOODLINES IMPLEMENTATION ANALYST
-Analyze ONE system. Do not design mechanics.
+Phase 1 — Analyze and propose:
+- Inspect the actual repository evidence and Rules Bible.
+- Identify approved implementation work.
+- Identify safe engineering suggestions and label them clearly.
+- Identify unresolved gameplay decisions without deciding them.
 
-RULES BIBLE:
+Phase 2 — Governance gate:
+- Produce the required implementation report.
+- Every approved requirement must be explicitly accounted for.
+- If the plan invents gameplay mechanics, it must be rejected.
+
+Phase 3 — Implementation:
+- ONLY after the plan is accepted by governance, patch the repository directly.
+- Do not stop at a proposed diff or instructions for a human.
+- Write the authorized code/files into the repository.
+- Do not modify unrelated systems.
+- Do not commit/push unless the caller explicitly requests publishing.
+
+Phase 4 — Verification:
+- Run the project's appropriate typecheck/tests when available.
+- Report exactly which files changed and which checks passed/failed.
+- If verification fails, report the failure rather than claiming completion.
+
 ${rules}
 
 SYSTEM:
@@ -169,22 +210,14 @@ ${data}
 ENGINE EVIDENCE:
 ${engine}
 
+${gitState()}
+
 ${guard}${checklist}
 
-Completion requires every approved requirement to be explicitly accounted for. Missing approved behavior is an implementation gap, not permission to invent a rule.
+Return the implementation report first using exactly these headings:
+${REQUIRED_SECTIONS.join("\n")}
 
-Return exactly:
-# Implementation Status
-# Approved Requirements
-# Repository Findings
-# Human Decisions Required
-# Files Affected
-# Required Changes
-# Tests
-# Risks
-# Verification
-
-Required Changes may contain only authorized behavior plus clearly labeled neutral implementation choices. If a gameplay detail is unspecified, say so. Never substitute one timing/frequency for another.`);
+Required Changes may contain authorized behavior plus clearly labeled neutral engineering suggestions. Suggestions must never be presented as approved gameplay. Completion is only achieved when the authorized repository patch has actually been written and verified.`);
 
   try {
     return validateImplementationPlan(system, output);
