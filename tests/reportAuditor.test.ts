@@ -1,4 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import os from "os";
+import path from "path";
 
 const askAIMock = vi.fn();
 
@@ -33,7 +35,8 @@ describe("Report Auditor", () => {
       .mockResolvedValueOnce(`VERDICT: REVISION_REQUIRED\nPROBLEMS:\n- Turn reset is not demonstrated.\nREQUIRED_CORRECTIONS:\n- Verify the turn reset against runtime evidence.\nFEEDBACK:\nReinspect the runtime and revise the report.`)
       .mockResolvedValueOnce(`VERDICT: APPROVED\nPROBLEMS:\n- None.\nREQUIRED_CORRECTIONS:\n- None.\nFEEDBACK:\nThe corrected report is supported by the rules and evidence.`);
 
-    const auditor = new ReportAuditor({ maxAutomaticRevisions: 3, historyPath: ".tmp-report-auditor-history.json" });
+    const historyPath = path.join(os.tmpdir(), `bloodlines-report-auditor-${process.pid}-revision.json`);
+    const auditor = new ReportAuditor({ maxAutomaticRevisions: 3, historyPath });
     const result = await auditor.reviewWithCorrections(
       baseReport,
       rules,
@@ -49,7 +52,8 @@ describe("Report Auditor", () => {
   it("escalates when an assistant repeats a rejected report", async () => {
     askAIMock.mockResolvedValue(`VERDICT: REVISION_REQUIRED\nPROBLEMS:\n- Missing runtime evidence.\nREQUIRED_CORRECTIONS:\n- Inspect the runtime integration.\nFEEDBACK:\nCorrect the missing evidence.`);
 
-    const auditor = new ReportAuditor({ maxAutomaticRevisions: 3, historyPath: ".tmp-report-auditor-history-repeat.json" });
+    const historyPath = path.join(os.tmpdir(), `bloodlines-report-auditor-${process.pid}-repeat.json`);
+    const auditor = new ReportAuditor({ maxAutomaticRevisions: 3, historyPath });
     const result = await auditor.reviewWithCorrections(
       baseReport,
       rules,
