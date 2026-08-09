@@ -4,7 +4,7 @@ import { validateImplementationPlan } from "../src/ai/implementationAssistant";
 const report = `# Implementation Status
 Action Economy requires runtime integration.
 # Approved Requirements
-One Action, Bonus Action, Reaction, turn reset, stamina resource, and no extra baseline slots are required.
+One Action, Bonus Action, Reaction, turn reset, stamina resource, action consumption, bonus action consumption, reaction reset, and no extra baseline slots are required. A character cannot gain an extra action from stamina.
 # Repository Findings
 Action Economy state exists, but combat runtime integration is incomplete.
 # Human Decisions Required
@@ -26,6 +26,6 @@ describe("Implementation Assistant governance", () => {
   });
 
   it("rejects reports that invent a numeric stamina cost", () => {
-    expect(() => validateImplementationPlan("Action Economy", report.replace("stamina costs", "stamina cost of 5"))).toThrow();
+    expect(() => validateImplementationPlan("Action Economy", report.replace("stamina resource", "stamina cost of 5"))).toThrow();
   });
 });
