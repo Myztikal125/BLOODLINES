@@ -108,11 +108,17 @@ function isRepairRequest(prompt: string, systemPrompt: string) {
   return /repair|self-repair|typescript errors|compiler errors|tsc --noEmit/.test(text);
 }
 
+function shouldIncludeRepositoryContext(prompt: string, systemPrompt: string, requestedMaxTokens: number) {
+  if (/^BLOODLINES (?:IMPLEMENTATION REPORT|IMPLEMENTATION REPORT REVISION)/.test(prompt)) return true;
+  if (/lead designer|report auditor|implementation assistant/i.test(systemPrompt) && requestedMaxTokens <= 2400) return false;
+  return true;
+}
+
 export async function askAI(prompt: string, maxTokensOrSystemPrompt: number | string = DEFAULT_MAX_TOKENS, systemPrompt?: string, includeRepositoryContext = true) {
   const requestedMaxTokens = typeof maxTokensOrSystemPrompt === "number" ? maxTokensOrSystemPrompt : DEFAULT_MAX_TOKENS;
   const assistantSystemPrompt = systemPrompt ?? (typeof maxTokensOrSystemPrompt === "string" ? maxTokensOrSystemPrompt : "You are the BLOODLINES Research Assistant. Provide structured RPG research notes.");
   const maxTokens = isRepairRequest(prompt, assistantSystemPrompt) ? Math.min(requestedMaxTokens, REPAIR_MAX_TOKENS) : requestedMaxTokens;
-  const messages = buildMessages(prompt, assistantSystemPrompt, includeRepositoryContext);
+  const messages = buildMessages(prompt, assistantSystemPrompt, includeRepositoryContext && shouldIncludeRepositoryContext(prompt, assistantSystemPrompt, requestedMaxTokens));
   const estimatedTokens = estimateTokens(messages, maxTokens);
   const failures: string[] = [];
   let groqKey: string | undefined;
