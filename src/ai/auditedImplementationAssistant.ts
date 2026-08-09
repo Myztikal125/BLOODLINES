@@ -28,6 +28,20 @@ const sections = [
   "Verification",
 ];
 
+function validateReportShape(report: string): string {
+  const positions = sections.map(section => {
+    const plain = report.search(new RegExp(`(?:^|\\n)#?\\s*${section.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}\\s*$`, "im"));
+    return plain;
+  });
+  if (positions.some(p => p < 0) || positions.some((p, i) => i > 0 && p <= positions[i - 1])) {
+    throw new Error("Implementation report rejected: required report sections are missing or out of order.");
+  }
+  if (/stamina\\s+cost\\s+of\\s+\\d+|staminacost\\s*[:=]\\s*\\d+/i.test(report)) {
+    throw new Error("Implementation report rejected: unspecified mechanics were invented.");
+  }
+  return report;
+}
+
 function buildRevisionPrompt(request: AuditedImplementationRequest, rules: string, report: string, feedback: string): string {
   return `BLOODLINES IMPLEMENTATION REPORT REVISION\n\nRevise the implementation report using the auditor feedback below. You are correcting your own work, not merely changing wording. Reinspect the repository evidence and preserve all previously satisfied requirements. Do not invent mechanics.\n\nSYSTEM: ${request.system}\nCONTEXT: ${request.context ?? ""}\nRULES AUTHORITY:\n${rules}\n\nCURRENT REPORT:\n${report}\n\nAUDITOR FEEDBACK:\n${feedback}\n\nReturn exactly these nine sections in this order:\n${sections.join("\n")}\n\nIf and only if an actual repository change is required, append <IMPLEMENTATION_PATCHES> containing a valid JSON array. Do not emit fake tool calls, unified diffs, Markdown fences, YAML, or prose outside the report and optional patch payload.`;
 }
@@ -47,8 +61,12 @@ export async function runAuditedImplementation(request: AuditedImplementationReq
       : buildRevisionPrompt(request, rules, currentReport, feedback);
 
     const raw = await askAI(prompt, 3000, "You are the BLOODLINES Implementation Assistant preparing a report for independent audit. Do not modify code during the report stage.");
-    currentReport = validateImplementationPlan(request.system, raw);
+    currentReport = validateReportShape(raw);
 
+    // The legacy validator remains available for direct callers/tests. The audited
+    // workflow deliberately defers requirement-level validation to the independent
+    // Report Auditor so omissions become actionable revision feedback instead of a
+    // hard stop before the reviewer can see the report.
     const audit = await auditor.review(
       { assistant: "Implementation Assistant", system: request.system, report: currentReport, revision },
       rules,
