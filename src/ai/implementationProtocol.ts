@@ -59,8 +59,8 @@ REPORT CONTRACT
 # Risks
 # Verification
 - Every heading must have at least one factual sentence or bullet based on repository evidence.
-- Do not omit a section because it is empty; write `None identified.` when appropriate.
-- Do not put `<IMPLEMENTATION_PATCHES>` before the nine report sections.
+- Do not omit a section because it is empty; write 'None identified.' when appropriate.
+- Do not put <IMPLEMENTATION_PATCHES> before the nine report sections.
 - Do not add a different heading in place of a required heading.
 
 VERIFICATION
