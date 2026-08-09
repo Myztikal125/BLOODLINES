@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { validateImplementationPlan } from "../src/ai/implementationAssistant";
+import { createDesignProposal } from "../src/ai/leadDesigner";
 
 const report = `# Implementation Status
 Action Economy requires runtime integration.
@@ -27,5 +28,17 @@ describe("Implementation Assistant governance", () => {
 
   it("rejects reports that invent a numeric stamina cost", () => {
     expect(() => validateImplementationPlan("Action Economy", report.replace("stamina resource", "stamina cost of 5"))).toThrow();
+  });
+
+  it("creates assistant design proposals without treating them as approvals", () => {
+    const proposal = createDesignProposal({
+      assistant: "Combat Assistant",
+      system: "Action Economy",
+      proposal: "Add an event-driven reaction trigger layer.",
+      rationale: "The existing reaction slot can support future approved triggers.",
+    });
+    expect(proposal.id).toMatch(/^DP-/);
+    expect(proposal.status).toBe("PROPOSED");
+    expect(proposal.assistant).toBe("Combat Assistant");
   });
 });
