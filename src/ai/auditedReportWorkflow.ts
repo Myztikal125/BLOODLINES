@@ -12,22 +12,19 @@ export interface AuditedReportWorkflowResult {
   audit: ReportAuditResult;
 }
 
-/**
- * Runs any assistant report through the central auditor until it is approved
- * or the auditor requires human action. The originating assistant owns the
- * correction callback; the auditor only explains what must be fixed.
- */
+/** Runs an assistant report through the central auditor until approved or human action is required. */
 export async function runAuditedReportWorkflow(
   initialReport: AssistantReport,
   reviseReport: (feedback: string, revision: number) => Promise<AssistantReport>,
   options: AuditedReportWorkflowOptions,
 ): Promise<AuditedReportWorkflowResult> {
   const auditor = options.auditor ?? new ReportAuditor();
-  return auditor.reviewWithCorrections(
+  const result = await auditor.reviewWithCorrections(
     initialReport,
     options.rulesAuthority,
     options.repositoryEvidence,
     reviseReport,
     options.otherReports ?? auditor.getHistory().filter(report => report.assistant !== initialReport.assistant || report.system !== initialReport.system),
   );
+  return { report: result.finalReport, audit: result.audit };
 }
