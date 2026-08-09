@@ -77,9 +77,15 @@ VERIFICATION
 - For the BLOODLINES test suite, run npm test.
 - Report exact failures rather than claiming a pass.
 
-PATCH CONTRACT
-- Existing files should use minimal exact-text edits whenever possible.
-- Each edit must contain an exact existing find string and its intended replace string.
+PATCH CONTRACT — STRICT JSON ONLY
+- If an approved repository change is required, append exactly one <IMPLEMENTATION_PATCHES>...</IMPLEMENTATION_PATCHES> block after the nine report sections.
+- The contents of that block MUST be valid JSON: a single JSON array and nothing else.
+- NEVER use unified diff syntax, git diff syntax, @@ hunks, ---/+++ file markers, Markdown fences, YAML, XML, or prose inside the patch block.
+- Existing file example:
+<IMPLEMENTATION_PATCHES>[{"path":"engine/example.ts","edits":[{"find":"exact existing text","replace":"minimal replacement text"}],"reason":"specific repository-backed reason"}]</IMPLEMENTATION_PATCHES>
+- New file example:
+<IMPLEMENTATION_PATCHES>[{"path":"engine/example.ts","content":"complete file content","reason":"specific repository-backed reason"}]</IMPLEMENTATION_PATCHES>
+- Existing files must normally use minimal exact-text edits. The find string must occur exactly once in the current file.
 - New files must contain complete file content.
 - The host materializes edits against the actual current file before applying them.
 - Never return a shortened reconstruction of an existing populated file.
