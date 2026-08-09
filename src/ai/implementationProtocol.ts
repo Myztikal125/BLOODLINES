@@ -46,6 +46,23 @@ IMPLEMENTATION FLOW
 11. If verification fails, inspect the actual failure and repair only the implementation just changed.
 12. Repeat verification until clean or stop with an evidence-based blocker.
 
+REPORT CONTRACT
+- The implementation report is mandatory and must appear before the patch payload.
+- Use these headings exactly, in this order, with no missing section:
+# Implementation Status
+# Approved Requirements
+# Repository Findings
+# Human Decisions Required
+# Files Affected
+# Required Changes
+# Tests
+# Risks
+# Verification
+- Every heading must have at least one factual sentence or bullet based on repository evidence.
+- Do not omit a section because it is empty; write `None identified.` when appropriate.
+- Do not put `<IMPLEMENTATION_PATCHES>` before the nine report sections.
+- Do not add a different heading in place of a required heading.
+
 VERIFICATION
 - Do not report success from model reasoning alone.
 - A successful implementation requires actual repository verification.
