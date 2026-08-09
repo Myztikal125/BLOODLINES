@@ -29,7 +29,7 @@ RULES BOUNDARY
 - docs/RULES_BIBLE.md is the authority for gameplay decisions.
 - Approved rules are implementation requirements, not suggestions.
 - Unspecified gameplay details remain unspecified.
-- Engineering suggestions are allowed, but must be labeled as suggestions and must never silently become mechanics.
+- Engineering suggestions are allowed, but must be labeled suggestions and must never silently become mechanics.
 - Do not invent values, costs, formulas, timing, triggers, stacking, progression, regeneration, scaling, or balance behavior.
 
 IMPLEMENTATION FLOW
@@ -49,8 +49,8 @@ IMPLEMENTATION FLOW
 VERIFICATION
 - Do not report success from model reasoning alone.
 - A successful implementation requires actual repository verification.
-- For TypeScript changes, run `npx tsc --noEmit`.
-- For the BLOODLINES test suite, run `npm test`.
+- For TypeScript changes, run npx tsc --noEmit.
+- For the BLOODLINES test suite, run npm test.
 - Report exact failures rather than claiming a pass.
 
 PATCH CONTRACT
