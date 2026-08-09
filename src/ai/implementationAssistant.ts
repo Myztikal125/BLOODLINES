@@ -26,16 +26,14 @@ export function readRulesBible(): string {
 
 function getTargetKeywords(system: string): string[] {
   const s = system.toLowerCase();
-  if (s.includes("action economy")) return ["action","turn","bonus","reaction","stamina","energy","combat","resolver"];
+  if (s.includes("action economy")) return ["action","turn","bonus","reaction","stamina","energy","combat","resolver","loop"];
   if (s.includes("advantage") || s.includes("disadvantage")) return ["advantage","disadvantage","roll","dice","d20","rules","runtime"];
   return s.split(/[^a-z0-9]+/).filter(w => w.length >= 4);
 }
 
 function extractExplicitPaths(text: string): string[] {
   const matches = text.match(/(?:[A-Za-z0-9_.-]+\/)+[A-Za-z0-9_.-]+\.(?:ts|tsx|js|json|md)/g) ?? [];
-  return [...new Set(matches)].filter(file => {
-    try { safePath(file); return true; } catch { return false; }
-  });
+  return [...new Set(matches)].filter(file => { try { safePath(file); return true; } catch { return false; } });
 }
 
 function readRepositoryEvidence(inputPath: string, system: string): string {
@@ -68,9 +66,33 @@ function readRepositoryEvidence(inputPath: string, system: string): string {
   return out || "[No targeted repository evidence.]";
 }
 
+function collectRelevantEngineFiles(system: string, context: string, enginePath: string): string[] {
+  const explicit = extractExplicitPaths(`${system}\n${context}`);
+  const keywords = getTargetKeywords(system);
+  const files: string[] = [];
+  if (!fs.existsSync(enginePath) || !fs.statSync(enginePath).isDirectory()) return explicit;
+  const walk = (dir: string) => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (["node_modules",".git","dist","coverage"].includes(entry.name)) continue;
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) walk(full);
+      else if (/\.(ts|tsx|js)$/.test(entry.name)) files.push(full);
+    }
+  };
+  walk(enginePath);
+  const ranked = files.map(file => {
+    const text = fs.readFileSync(file, "utf8").toLowerCase();
+    const base = path.basename(file).toLowerCase();
+    let score = keywords.reduce((sum, key) => sum + (base.includes(key) ? 8 : text.includes(key) ? 1 : 0), 0);
+    if (text.includes("actioneconomystate") || text.includes("action economy")) score += 10;
+    return { file, score };
+  }).filter(x => x.score > 0).sort((a,b) => b.score-a.score || a.file.localeCompare(b.file));
+  return [...new Set([...explicit, ...ranked.slice(0, MAX_FILES).map(x => x.file)])];
+}
+
 function readImplementationEvidence(system: string, context: string, dataFile: string, enginePath: string): string {
-  const candidates = new Set<string>(extractExplicitPaths(`${system}\n${context}`));
-  for (const candidate of [dataFile, enginePath]) {
+  const candidates = new Set<string>([...extractExplicitPaths(`${system}\n${context}`), ...collectRelevantEngineFiles(system, context, enginePath)]);
+  for (const candidate of [dataFile]) {
     try { if (fs.existsSync(candidate) && fs.statSync(candidate).isFile()) candidates.add(candidate); } catch {}
   }
   let out = "";
@@ -80,13 +102,6 @@ function readImplementationEvidence(system: string, context: string, dataFile: s
       out += `\n== COMPLETE TARGET FILE: ${file} ==\n${content.slice(0,MAX_IMPLEMENTATION_FILE_CHARS)}\n`;
       const history = execFileSync("git", ["log", "-n", "3", "--format=%h %s", "--", file], { encoding: "utf8" }).trim();
       if (history) out += `== GIT HISTORY: ${file} ==\n${history}\n`;
-      const commits = execFileSync("git", ["log", "-n", "2", "--format=%H", "--", file], { encoding: "utf8" }).trim().split(/\s+/).filter(Boolean);
-      if (commits.length >= 2) {
-        try {
-          const previous = execFileSync("git", ["show", `${commits[1]}:${file}`], { encoding: "utf8" });
-          out += `== LAST KNOWN VERSION: ${file} @ ${commits[1].slice(0,7)} ==\n${previous.slice(0,MAX_IMPLEMENTATION_FILE_CHARS)}\n`;
-        } catch {}
-      }
     } catch {}
   }
   return out || "[No explicit implementation targets were identified from the request.]";
@@ -144,130 +159,52 @@ function parsePatchResponse(raw: string): ImplementationPatch[] {
     const p=item as Record<string,unknown>;
     if (typeof p.path!=="string"||typeof p.reason!=="string") throw new Error(`Invalid patch ${i}: path/reason required.`);
     if (typeof p.content !== "string" && !Array.isArray(p.edits)) throw new Error(`Invalid patch ${i}: provide content for a new file or edits for an existing file.`);
-    if (Array.isArray(p.edits)) {
-      for (const edit of p.edits) {
-        if (!edit || typeof edit !== "object" || typeof (edit as Record<string,unknown>).find !== "string" || typeof (edit as Record<string,unknown>).replace !== "string") throw new Error(`Invalid patch ${i}: every edit requires find/replace strings.`);
-      }
-    }
+    if (Array.isArray(p.edits)) for (const edit of p.edits) if (!edit || typeof edit !== "object" || typeof (edit as Record<string,unknown>).find !== "string" || typeof (edit as Record<string,unknown>).replace !== "string") throw new Error(`Invalid patch ${i}: every edit requires find/replace strings.`);
     safePath(p.path); return {path:p.path,content:typeof p.content === "string" ? p.content : undefined,edits:Array.isArray(p.edits) ? p.edits as ImplementationEdit[] : undefined,reason:p.reason};
   });
 }
 
 function materializePatch(patch: ImplementationPatch): string {
   const target=safePath(patch.path);
-  if (!fs.existsSync(target)) {
-    if (typeof patch.content !== "string") throw new Error(`Patch rejected for ${patch.path}: new files require complete content.`);
-    return patch.content;
-  }
+  if (!fs.existsSync(target)) { if (typeof patch.content !== "string") throw new Error(`Patch rejected for ${patch.path}: new files require complete content.`); return patch.content; }
   let current=fs.readFileSync(target,"utf8");
-  if (patch.edits?.length) {
-    for (const edit of patch.edits) {
-      const occurrences=current.split(edit.find).length-1;
-      if (occurrences !== 1) throw new Error(`Patch rejected for ${patch.path}: expected exactly one match for an edit, found ${occurrences}.`);
-      current=current.replace(edit.find,edit.replace);
-    }
-    return current;
-  }
-  if (typeof patch.content !== "string") throw new Error(`Patch rejected for ${patch.path}: no content or edits supplied.`);
-  return patch.content;
+  if (patch.edits?.length) for (const edit of patch.edits) { const occurrences=current.split(edit.find).length-1; if (occurrences !== 1) throw new Error(`Patch rejected for ${patch.path}: expected exactly one match for an edit, found ${occurrences}.`); current=current.replace(edit.find,edit.replace); }
+  else if (typeof patch.content !== "string") throw new Error(`Patch rejected for ${patch.path}: no content or edits supplied.`);
+  return current;
 }
 
 function validateApiPreservation(patches: ImplementationPatch[]): void {
   for (const patch of patches) {
-    const target=safePath(patch.path);
-    if (!fs.existsSync(target)) continue;
-    const current=fs.readFileSync(target,"utf8");
-    const result=materializePatch(patch);
+    const target=safePath(patch.path); if (!fs.existsSync(target)) continue;
+    const current=fs.readFileSync(target,"utf8"); const result=materializePatch(patch);
     const exportedSymbols = [...current.matchAll(/export\s+(?:default\s+)?(?:class|function|const|let|var|interface|type|enum)\s+([A-Za-z_$][\w$]*)/g)].map(m=>m[1]);
-    for (const symbol of exportedSymbols) {
-      if (!new RegExp(`export\\s+(?:default\\s+)?(?:class|function|const|let|var|interface|type|enum)\\s+${symbol}\\b`).test(result)) {
-        throw new Error(`Patch rejected for ${patch.path}: existing exported symbol ${symbol} would be removed.`);
-      }
-    }
+    for (const symbol of exportedSymbols) if (!new RegExp(`export\\s+(?:default\\s+)?(?:class|function|const|let|var|interface|type|enum)\\s+${symbol}\\b`).test(result)) throw new Error(`Patch rejected for ${patch.path}: existing exported symbol ${symbol} would be removed.`);
   }
 }
 
 function applyPatches(patches: ImplementationPatch[]): string[] {
-  validateApiPreservation(patches);
-  const changed:string[]=[];
-  for (const patch of patches) {
-    const target=safePath(patch.path); const existed=fs.existsSync(target); const next=materializePatch(patch);
-    if (existed) {
-      const current=fs.readFileSync(target,"utf8");
-      if (current===next) continue;
-      if (!patch.edits?.length && next.length < Math.max(200,Math.floor(current.length*0.5))) throw new Error(`Patch rejected for ${patch.path}: suspiciously smaller replacement; use minimal edits and preserve existing APIs.`);
-    }
-    fs.mkdirSync(path.dirname(target),{recursive:true}); fs.writeFileSync(target,next,"utf8"); changed.push(patch.path);
-  }
+  validateApiPreservation(patches); const changed:string[]=[];
+  for (const patch of patches) { const target=safePath(patch.path); const existed=fs.existsSync(target); const next=materializePatch(patch); if (existed) { const current=fs.readFileSync(target,"utf8"); if (current===next) continue; if (!patch.edits?.length && next.length < Math.max(200,Math.floor(current.length*0.5))) throw new Error(`Patch rejected for ${patch.path}: suspiciously smaller replacement; use minimal edits and preserve existing APIs.`); } fs.mkdirSync(path.dirname(target),{recursive:true}); fs.writeFileSync(target,next,"utf8"); changed.push(patch.path); }
   return changed;
 }
 
 function runCommand(command:string,args:string[]):string { return execFileSync(command,args,{encoding:"utf8",stdio:["ignore","pipe","pipe"]}).trim() || "PASS"; }
+function runVerification():string { try { const typecheck=runCommand("npx",["tsc","--noEmit"]); const tests=runCommand("npx",["vitest","run"]); return `tsc --noEmit: ${typecheck}\nvitest run: ${tests}`; } catch (error) { const message=error as {message?:string;stdout?:string;stderr?:string}; throw new Error([message.message??String(error),message.stdout??"",message.stderr??""].filter(Boolean).join("\n").slice(-12000)); } }
 
-function runVerification():string {
-  try {
-    const typecheck = runCommand("npx",["tsc","--noEmit"]);
-    const tests = runCommand("npx",["vitest","run"]);
-    return `tsc --noEmit: ${typecheck}\nvitest run: ${tests}`;
-  } catch (error) {
-    const message = error as { message?: string; stdout?: string; stderr?: string };
-    const stdout = typeof message.stdout === "string" ? message.stdout : "";
-    const stderr = typeof message.stderr === "string" ? message.stderr : "";
-    const details = [message.message ?? String(error), stdout, stderr].filter(Boolean).join("\n");
-    throw new Error(details.slice(-12000));
-  }
+function extractErrorPaths(error:string):string[] { const paths=new Set<string>(); const re=/(?:^|\n)([^\s:]+\.(?:ts|tsx|js|json)):\d+:\d+/g; let match:RegExpExecArray|null; while((match=re.exec(error))) { try{safePath(match[1]);paths.add(match[1]);}catch{} } return [...paths].slice(0,MAX_REPAIR_FILES); }
+function collectRepairFiles(patches:ImplementationPatch[],error:string):string { const paths=new Set<string>(patches.map(p=>p.path)); for(const p of extractErrorPaths(error)) paths.add(p); let output=""; for(const file of [...paths].slice(0,MAX_REPAIR_FILES)) try{output+=`\n== ${file} ==\n${fs.readFileSync(safePath(file),"utf8").slice(0,MAX_REPAIR_FILE_CHARS)}\n`;}catch{} return output||"[No affected files could be read.]"; }
+async function repairFailedImplementation(system:string,rules:string,patches:ImplementationPatch[],error:string):Promise<ImplementationPatch[]> { const files=collectRepairFiles(patches,error); const prompt=`BLOODLINES REPAIR ONLY\n${IMPLEMENTATION_ENGINEERING_PROTOCOL}\nSystem: ${system}\nRules summary: ${rules.slice(0,1200)}\nACTUAL VERIFICATION FAILURE:\n${error.slice(-7000)}\nAFFECTED CURRENT FILES:\n${files.slice(0,30000)}\n\nRepair the previous patch only. Diagnose the actual compiler/test failure. Preserve ALL existing exports/classes/functions/public APIs. Prefer exact edits for existing files using this format; do not return whole-file replacements unless necessary: <IMPLEMENTATION_PATCHES>[{"path":"relative/path","edits":[{"find":"exact existing text","replace":"minimal replacement text"}],"reason":"specific repair diagnosis"}]</IMPLEMENTATION_PATCHES>. New files may use complete content. Restore real implementations if an earlier patch removed one. Do not invent gameplay mechanics.`; return parsePatchResponse(await askAI(prompt)); }
+
+function reportDeclaresNoChangeNeeded(report:string):boolean { const status=report.match(/# Implementation Status\s+([\s\S]*?)(?=\n# Approved Requirements)/i)?.[1]??""; const changes=report.match(/# Required Changes\s+([\s\S]*?)(?=\n# Tests)/i)?.[1]??""; return /(already|fully|completely)\s+(implemented|complete|satisfied)/i.test(status) && /(?:none|no\s+(?:code|repository)\s+changes?\s+(?:are\s+)?required|no\s+changes?\s+required)/i.test(changes); }
+
+export async function implementDesign(dataFile:string,enginePath:string,request?:ImplementationRequest):Promise<ImplementationResult> {
+  const system=request?.system??"Review the supplied implementation against the Rules Bible."; const rulesBible=readRulesBible(); const data=readRepositoryEvidence(dataFile,system); const engine=readRepositoryEvidence(enginePath,system); const context=(request?.context??"Determine implementation status and authorized integration work.").slice(0,MAX_CONTEXT_CHARS); const implementationEvidence=readImplementationEvidence(system,context,dataFile,enginePath); const rules=getRulesSection(rulesBible,system);
+  const prompt=`BLOODLINES IMPLEMENTATION ASSISTANT\n${IMPLEMENTATION_ENGINEERING_PROTOCOL}\nYou are an implementation agent. Inspect the actual repository evidence and Rules Bible. Produce the required report, then if an approved repository change is required return an explicit patch payload. If the approved requirements are already implemented, do not invent a patch; state that clearly in Implementation Status and Required Changes. The host will apply any authorized patch and verify it.\n\n${rules}\nSYSTEM: ${system}\nCONTEXT: ${context}\nREPOSITORY EVIDENCE:\n${data}\nENGINE EVIDENCE:\n${engine}\nTARGET IMPLEMENTATION EVIDENCE:\n${implementationEvidence.slice(0,42000)}\n${gitState()}\n${getGuard(system)}\n\nReturn exactly these report headings first:\n${REQUIRED_SECTIONS.join("\n")}\n\nPATCH FORMAT:\n- Only when a repository change is required, append <IMPLEMENTATION_PATCHES> after the nine report sections.\n- Existing files: minimal exact-text edits.\n- New files: complete content.`;
+  const output=await askAI(prompt); let report:string; try{report=validateImplementationPlan(system,output);}catch(e){return{report:`${output}\n\n# GOVERNANCE VALIDATION\nREJECTED — DO NOT IMPLEMENT\n${errorText(e)}`,patches:[],applied:false};}
+  let patches:ImplementationPatch[]=[]; try{patches=parsePatchResponse(output);}catch(e){if(reportDeclaresNoChangeNeeded(report)) return {report:`${report}\n\n# IMPLEMENTATION EXECUTION\nNO PATCH REQUIRED — repository evidence indicates the approved requirements are already implemented.`,patches:[],applied:true}; return {report:`${report}\n\n# IMPLEMENTATION EXECUTION\nBLOCKED — ${errorText(e)}`,patches:[],applied:false};}
+  if(!patches.length){if(reportDeclaresNoChangeNeeded(report)) return {report:`${report}\n\n# IMPLEMENTATION EXECUTION\nNO PATCH REQUIRED — repository evidence indicates the approved requirements are already implemented.`,patches:[],applied:true}; return {report:`${report}\n\n# IMPLEMENTATION EXECUTION\nBLOCKED — Empty patch payload supplied for a report that requires repository changes.`,patches:[],applied:false};}
+  let changed:string[]; try{changed=applyPatches(patches);}catch(e){return{report:`${report}\n\n# IMPLEMENTATION EXECUTION\nBLOCKED — ${errorText(e)}`,patches,applied:false};}
+  let lastError=""; for(let attempt=0;attempt<3;attempt++){try{const verification=runVerification();return{report:`${report}\n\n# IMPLEMENTATION EXECUTION\nPATCHED: ${changed.join(", ")}\nVERIFICATION PASSED (repair attempts: ${attempt})\n${verification}`,patches,applied:true,verification};}catch(e){lastError=errorText(e);if(attempt===2)break;try{const repair=await repairFailedImplementation(system,rules,patches,lastError);if(!repair.length)break;const repairChanged=applyPatches(repair);changed=[...new Set([...changed,...repairChanged])];patches=[...patches,...repair];}catch(repairError){lastError=`${lastError}\nSELF-REPAIR ERROR: ${errorText(repairError)}`;break;}}}
+  return{report:`${report}\n\n# IMPLEMENTATION EXECUTION\nPATCHED: ${changed.join(", ")}\nVERIFICATION FAILED\n${lastError}`,patches,applied:true,verification:lastError};
 }
-
-function extractErrorPaths(error: string): string[] {
-  const paths = new Set<string>();
-  const re = /(?:^|\n)([^\s:]+\.(?:ts|tsx|js|json)):\d+:\d+/g;
-  let match: RegExpExecArray | null;
-  while ((match = re.exec(error))) {
-    try { safePath(match[1]); paths.add(match[1]); } catch {}
-  }
-  return [...paths].slice(0, MAX_REPAIR_FILES);
-}
-
-function collectRepairFiles(patches: ImplementationPatch[], error: string): string {
-  const paths = new Set<string>(patches.map(p => p.path));
-  for (const p of extractErrorPaths(error)) paths.add(p);
-  let output = "";
-  for (const file of [...paths].slice(0, MAX_REPAIR_FILES)) {
-    try {
-      const content = fs.readFileSync(safePath(file), "utf8");
-      output += `\n== ${file} ==\n${content.slice(0, MAX_REPAIR_FILE_CHARS)}\n`;
-    } catch {}
-  }
-  return output || "[No affected files could be read.]";
-}
-
-async function repairFailedImplementation(system:string, rules:string, patches:ImplementationPatch[], error:string):Promise<ImplementationPatch[]> {
-  const files=collectRepairFiles(patches,error);
-  const prompt=`BLOODLINES REPAIR ONLY\n${IMPLEMENTATION_ENGINEERING_PROTOCOL}\nSystem: ${system}\nRules summary: ${rules.slice(0,1200)}\nACTUAL VERIFICATION FAILURE:\n${error.slice(-7000)}\nAFFECTED CURRENT FILES:\n${files.slice(0,30000)}\n\nRepair the previous patch only. Diagnose the actual compiler/test failure. Preserve ALL existing exports/classes/functions/public APIs. Prefer exact edits for existing files using this format; do not return whole-file replacements unless necessary: <IMPLEMENTATION_PATCHES>[{"path":"relative/path","edits":[{"find":"exact existing text","replace":"minimal replacement text"}],"reason":"specific repair diagnosis"}]</IMPLEMENTATION_PATCHES>. New files may use complete content. If an earlier patch removed an export or class, restore the real existing implementation; do not add fake placeholder exports just to satisfy TypeScript. Do not invent gameplay mechanics.`;
-  return parsePatchResponse(await askAI(prompt));
-}
-
-export async function implementDesign(dataFile:string, enginePath:string, request?:ImplementationRequest):Promise<ImplementationResult> {
-  const system=request?.system ?? "Review the supplied implementation against the Rules Bible.";
-  const rulesBible=readRulesBible(); const data=readRepositoryEvidence(dataFile,system); const engine=readRepositoryEvidence(enginePath,system); const context=(request?.context??"Determine implementation status and authorized integration work.").slice(0,MAX_CONTEXT_CHARS); const implementationEvidence=readImplementationEvidence(system,request?.context??"",dataFile,enginePath);
-  const rules=getRulesSection(rulesBible,system);
-  const prompt=`BLOODLINES IMPLEMENTATION ASSISTANT\n${IMPLEMENTATION_ENGINEERING_PROTOCOL}\nYou are an implementation agent. Inspect the actual repository and Rules Bible. Produce the required report, then if governance accepts the plan return an explicit patch payload. The host will apply it and verify it.\n\n${rules}\nSYSTEM: ${system}\nCONTEXT: ${context}\nREPOSITORY EVIDENCE:\n${data}\nENGINE EVIDENCE:\n${engine}\nTARGET IMPLEMENTATION EVIDENCE:\n${implementationEvidence.slice(0,42000)}\n${gitState()}\n${getGuard(system)}\n\nReturn exactly these report headings first:\n${REQUIRED_SECTIONS.join("\n")}\n\nPATCH FORMAT:\n- For an existing file, prefer minimal exact-text edits:\n<IMPLEMENTATION_PATCHES>[{"path":"relative/path","edits":[{"find":"exact existing text","replace":"minimal replacement text"}],"reason":"why authorized"}]</IMPLEMENTATION_PATCHES>\n- For a new file, use complete content:\n<IMPLEMENTATION_PATCHES>[{"path":"relative/path","content":"complete new file contents","reason":"why authorized"}]</IMPLEMENTATION_PATCHES>`;
-  const output=await askAI(prompt);
-  let report:string; try { report=validateImplementationPlan(system,output); } catch(e) { return {report:`${output}\n\n# GOVERNANCE VALIDATION\nREJECTED — DO NOT IMPLEMENT\n${errorText(e)}`,patches:[],applied:false}; }
-  let patches:ImplementationPatch[]; try { patches=parsePatchResponse(output); } catch(e) { return {report:`${report}\n\n# IMPLEMENTATION EXECUTION\nBLOCKED — ${errorText(e)}`,patches:[],applied:false}; }
-  if (!patches.length) return {report:`${report}\n\n# IMPLEMENTATION EXECUTION\nBLOCKED — No explicit implementation patch was supplied.`,patches:[],applied:false};
-  let changed:string[]; try { changed=applyPatches(patches); } catch(e) { return {report:`${report}\n\n# IMPLEMENTATION EXECUTION\nBLOCKED — ${errorText(e)}`,patches,applied:false}; }
-  let lastError="";
-  for(let attempt=0;attempt<3;attempt++) {
-    try { const verification=runVerification(); return {report:`${report}\n\n# IMPLEMENTATION EXECUTION\nPATCHED: ${changed.join(", ")}\nVERIFICATION PASSED (repair attempts: ${attempt})\n${verification}`,patches,applied:true,verification}; }
-    catch(e) {
-      lastError=errorText(e);
-      if(attempt===2) break;
-      try { const repair=await repairFailedImplementation(system,rules,patches,lastError); if(!repair.length) break; const repairChanged=applyPatches(repair); changed=[...new Set([...changed,...repairChanged])]; patches=[...patches,...repair]; }
-      catch(repairError) { lastError=`${lastError}\nSELF-REPAIR ERROR: ${errorText(repairError)}`; break; }
-    }
-  }
-  return {report:`${report}\n\n# IMPLEMENTATION EXECUTION\nPATCHED: ${changed.join(", ")}\nVERIFICATION FAILED\n${lastError}`,patches,applied:true,verification:lastError};
-}
-
-function errorText(error:unknown): string { return error instanceof Error ? error.message : String(error); }
+function errorText(error:unknown):string{return error instanceof Error?error.message:String(error);}
