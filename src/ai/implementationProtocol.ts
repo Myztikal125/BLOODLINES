@@ -7,7 +7,7 @@ PURPOSE
 
 HOST EVIDENCE BOUNDARY
 - The host has already inspected the repository, Rules Bible, target files, callers, tests, and relevant Git history and supplies that evidence in the prompt.
-- Do not emit tool calls, <tool_call>, <tool_use>, read, write, grep, shell, or other tool-invocation markup.
+- Do not emit tool calls, tool-call markup, read/write commands, grep commands, shell commands, or other tool-invocation markup.
 - Do not ask to inspect files that are already represented in the supplied evidence.
 - Use the supplied repository evidence as the source for the implementation report and patch decision.
 - If the supplied evidence is insufficient to safely implement a change, report the missing evidence instead of inventing it.
@@ -28,8 +28,8 @@ API PRESERVATION
 
 MINIMAL PATCHING
 - Prefer surgical edits over whole-file rewrites.
-- Before applying a replacement to an existing file, compare its expected size/structure with the current file.
-- A substantially smaller replacement is presumed unsafe unless the repository evidence proves the file was intentionally reduced.
+- Before applying a replacement to an existing file, compare its expected size and structure with the current file.
+- A substantially smaller replacement is presumed unsafe unless repository evidence proves the file was intentionally reduced.
 - Preserve unrelated code exactly.
 
 RULES BOUNDARY
@@ -66,8 +66,8 @@ REPORT CONTRACT
 # Risks
 # Verification
 - Every heading must have at least one factual sentence or bullet based on repository evidence.
-- Do not omit a section because it is empty; write 'None identified.' when appropriate.
-- Do not put <IMPLEMENTATION_PATCHES> before the nine report sections.
+- Do not omit a section because it is empty; write None identified. when appropriate.
+- Do not put the implementation patch payload before the nine report sections.
 - Do not add a different heading in place of a required heading.
 
 VERIFICATION
@@ -79,7 +79,7 @@ VERIFICATION
 
 PATCH CONTRACT
 - Existing files should use minimal exact-text edits whenever possible.
-- Each edit must contain an exact existing `find` string and its intended `replace` string.
+- Each edit must contain an exact existing find string and its intended replace string.
 - New files must contain complete file content.
 - The host materializes edits against the actual current file before applying them.
 - Never return a shortened reconstruction of an existing populated file.
