@@ -2,7 +2,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import os from "os";
 import path from "path";
 
-const askAIMock = vi.fn();
+const { askAIMock } = vi.hoisted(() => ({
+  askAIMock: vi.fn(),
+}));
 
 vi.mock("../src/ai/aiClient", () => ({
   askAI: askAIMock,
