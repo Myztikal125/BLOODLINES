@@ -5,194 +5,174 @@
     "description": "A master of arcane magic who harnesses the power of the cosmos and the elements to bend reality to their will.",
     "hitDie": "d6",
     "primaryAbility": "intelligence",
-    "savingThrows": [
-      "intelligence",
-      "wisdom"
-    ],
-    "armorProficiencies": [
-      "light armor"
-    ],
-    "weaponProficiencies": [
-      "simple weapons",
-      "daggers",
-      "quarterstaffs"
-    ],
+    "savingThrows": ["intelligence", "wisdom"],
+    "armorProficiencies": ["light armor"],
+    "weaponProficiencies": ["simple weapons", "daggers", "quarterstaffs"],
     "startingHP": 6,
     "features": [
-      {
-        "level": 1,
-        "name": "Spellcasting",
-        "description": "Wizards can cast spells from their spellbook, spending spell slots to harness their magical abilities."
-      },
-      {
-        "level": 2,
-        "name": "Arcane Recovery",
-        "description": "Once per day during a short rest, a wizard can recover expended spell slots with a combined level that does not exceed half their wizard level (rounded up)."
-      }
+      { "level": 1, "name": "Spellcasting", "description": "Wizards can cast spells from their spellbook, spending spell slots to harness their magical abilities." },
+      { "level": 2, "name": "Arcane Recovery", "description": "Once per day during a short rest, a wizard can recover expended spell slots with a combined level that does not exceed half their wizard level (rounded up)." }
     ],
     "bloodlineBonus": "Increased spell damage by 2 for spells of chosen bloodline type."
   },
   {
     "id": "fighter",
     "name": "Fighter",
-    "description": "A master of martial combat, skilled with a variety of weapons and armor. Fighters excel in physical prowess and adaptability, making them versatile in any combat situation.",
+    "description": "A master of martial combat, skilled with a variety of weapons and armor.",
     "hitDie": "d10",
     "primaryAbility": "strength|dexterity",
-    "savingThrows": [
-      "strength",
-      "constitution"
-    ],
-    "armorProficiencies": [
-      "light armor",
-      "medium armor",
-      "heavy armor",
-      "shields"
-    ],
-    "weaponProficiencies": [
-      "simple weapons",
-      "martial weapons"
-    ],
+    "savingThrows": ["strength", "constitution"],
+    "armorProficiencies": ["light armor", "medium armor", "heavy armor", "shields"],
+    "weaponProficiencies": ["simple weapons", "martial weapons"],
     "startingHP": 10,
     "features": [
-      {
-        "level": 1,
-        "name": "Fighting Style",
-        "description": "Choose a fighting style that enhances your combat capabilities."
-      },
-      {
-        "level": 1,
-        "name": "Second Wind",
-        "description": "A surge of energy allows you to regain hit points equal to 1d10 + your fighter level once per short rest."
-      },
-      {
-        "level": 2,
-        "name": "Action Surge",
-        "description": "Take one additional action on your turn, usable once per short rest."
-      }
+      { "level": 1, "name": "Fighting Style", "description": "Choose a fighting style that enhances your combat capabilities." },
+      { "level": 1, "name": "Second Wind", "description": "A surge of energy allows you to regain hit points equal to 1d10 + your fighter level once per short rest." },
+      { "level": 2, "name": "Action Surge", "description": "Take one additional action on your turn, usable once per short rest." }
     ],
     "bloodlineBonus": "Increase your attack or damage rolls with weapons of your choice."
   },
   {
     "id": "rogue",
     "name": "Rogue",
-    "description": "Rogues are cunning and skilled at stealth, deception, and infiltration. They thrive on agility and their sharp wits to navigate the challenges of the world.",
+    "description": "Rogues are cunning and skilled at stealth, deception, and infiltration.",
     "hitDie": "d8",
     "primaryAbility": "dexterity",
-    "savingThrows": [
-      "dexterity",
-      "intelligence"
-    ],
-    "armorProficiencies": [
-      "light armor"
-    ],
-    "weaponProficiencies": [
-      "simple weapons",
-      "hand crossbows",
-      "longbows",
-      "rapiers",
-      "shortswords"
-    ],
+    "savingThrows": ["dexterity", "intelligence"],
+    "armorProficiencies": ["light armor"],
+    "weaponProficiencies": ["simple weapons", "hand crossbows", "longbows", "rapiers", "shortswords"],
     "startingHP": 8,
     "features": [
-      {
-        "level": 1,
-        "name": "Sneak Attack",
-        "description": "You can deal extra damage when you have advantage on an attack roll or if an ally is within 5 feet of the target."
-      },
-      {
-        "level": 2,
-        "name": "Cunning Action",
-        "description": "You can take the Dash, Disengage, or Hide action as a bonus action on your turn."
-      },
-      {
-        "level": 3,
-        "name": "Roguish Archetype",
-        "description": "You choose an archetype that provides additional features and abilities."
-      }
+      { "level": 1, "name": "Sneak Attack", "description": "Deal extra damage when the tactical conditions for a precision strike are met." },
+      { "level": 2, "name": "Cunning Action", "description": "Dash, Disengage, or Hide as a bonus action." },
+      { "level": 3, "name": "Roguish Archetype", "description": "Choose an archetype that provides additional features and abilities." }
     ],
     "bloodlineBonus": "Gain proficiency in dexterity saving throws and a bonus to stealth checks."
   },
   {
     "id": "cleric",
     "name": "Cleric",
-    "description": "Clerics are divine spellcasters who draw power from their deities, wielding magic to heal and smite. They serve as intermediaries between mortals and their gods, often being called upon to defend the faith and spread their deity's influence.",
+    "description": "Divine spellcasters who channel the power of a deity to heal, protect, and smite.",
     "hitDie": "d8",
     "primaryAbility": "wisdom",
-    "savingThrows": [
-      "wisdom",
-      "charisma"
-    ],
-    "armorProficiencies": [
-      "light armor",
-      "medium armor",
-      "shields"
-    ],
-    "weaponProficiencies": [
-      "simple weapons",
-      "martial weapons"
-    ],
+    "savingThrows": ["wisdom", "charisma"],
+    "armorProficiencies": ["light armor", "medium armor", "shields"],
+    "weaponProficiencies": ["simple weapons"],
     "startingHP": 8,
     "features": [
-      {
-        "level": 1,
-        "name": "Divine Magic",
-        "description": "Clerics can cast spells by channeling the divine power of their deity. They prepare spells from their spell list and can use them to heal or harm."
-      },
-      {
-        "level": 1,
-        "name": "Channel Divinity",
-        "description": "Once per short rest, the cleric can use their action to channel divine energy and either heal allies or turn undead."
-      },
-      {
-        "level": 2,
-        "name": "Divine Intervention",
-        "description": "Starting at 10th level, the cleric can call upon their deity for assistance, which may result in miraculous outcomes."
-      }
+      { "level": 1, "name": "Divine Magic", "description": "Channel divine power through prepared spells." },
+      { "level": 1, "name": "Channel Divinity", "description": "Channel divine energy to produce a powerful sacred effect." },
+      { "level": 2, "name": "Divine Domain", "description": "Choose a domain that shapes your divine abilities." }
     ],
-    "bloodlineBonus": "You gain proficiency in one additional skill of your choice related to your deity's domain."
+    "bloodlineBonus": "Gain an additional skill proficiency related to your divine calling."
   },
   {
     "id": "ranger",
     "name": "Ranger",
-    "description": "Rangers are skilled hunters and trackers, adept at navigating the wilderness and defending their allies from threats. They combine martial prowess with nature magic to become versatile combatants.",
+    "description": "Skilled hunters and trackers who combine martial prowess with wilderness expertise and nature magic.",
     "hitDie": "d10",
     "primaryAbility": "dexterity",
-    "savingThrows": [
-      "Strength",
-      "Dexterity"
-    ],
-    "armorProficiencies": [
-      "Light Armor",
-      "Medium Armor",
-      "Shields"
-    ],
-    "weaponProficiencies": [
-      "Simple Weapons",
-      "Martial Weapons"
-    ],
+    "savingThrows": ["strength", "dexterity"],
+    "armorProficiencies": ["light armor", "medium armor", "shields"],
+    "weaponProficiencies": ["simple weapons", "martial weapons"],
     "startingHP": 10,
     "features": [
-      {
-        "level": 1,
-        "name": "Favored Enemy",
-        "description": "Choose a type of creature, gaining bonuses on tracking and attacking it."
-      },
-      {
-        "level": 1,
-        "name": "Natural Explorer",
-        "description": "You are adept at traversing a favored terrain, gaining benefits such as increased movement and survival skills."
-      },
-      {
-        "level": 2,
-        "name": "Fighting Style",
-        "description": "Choose a fighting style that enhances your combat capabilities."
-      },
-      {
-        "level": 2,
-        "name": "Spellcasting",
-        "description": "You gain the ability to cast spells from the ranger spell list."
-      }
+      { "level": 1, "name": "Favored Enemy", "description": "Choose a creature type and gain specialized tracking and hunting benefits." },
+      { "level": 1, "name": "Natural Explorer", "description": "Gain advantages when navigating and surviving in a favored environment." },
+      { "level": 2, "name": "Fighting Style", "description": "Choose a fighting style that enhances your combat capabilities." },
+      { "level": 2, "name": "Spellcasting", "description": "Gain access to ranger nature magic." }
     ],
-    "bloodlineBonus": "You gain a +1 bonus to your Dexterity and have proficiency in survival checks."
+    "bloodlineBonus": "Gain a +1 bonus to Dexterity and proficiency in survival checks."
+  },
+  {
+    "id": "barbarian",
+    "name": "Barbarian",
+    "description": "A primal warrior who turns fury, endurance, and raw physical power into devastating combat strength.",
+    "hitDie": "d12",
+    "primaryAbility": "strength",
+    "savingThrows": ["strength", "constitution"],
+    "armorProficiencies": ["light armor", "medium armor", "shields"],
+    "weaponProficiencies": ["simple weapons", "martial weapons"],
+    "startingHP": 12,
+    "features": [
+      { "level": 1, "name": "Rage", "description": "Enter a battle fury that increases durability and melee damage." },
+      { "level": 1, "name": "Unarmored Defense", "description": "Use agility and toughness to defend without heavy armor." },
+      { "level": 2, "name": "Reckless Attack", "description": "Strike with overwhelming force while accepting greater risk." },
+      { "level": 3, "name": "Primal Path", "description": "Choose a specialized expression of primal power." }
+    ],
+    "bloodlineBonus": "While raging, bloodline manifestations gain increased physical impact."
+  },
+  {
+    "id": "paladin",
+    "name": "Paladin",
+    "description": "A divine champion who combines martial discipline, protective power, and an oath that shapes supernatural abilities.",
+    "hitDie": "d10",
+    "primaryAbility": "strength",
+    "savingThrows": ["wisdom", "charisma"],
+    "armorProficiencies": ["light armor", "medium armor", "heavy armor", "shields"],
+    "weaponProficiencies": ["simple weapons", "martial weapons"],
+    "startingHP": 10,
+    "features": [
+      { "level": 1, "name": "Divine Sense", "description": "Detect powerful supernatural presences and threats." },
+      { "level": 1, "name": "Lay on Hands", "description": "Restore an ally's vitality through divine healing power." },
+      { "level": 2, "name": "Divine Smite", "description": "Channel divine power through a successful weapon strike." },
+      { "level": 3, "name": "Sacred Oath", "description": "Bind yourself to an oath that defines your divine path." }
+    ],
+    "bloodlineBonus": "Divine manifestations can inherit the symbolism and damage affinity of the chosen bloodline."
+  },
+  {
+    "id": "druid",
+    "name": "Druid",
+    "description": "A primal spellcaster who draws on nature, transformation, and the living forces of the world.",
+    "hitDie": "d8",
+    "primaryAbility": "wisdom",
+    "savingThrows": ["intelligence", "wisdom"],
+    "armorProficiencies": ["light armor", "shields"],
+    "weaponProficiencies": ["simple weapons"],
+    "startingHP": 8,
+    "features": [
+      { "level": 1, "name": "Druidic", "description": "Know the secret language and traditions of druids." },
+      { "level": 1, "name": "Spellcasting", "description": "Channel primal magic through prepared nature-based spells." },
+      { "level": 2, "name": "Wild Shape", "description": "Transform into an appropriate beast form." },
+      { "level": 2, "name": "Druid Circle", "description": "Choose a circle that defines your relationship with primal power." }
+    ],
+    "bloodlineBonus": "Primal spells and transformations can reflect the chosen bloodline's nature."
+  },
+  {
+    "id": "bard",
+    "name": "Bard",
+    "description": "A versatile performer whose magic, knowledge, and influence turn artistry into practical power.",
+    "hitDie": "d8",
+    "primaryAbility": "charisma",
+    "savingThrows": ["dexterity", "charisma"],
+    "armorProficiencies": ["light armor"],
+    "weaponProficiencies": ["simple weapons", "hand crossbows", "longswords", "rapiers", "shortswords"],
+    "startingHP": 8,
+    "features": [
+      { "level": 1, "name": "Bardic Inspiration", "description": "Inspire allies with a die of performance-fueled potential." },
+      { "level": 1, "name": "Spellcasting", "description": "Cast spells through music, speech, or another creative medium." },
+      { "level": 2, "name": "Jack of All Trades", "description": "Apply broad experience to tasks outside your strongest specialties." },
+      { "level": 3, "name": "Bard College", "description": "Choose a tradition of performance and magical study." }
+    ],
+    "bloodlineBonus": "Performance magic can manifest as an audible or visual expression of the chosen bloodline."
+  },
+  {
+    "id": "monk",
+    "name": "Monk",
+    "description": "A disciplined martial artist who turns body, movement, and focused inner energy into supernatural technique.",
+    "hitDie": "d8",
+    "primaryAbility": "dexterity",
+    "savingThrows": ["strength", "dexterity"],
+    "armorProficiencies": [],
+    "weaponProficiencies": ["simple weapons", "shortswords"],
+    "startingHP": 8,
+    "features": [
+      { "level": 1, "name": "Martial Arts", "description": "Use disciplined unarmed strikes and monk weapons with exceptional speed and precision." },
+      { "level": 2, "name": "Ki", "description": "Spend focused inner energy to power special techniques." },
+      { "level": 2, "name": "Unarmored Movement", "description": "Move with exceptional speed while unarmored." },
+      { "level": 3, "name": "Monastic Tradition", "description": "Choose a tradition that defines your disciplined techniques." },
+      { "level": 5, "name": "Stunning Strike", "description": "Disrupt an enemy with a precisely timed empowered strike." }
+    ],
+    "bloodlineBonus": "Focused techniques can channel the chosen bloodline as an elemental, shadow, or spiritual manifestation."
   }
 ]
