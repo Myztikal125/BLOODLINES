@@ -4,13 +4,34 @@
     "name": "Elder Varen",
     "role": "Quest Giver",
     "location": "ashenvale",
-    "description": "An ancient keeper of forgotten bloodline secrets."
+    "description": "An ancient keeper of forgotten bloodline secrets who knows more about the missing scholar than he admits."
+  },
+  {
+    "id": "scholar_lyra",
+    "name": "Lyra Vey",
+    "role": "Missing Scholar",
+    "location": "ruined watchtower",
+    "description": "A researcher investigating the Bloodlands' oldest bloodline records before disappearing beneath the watchtower."
+  },
+  {
+    "id": "warden_marek",
+    "name": "Warden Marek",
+    "role": "Ashenvale Warden",
+    "location": "hollowroot path",
+    "description": "A hardened forest warden who has been tracking creatures drawn toward the scholar's research."
   },
   {
     "id": "blacksmith_kora",
     "name": "Kora Ironhand",
     "role": "Blacksmith",
     "location": "blackspire",
-    "description": "A master smith who crafts legendary weapons."
+    "description": "A master smith who crafts legendary weapons and knows the history of Blackspire Keep."
+  },
+  {
+    "id": "keeper_serah",
+    "name": "Keeper Serah",
+    "role": "Sanctum Keeper",
+    "location": "bloodglass sanctum",
+    "description": "The last known guardian of the Bloodglass Sanctum and its sealed bloodline records."
   }
 ]
