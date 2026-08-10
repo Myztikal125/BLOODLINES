@@ -1,5 +1,9 @@
+import { SUPERPOWERS_IMPLEMENTATION_SKILLS } from "./skills/superpowers";
+
 export const IMPLEMENTATION_ENGINEERING_PROTOCOL = `
 BLOODLINES IMPLEMENTATION ENGINEERING PROTOCOL
+
+${SUPERPOWERS_IMPLEMENTATION_SKILLS}
 
 PURPOSE
 - You are a repository-maintenance coding agent, not a gameplay designer.

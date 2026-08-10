@@ -2,6 +2,8 @@ import dotenv from "dotenv";
 import { BLOODLINES_ASSISTANT_PROTOCOL } from "./assistantProtocol";
 import { BLOODLINES_AI_GOVERNANCE } from "./aiGovernance";
 import { buildRepositoryContext, buildGovernanceRepositoryContext } from "./repositoryContext";
+import { SUPERPOWERS_SHARED_SKILLS } from "./skills/superpowers";
+
 
 dotenv.config({ override: true });
 
@@ -15,8 +17,9 @@ const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL ?? OPENROUTER_FREE_MODEL;
 const GEMINI_MODEL = process.env.GEMINI_MODEL ?? "gemini-3.1-flash-lite-preview";
 const CLOUDFLARE_MODEL = process.env.CLOUDFLARE_MODEL ?? "@cf/meta/llama-3.2-1b-instruct";
 interface ProviderBudget { remainingTokens?: number; remainingRequests?: number; resetTokensAt?: number; resetRequestsAt?: number; retryAfterAt?: number; }
+
 const groqBudget: ProviderBudget = {}, openRouterBudget: ProviderBudget = {}, geminiBudget: ProviderBudget = {}, cloudflareBudget: ProviderBudget = {};
-function buildMessages(prompt: string, systemPrompt: string, includeRepositoryContext = true) { const resolvedSystemPrompt = `${BLOODLINES_AI_GOVERNANCE}\n\n${BLOODLINES_ASSISTANT_PROTOCOL}\n\nASSIGNED ASSISTANT ROLE\n\n${systemPrompt}`; const repositoryContext = includeRepositoryContext ? buildRepositoryContext(prompt) : ""; return [{ role: "system", content: resolvedSystemPrompt }, { role: "user", content: repositoryContext ? `${prompt}\n\n${repositoryContext}` : prompt }]; }
+function buildMessages(prompt: string, systemPrompt: string, includeRepositoryContext = true) { const resolvedSystemPrompt = `${BLOODLINES_AI_GOVERNANCE}\n\n${BLOODLINES_ASSISTANT_PROTOCOL}\n\n${SUPERPOWERS_SHARED_SKILLS}\n\nASSIGNED ASSISTANT ROLE\n\n${systemPrompt}`; const repositoryContext = includeRepositoryContext ? buildRepositoryContext(prompt) : ""; return [{ role: "system", content: resolvedSystemPrompt }, { role: "user", content: repositoryContext ? `${prompt}\n\n${repositoryContext}` : prompt }]; }
 function estimateTokens(messages: Array<{ role: string; content: string }>, maxTokens: number) { return Math.ceil(messages.reduce((total, message) => total + message.content.length, 0) / 4) + maxTokens; }
 function updateBudget(headers: Headers, budget: ProviderBudget) { const remainingTokens = Number(headers.get("x-ratelimit-remaining-tokens")); const remainingRequests = Number(headers.get("x-ratelimit-remaining-requests")); if (Number.isFinite(remainingTokens)) budget.remainingTokens = remainingTokens; if (Number.isFinite(remainingRequests)) budget.remainingRequests = remainingRequests; const retryAfter = Number(headers.get("retry-after")); if (Number.isFinite(retryAfter)) budget.retryAfterAt = Date.now() + retryAfter * 1000; const tokenReset = headers.get("x-ratelimit-reset-tokens"); const requestReset = headers.get("x-ratelimit-reset-requests"); if (tokenReset) budget.resetTokensAt = Date.now() + parseDurationMs(tokenReset); if (requestReset) budget.resetRequestsAt = Date.now() + parseDurationMs(requestReset); }
 function parseDurationMs(value: string) { const match = value.match(/(?:(\d+(?:\.\d+)?)h)?\s*(?:(\d+(?:\.\d+)?)m)?\s*(?:(\d+(?:\.\d+)?)s)?/i); if (!match) return 0; return Number(match[1] ?? 0) * 3600000 + Number(match[2] ?? 0) * 60000 + Number(match[3] ?? 0) * 1000; }
@@ -36,5 +39,6 @@ export async function askAI(prompt: string, maxTokensOrSystemPrompt: number | st
   if (openRouterKey && providerCanHandle(openRouterBudget, estimatedTokens)) { try { return await callOpenRouter(openRouterKey, messages, maxTokens); } catch (error) { failures.push(error instanceof Error ? error.message : "OpenRouter: unknown error"); } } else if (!openRouterKey) failures.push("OpenRouter: OPENROUTER_API_KEY is not available to the Node process"); else failures.push("OpenRouter: unavailable based on known rate limits");
   if (groqKey) { for (const model of [GROQ_MODEL, GROQ_FALLBACK_MODEL].filter((model, index, models) => models.indexOf(model) === index)) { if (!providerCanHandle(groqBudget, estimatedTokens)) { failures.push(`Groq ${model}: unavailable based on known rate limits`); continue; } try { return await callGroq(groqKey, model, messages, maxTokens); } catch (error) { failures.push(error instanceof Error ? error.message : `Groq ${model}: unknown error`); } } } else failures.push("Groq: GROQ_API_KEY is not available to the Node process");
   if (geminiKey && providerCanHandle(geminiBudget, estimatedTokens)) { try { return await callGemini(geminiKey, messages, maxTokens); } catch (error) { failures.push(error instanceof Error ? error.message : "Gemini: unknown error"); } } else if (!geminiKey) failures.push("Gemini: GEMINI_API_KEY is not available to the Node process"); else failures.push("Gemini: unavailable based on known rate limits");
+
   throw new Error(`No AI provider could handle this request (estimated ${estimatedTokens} tokens).\n${failures.join("\n")}`);
 }

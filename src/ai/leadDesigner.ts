@@ -1,6 +1,9 @@
 import fs from "fs";
 import { askAI } from "./aiClient";
+
 import { readRulesBible } from "./implementationAssistant";
+import { SUPERPOWERS_DESIGN_SKILLS } from "./skills/superpowers";
+
 
 export type LeadDesignerDecision = "IMPLEMENT_REQUIRED" | "NO_CHANGE_REQUIRED" | "APPROVED" | "APPROVED_WITH_MODIFICATIONS" | "REJECTED" | "DEFERRED" | "BLOCKED" | "HUMAN_DECISION_REQUIRED";
 export type DesignProposalStatus = "PROPOSED" | "UNDER_REVIEW" | "APPROVED" | "APPROVED_WITH_MODIFICATIONS" | "REJECTED" | "DEFERRED" | "IMPLEMENTED";
@@ -15,7 +18,10 @@ function listSection(raw: string, name: string): string[] { return section(raw, 
 
 export async function resolveLeadDesignerCase(input: LeadDesignerCase): Promise<LeadDesignerDecisionRecord> {
   const rules = readRulesBible();
-  const prompt = `BLOODLINES LEAD DESIGNER\n\nYou are the binding technical and game-design authority. Inspect supplied evidence and make a concrete decision. Do not invent mechanics, files, APIs, costs, formulas, triggers, or missing systems. Preserve correct existing implementation.\n\nRULE AUTHORITY: docs/RULES_BIBLE.md is authoritative. Approved rules are requirements. Unspecified mechanics remain unspecified.\n\nSYSTEM: ${input.system}\nPROBLEM:\n${input.problem}\n\nRULES:\n${rules}\n\nREPOSITORY EVIDENCE:\n${input.repositoryEvidence}\n\nASSISTANT REPORT:\n${input.assistantReport ?? "None supplied."}\n\nAUDITOR FEEDBACK:\n${input.auditorFeedback ?? "None supplied."}\n\nCASE HISTORY:\n${input.history ?? "None supplied."}\n\nReturn exactly:\nDECISION\nPROBLEM\nREASONING\nREQUIRED ACTION\nREQUIRED FILES\nPROHIBITED CHANGES\nVERIFICATION\n\nDECISION must be one of: ${DECISIONS.join(", ")}. Use NO_CHANGE_REQUIRED when evidence proves the approved requirements are already satisfied. Use IMPLEMENT_REQUIRED for a concrete repository change. If a proposal introduces new gameplay not already approved by the Rules Bible, use HUMAN_DECISION_REQUIRED or REJECTED.`;
+  const prompt = `BLOODLINES LEAD DESIGNER\n\nYou are the binding technical and game-design authority. Inspect supplied evidence and make a concrete decision.
+
+SUPERPOWERS DESIGN METHODOLOGY:
+${SUPERPOWERS_DESIGN_SKILLS} Do not invent mechanics, files, APIs, costs, formulas, triggers, or missing systems. Preserve correct existing implementation.\n\nRULE AUTHORITY: docs/RULES_BIBLE.md is authoritative. Approved rules are requirements. Unspecified mechanics remain unspecified.\n\nSYSTEM: ${input.system}\nPROBLEM:\n${input.problem}\n\nRULES:\n${rules}\n\nREPOSITORY EVIDENCE:\n${input.repositoryEvidence}\n\nASSISTANT REPORT:\n${input.assistantReport ?? "None supplied."}\n\nAUDITOR FEEDBACK:\n${input.auditorFeedback ?? "None supplied."}\n\nCASE HISTORY:\n${input.history ?? "None supplied."}\n\nReturn exactly:\nDECISION\nPROBLEM\nREASONING\nREQUIRED ACTION\nREQUIRED FILES\nPROHIBITED CHANGES\nVERIFICATION\n\nDECISION must be one of: ${DECISIONS.join(", ")}. Use NO_CHANGE_REQUIRED when evidence proves the approved requirements are already satisfied. Use IMPLEMENT_REQUIRED for a concrete repository change. If a proposal introduces new gameplay not already approved by the Rules Bible, use HUMAN_DECISION_REQUIRED or REJECTED.`;
   try {
     const raw = await askAI(prompt, 2200, "You are the BLOODLINES Lead Designer. Issue binding, evidence-backed decisions. Do not write code.", false);
     const candidate = section(raw, "DECISION").split(/\s+/)[0].toUpperCase() as LeadDesignerDecision;

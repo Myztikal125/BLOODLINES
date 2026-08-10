@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { askAI } from "./aiClient";
+import { SUPERPOWERS_RESEARCH_SKILLS } from "./skills/superpowers";
 
 export async function research(topic: string) {
   const result = await askAI(
@@ -8,11 +9,21 @@ export async function research(topic: string) {
 
 ${topic}
 
+${SUPERPOWERS_RESEARCH_SKILLS}
+
+Research output rules:
+- Separate established rules/facts from design suggestions and unresolved questions.
+- Identify source strength and conflicts when relevant.
+- Never present a recommendation as an approved BLOODLINES rule.
+- Never invent missing mechanics to make a research answer complete.
+
 Return:
 - Summary
+- Sources / evidence
 - Important mechanics
-- Design ideas
-- Possible implementation notes`
+- Design ideas (clearly labeled recommendations)
+- Unresolved questions
+- Possible implementation notes (neutral unless explicitly authorized)`
   );
 
   const title = (topic
