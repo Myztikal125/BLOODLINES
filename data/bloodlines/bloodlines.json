@@ -2,19 +2,81 @@
   {
     "id": "emberborn",
     "name": "Emberborn Bloodline",
-    "description": "A lineage carrying the power of ancient flame.",
-    "abilities": [
-      "Fire Resistance",
-      "Flame Affinity"
-    ]
+    "description": "A lineage carrying the power of ancient flame. Fire effects can generate Heat that compatible abilities interpret in different ways.",
+    "tags": ["fire", "heat", "elemental"],
+    "abilities": ["Fire Resistance", "Flame Affinity", "Living Ember"],
+    "evolutionHooks": ["rage", "shield", "spell amplification", "burning terrain"]
   },
   {
     "id": "shadowveil",
     "name": "Shadowveil Bloodline",
-    "description": "A hidden lineage connected to darkness and secrets.",
-    "abilities": [
-      "Shadow Step",
-      "Night Vision"
-    ]
+    "description": "A hidden lineage connected to darkness and secrets. Shadow effects can create Veil states that reward stealth, control, and repositioning.",
+    "tags": ["shadow", "stealth", "veil"],
+    "abilities": ["Shadow Step", "Night Vision", "Veil Affinity"],
+    "evolutionHooks": ["stealth", "barriers", "spell distortion", "death magic"]
+  },
+  {
+    "id": "stormborn",
+    "name": "Stormborn Bloodline",
+    "description": "A lineage touched by violent skies. Lightning effects can build Charge that jumps between compatible attacks.",
+    "tags": ["lightning", "storm", "charge"],
+    "abilities": ["Storm Resistance", "Static Blood", "Thunderous Step"],
+    "evolutionHooks": ["chain attacks", "movement", "auras", "support discharge"]
+  },
+  {
+    "id": "frostbound",
+    "name": "Frostbound Bloodline",
+    "description": "A lineage carrying ancient winter. Cold effects build Chill that can become control, cover, or defensive power.",
+    "tags": ["cold", "ice", "chill"],
+    "abilities": ["Cold Resistance", "Winter's Touch", "Frost Affinity"],
+    "evolutionHooks": ["freeze", "barriers", "terrain", "slow effects"]
+  },
+  {
+    "id": "wildblood",
+    "name": "Wildblood Bloodline",
+    "description": "A primal inheritance that blurs the boundary between mortal and beast.",
+    "tags": ["nature", "beast", "primal"],
+    "abilities": ["Predator's Senses", "Wild Instinct", "Beast Affinity"],
+    "evolutionHooks": ["shapeshifting", "hunting marks", "companions", "feral states"]
+  },
+  {
+    "id": "crimson",
+    "name": "Crimson Bloodline",
+    "description": "A dangerous lineage that turns blood, wounds, and sacrifice into usable power.",
+    "tags": ["blood", "sacrifice", "risk"],
+    "abilities": ["Blood Sense", "Crimson Reserve", "Pain Conversion"],
+    "evolutionHooks": ["weapon empowerment", "healing through sacrifice", "rage", "blood magic"]
+  },
+  {
+    "id": "dawnborn",
+    "name": "Dawnborn Bloodline",
+    "description": "A radiant lineage tied to renewal, protection, and the first light.",
+    "tags": ["radiant", "light", "renewal"],
+    "abilities": ["Radiant Resistance", "Dawn Sight", "Renewal Spark"],
+    "evolutionHooks": ["healing", "auras", "anti-undead", "revival"]
+  },
+  {
+    "id": "voidtouched",
+    "name": "Voidtouched Bloodline",
+    "description": "A lineage exposed to the spaces between worlds. Void power trades certainty for unusual movement and spell behavior.",
+    "tags": ["void", "teleportation", "risk"],
+    "abilities": ["Void Sight", "Unstable Step", "Spatial Affinity"],
+    "evolutionHooks": ["teleportation", "spell distortion", "evasion", "dimensional effects"]
+  },
+  {
+    "id": "ironblood",
+    "name": "Ironblood Bloodline",
+    "description": "A hardened lineage whose blood remembers battle, granting unusual resilience and momentum under pressure.",
+    "tags": ["metal", "resilience", "martial"],
+    "abilities": ["Iron Skin", "Battle Memory", "Unyielding Blood"],
+    "evolutionHooks": ["defense", "weapon mastery", "damage absorption", "counterattacks"]
+  },
+  {
+    "id": "spiritbound",
+    "name": "Spiritbound Bloodline",
+    "description": "A lineage able to sense and bargain with lingering spirits, bridging the living and unseen worlds.",
+    "tags": ["spirit", "divination", "summoning"],
+    "abilities": ["Spirit Sight", "Whispered Counsel", "Ancestor's Echo"],
+    "evolutionHooks": ["summons", "divination", "ancestral buffs", "death interaction"]
   }
 ]
