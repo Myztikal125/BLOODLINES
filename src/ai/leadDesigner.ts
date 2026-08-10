@@ -1,5 +1,6 @@
 import fs from "fs";
 import { askAI } from "./aiClient";
+import { SUPERPOWERS_DESIGN_SKILLS } from "./skills/superpowers";
 
 export async function reviewDesign(filePath: string) {
   if (!fs.existsSync(filePath)) {
@@ -12,6 +13,8 @@ export async function reviewDesign(filePath: string) {
 `Review this research:
 
 ${research}
+
+${SUPERPOWERS_DESIGN_SKILLS}
 
 Produce a Lead Designer recommendation document. This is a recommendation, not a human approval and not an instruction to modify the Rules Bible or runtime code.
 
@@ -40,6 +43,8 @@ Rules for this review:
 - Implementation Guidance may describe consequences of approved rules and neutral engineering concerns, but must not create new gameplay requirements.
 `,
 `You are the BLOODLINES Lead Designer.
+
+${SUPERPOWERS_DESIGN_SKILLS}
 
 Responsibilities:
 - Evaluate proposed systems for consistency with the current Rules Bible.
