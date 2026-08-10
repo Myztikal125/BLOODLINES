@@ -1,0 +1,125 @@
+{
+  "systems": [
+    {
+      "system": "Advantage and Disadvantage",
+      "status": "DEFINED",
+      "approvedRules": [
+        "Advantage: roll two d20s and use the higher result.",
+        "Disadvantage: roll two d20s and use the lower result.",
+        "Specific conditions, abilities, environmental circumstances, or narrative situations may grant Advantage or Disadvantage.",
+        "The game engine applies Advantage or Disadvantage only when an explicit rule, ability, condition, or DM decision grants it.",
+        "The roll state is explicitly represented as NORMAL, ADVANTAGE, or DISADVANTAGE.",
+        "Authorized rules, abilities, conditions, or DM decisions determine the roll state before the roll is resolved.",
+        "If a roll has both Advantage and Disadvantage, they cancel and the roll is made normally.",
+        "Multiple sources of Advantage do not stack.",
+        "Multiple sources of Disadvantage do not stack."
+      ],
+      "missingRules": [],
+      "requiresHumanDecision": false
+    },
+    {
+      "system": "Death and Dying",
+      "status": "DEFINED",
+      "approvedRules": [],
+      "missingRules": [],
+      "requiresHumanDecision": false
+    },
+    {
+      "system": "NPC Relationships and Memory",
+      "status": "DEFINED",
+      "approvedRules": [],
+      "missingRules": [],
+      "requiresHumanDecision": false
+    },
+    {
+      "system": "Quest System",
+      "status": "DEFINED",
+      "approvedRules": [],
+      "missingRules": [],
+      "requiresHumanDecision": false
+    },
+    {
+      "system": "Rewards System",
+      "status": "DEFINED",
+      "approvedRules": [],
+      "missingRules": [],
+      "requiresHumanDecision": false
+    },
+    {
+      "system": "Skills and Proficiency",
+      "status": "DEFINED",
+      "approvedRules": [],
+      "missingRules": [],
+      "requiresHumanDecision": false
+    },
+    {
+      "system": "Combat Rounds",
+      "status": "DEFINED",
+      "approvedRules": [],
+      "missingRules": [],
+      "requiresHumanDecision": false
+    },
+    {
+      "system": "Attacks",
+      "status": "DEFINED",
+      "approvedRules": [],
+      "missingRules": [],
+      "requiresHumanDecision": false
+    },
+    {
+      "system": "Damage",
+      "status": "DEFINED",
+      "approvedRules": [],
+      "missingRules": [],
+      "requiresHumanDecision": false
+    },
+    {
+      "system": "Armor Class",
+      "status": "DEFINED",
+      "approvedRules": [],
+      "missingRules": [],
+      "requiresHumanDecision": false
+    },
+    {
+      "system": "Conditions",
+      "status": "DEFINED",
+      "approvedRules": [],
+      "missingRules": [],
+      "requiresHumanDecision": false
+    },
+    {
+      "system": "Rest and Recovery",
+      "status": "DEFINED",
+      "approvedRules": [],
+      "missingRules": [],
+      "requiresHumanDecision": false
+    },
+    {
+      "system": "Spell Slots",
+      "status": "DEFINED",
+      "approvedRules": [],
+      "missingRules": [],
+      "requiresHumanDecision": false
+    },
+    {
+      "system": "Action Economy",
+      "status": "DEFINED",
+      "approvedRules": [
+        "Each combat turn provides one Action.",
+        "Each combat turn provides one Bonus Action.",
+        "Each combatant has one Reaction available outside its own turn when an authorized trigger occurs.",
+        "The Action Economy framework includes an energy/stamina resource system, but the initial implementation does not assign stamina costs to Actions, Bonus Actions, or Reactions.",
+        "Actions, Bonus Actions, and Reactions therefore have no stamina cost until an additional human-approved rule explicitly defines such costs.",
+        "A character cannot perform additional Actions or Bonus Actions in the same turn merely by spending stamina.",
+        "Specific abilities or other explicitly approved rules may later authorize additional actions without changing these baseline rules."
+      ],
+      "missingRules": [],
+      "requiresHumanDecision": false
+    }
+  ],
+  "clarificationRequests": [],
+  "engineData": {},
+  "implementationRestrictions": [],
+  "sourceBibleSha256": "a4f281ca921a0902b7e25b09c95c3dd8f18714b4b15aecf4b8262beee306f35e",
+  "compiledAt": "2026-08-08T05:29:28.539Z"
+}
