@@ -2,6 +2,7 @@ import { askAI } from "./aiClient";
 import { implementDesign, readRulesBible, validateImplementationPlan, type ImplementationResult } from "./implementationAssistant";
 import { ReportAuditor } from "./reportAuditor";
 import { buildGovernanceRepositoryContext } from "./repositoryContext";
+import { evaluateImplementationGate, validateSuperpowersExecution } from "./governanceController";
 
 export interface AuditedImplementationRequest {
   system: string;
@@ -62,7 +63,7 @@ function hasSubstantiveHumanDecision(report: string): boolean {
 }
 
 function buildRevisionPrompt(request: AuditedImplementationRequest, rules: string, report: string, feedback: string, repositoryEvidence: string): string {
-  return `BLOODLINES IMPLEMENTATION REPORT REVISION\n\nRevise your previous report using the auditor/governance feedback below. Correct the actual implementation assessment, not merely the wording. You must stay grounded in the supplied repository evidence. Do not invent files, classes, directories, APIs, mechanics, or missing systems. Every Repository Finding and Files Affected entry must be supported by the supplied evidence. If evidence shows a system already exists, do not claim it is missing. Preserve requirements that are already satisfied.\n\nSYSTEM: ${request.system}\nCONTEXT:\n${request.context ?? ""}\n\nRULES AUTHORITY:\n${rules}\n\nREPOSITORY EVIDENCE:\n${repositoryEvidence}\n\nCURRENT REPORT:\n${report}\n\nFEEDBACK:\n${feedback}\n\nReturn exactly these nine sections in this order:\n${sections.join("\n")}\n\nIf and only if an actual repository change is required, append <IMPLEMENTATION_PATCHES> containing a valid JSON array. Do not emit fake tool calls, unified diffs, Markdown fences, YAML, or prose outside the report and optional patch payload.`;
+  return `BLOODLINES IMPLEMENTATION REPORT REVISION\n\nRevise your previous report using the auditor/governance feedback below. Correct the actual implementation assessment, not merely the wording. You must stay grounded in the supplied repository evidence. Do not invent files, classes, directories, APIs, or mechanics. Every Repository Finding and Files Affected entry must be supported by the supplied evidence. If evidence shows a system already exists, do not claim it is missing. Preserve requirements that are already satisfied.\n\nSYSTEM: ${request.system}\nCONTEXT:\n${request.context ?? ""}\n\nRULES AUTHORITY:\n${rules}\n\nREPOSITORY EVIDENCE:\n${repositoryEvidence}\n\nCURRENT REPORT:\n${report}\n\nFEEDBACK:\n${feedback}\n\nReturn exactly these nine sections in this order:\n${sections.join("\n")}\n\nIf and only if an actual repository change is required, append <IMPLEMENTATION_PATCHES> containing a valid JSON array. Do not emit fake tool calls, unified diffs, Markdown fences, YAML, or prose outside the report and optional patch payload.`;
 }
 
 export async function runAuditedImplementation(request: AuditedImplementationRequest): Promise<AuditedImplementationResult> {
@@ -93,16 +94,22 @@ export async function runAuditedImplementation(request: AuditedImplementationReq
       feedback = error instanceof Error ? error.message : String(error); revision += 1; continue;
     }
 
-    if (hasSubstantiveHumanDecision(currentReport)) {
+    const gate = evaluateImplementationGate(request.system, currentReport, rules);
+    if (gate.gate === "ESCALATE") {
       const requiredDecision = extractSection(currentReport, "Human Decisions Required");
-      return {
-        report: `${currentReport}\n\nIMPLEMENTATION GOVERNANCE\nESCALATE — Human decision required before automatic implementation.\n\n${requiredDecision}`,
-        patches: [],
-        applied: false,
-        auditVerdict: "ESCALATE",
-        auditRevision: revision,
-        humanActionRequired: true,
-      };
+      if (hasSubstantiveHumanDecision(currentReport)) {
+        return {
+          report: `${currentReport}\n\nIMPLEMENTATION GOVERNANCE\nESCALATE — ${gate.reason}\n\n${requiredDecision}`,
+          patches: [],
+          applied: false,
+          auditVerdict: "ESCALATE",
+          auditRevision: revision,
+          humanActionRequired: true,
+        };
+      }
+    } else if (hasSubstantiveHumanDecision(currentReport)) {
+      currentReport += `\n\nIMPLEMENTATION GOVERNANCE\n${gate.reason}`;
+      feedback = "Hard-coded governance overruled the assistant's attempt to reopen an already-approved implementation decision. Continue with implementation; do not request human approval for the approved system.";
     }
 
     const audit = await auditor.review({ assistant: "Implementation Assistant", system: request.system, report: currentReport, revision }, rules, repositoryEvidence, auditor.getHistory().filter(record => record.assistant !== "Implementation Assistant" || record.system !== request.system));
@@ -114,6 +121,11 @@ export async function runAuditedImplementation(request: AuditedImplementationReq
         feedback = `The central Report Auditor approved this report, but deterministic implementation governance rejected it. Correct the actual report while remaining grounded in the supplied repository evidence. Do not invent repository structure.\n\n${error instanceof Error ? error.message : String(error)}`; revision += 1; continue;
       }
       const implementation = await implementDesign(dataFile, enginePath, { system: request.system, context: `${request.context ?? ""}\n\nAUDITOR-APPROVED REPORT:\n${currentReport}\n\nThe report above passed the central Report Auditor and deterministic implementation governance. Implement only the approved changes.`.slice(0, 12000) });
+      try {
+        validateSuperpowersExecution(currentReport, implementation.applied, Boolean(implementation.verification && !/failed|blocked/i.test(implementation.verification)));
+      } catch (error) {
+        return { ...implementation, report: `${implementation.report}\n\nSUPERPOWERS EXECUTION GATE\nBLOCKED — ${error instanceof Error ? error.message : String(error)}`, auditVerdict: "CONFLICT", auditRevision: revision, humanActionRequired: true };
+      }
       return { ...implementation, auditVerdict: audit.verdict, auditRevision: revision, humanActionRequired: false };
     }
 
