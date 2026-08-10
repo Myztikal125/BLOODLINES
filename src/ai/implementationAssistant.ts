@@ -71,11 +71,6 @@ function approvedSystem(rules: string, system: string): boolean {
   return /status\s*:\s*approved|\bapproved\b/i.test(window);
 }
 
-function section(report: string, name: string): string {
-  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  return report.match(new RegExp(`(?:^|\\n)#?\\s*${escaped}\\s*\\n([\\s\\S]*?)(?=\\n#?\\s*(?:${SECTIONS.map(value => value.replace(/[.*+?^${}()|[\]\\\\]/g, "\\$&")).join("|")})\\s*\\n|$)`, "i"))?.[1]?.trim() ?? "";
-}
-
 function validateReport(report: string): void {
   const positions = SECTIONS.map(name => report.search(new RegExp(`(?:^|\\n)#?\\s*${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*$`, "im")));
   if (positions.some(position => position < 0) || positions.some((position, index) => index > 0 && position <= positions[index - 1])) throw new Error("Implementation report rejected: required sections are missing or out of order.");
@@ -156,11 +151,11 @@ function deterministicAdvantageResult(): ImplementationResult | null {
   const attack = fs.readFileSync(attackPath, "utf8");
   const tests = fs.readFileSync(attackTestPath, "utf8");
   const complete =
-    /static advantage\(\): number\s*\{\s*return Math\.max\(this\.d20\(\), this\.d20\(\)\);\s*\}/s.test(dice) &&
-    /static disadvantage\(\): number\s*\{\s*return Math\.min\(this\.d20\(\), this\.d20\(\)\);\s*\}/s.test(dice) &&
+    /static advantage\(\): number\s*\{\s*return Math\.max\(this\.d20\(\), this\.d20\(\)\);\s*\}/.test(dice) &&
+    /static disadvantage\(\): number\s*\{\s*return Math\.min\(this\.d20\(\), this\.d20\(\)\);\s*\}/.test(dice) &&
     /export type RollState\s*=\s*"NORMAL"\s*\|\s*"ADVANTAGE"\s*\|\s*"DISADVANTAGE"/.test(attack) &&
-    /case "ADVANTAGE":\s*roll = Dice\.advantage\(\);/s.test(attack) &&
-    /case "DISADVANTAGE":\s*roll = Dice\.disadvantage\(\);/s.test(attack) &&
+    /case "ADVANTAGE":\s*roll = Dice\.advantage\(\);/.test(attack) &&
+    /case "DISADVANTAGE":\s*roll = Dice\.disadvantage\(\);/.test(attack) &&
     /ADVANTAGE uses the higher d20 result/.test(tests) &&
     /DISADVANTAGE uses the lower d20 result/.test(tests);
   if (!complete) return null;
