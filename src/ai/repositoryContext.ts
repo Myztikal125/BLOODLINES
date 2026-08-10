@@ -22,8 +22,23 @@ function collectFiles(root: string, current = root, files: string[] = []): strin
   return files;
 }
 function queryTerms(query: string): string[] { return query.toLowerCase().split(/[^a-z0-9_]+/).filter(term => term.length >= 4).slice(0, 40); }
-function scoreFile(file: string, terms: string[]): number { const normalized=file.toLowerCase(), basename=path.basename(normalized), stem=basename.replace(/\.[^.]+$/," "); return terms.reduce((score,term)=>score+(stem===term||basename===term?100:stem.includes(term)?30:normalized.includes(`/${term}/`)?20:normalized.includes(term)?8:0),0); }
-function findRelevantFiles(root: string, query: string[], limit = MAX_FILES): string[] { const terms=query.flatMap(queryTerms); return collectFiles(root).map(file=>({file,score:scoreFile(file,terms)})).sort((a,b)=>b.score-a.score||a.file.localeCompare(b.file)).slice(0,limit).map(item=>item.file); }
+function scoreFile(root: string, file: string, terms: string[]): number {
+  const normalized = file.toLowerCase();
+  const basename = path.basename(normalized);
+  const stem = basename.replace(/\.[^.]+$/, "");
+  let score = terms.reduce((total, term) => total + (stem === term || basename === term ? 100 : stem.includes(term) ? 30 : normalized.includes(`/${term}/`) ? 20 : normalized.includes(term) ? 8 : 0), 0);
+  try {
+    const content = fs.readFileSync(path.join(root, file), "utf8").toLowerCase();
+    for (const term of terms) {
+      const matches = content.match(new RegExp(`\\b${term.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\$&")}\\b`, "g"));
+      if (matches) score += Math.min(matches.length * 12, 120);
+    }
+  } catch {
+    // Filename/path evidence is still usable when a file cannot be read.
+  }
+  return score;
+}
+function findRelevantFiles(root: string, query: string[], limit = MAX_FILES): string[] { const terms=query.flatMap(queryTerms); return collectFiles(root).map(file=>({file,score:scoreFile(root,file,terms)})).sort((a,b)=>b.score-a.score||a.file.localeCompare(b.file)).slice(0,limit).map(item=>item.file); }
 function findExactMatches(root: string, query: string[]): string[] { const terms=query.flatMap(queryTerms); return collectFiles(root).filter(file=>{const basename=path.basename(file).toLowerCase().replace(/\.[^.]+$/,"");return terms.some(term=>basename===term);}); }
 function readSafe(root: string, relativePath: string, maxLines = MAX_LINES_PER_FILE): string | null { if(relativePath===".env"||relativePath.includes(".env.")) return null; try{return fs.readFileSync(path.join(root,relativePath),"utf8").split("\n").slice(0,maxLines).join("\n");}catch{return null;} }
 function gitSnapshot(root: string): string { try { const head=execFileSync("git",["log","-1","--oneline"],{cwd:root,encoding:"utf8"}).trim(); const status=execFileSync("git",["status","--short"],{cwd:root,encoding:"utf8"}).trim(); return [`Current HEAD: ${head||"unknown"}`,`Working-tree: ${status?status.split("\n").slice(0,12).join(" | "):"clean"}`].join("\n"); } catch { return "Repository history unavailable."; } }
