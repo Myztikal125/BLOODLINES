@@ -16,7 +16,7 @@
       },
       {
         "id": "find_scholar",
-        "description": "Find the missing scholar.",
+        "description": "Find the missing scholar beneath the watchtower.",
         "completed": false
       }
     ],
@@ -24,6 +24,87 @@
     "rewards": {
       "experience": 100,
       "gold": 50
+    }
+  },
+  {
+    "id": "hollowroot_trail",
+    "title": "The Hollowroot Trail",
+    "description": "Follow the trail left by the missing scholar and uncover what is drawing creatures into Ashenvale.",
+    "objectives": [
+      {
+        "id": "reach_hollowroot",
+        "description": "Reach the Hollowroot Path.",
+        "completed": false
+      },
+      {
+        "id": "track_creatures",
+        "description": "Investigate the creatures gathering along the trail.",
+        "completed": false
+      },
+      {
+        "id": "recover_research",
+        "description": "Recover the scholar's missing research page.",
+        "completed": false
+      }
+    ],
+    "completed": false,
+    "rewards": {
+      "experience": 150,
+      "gold": 75
+    }
+  },
+  {
+    "id": "blackspire_secrets",
+    "title": "Secrets of Blackspire",
+    "description": "Take the recovered research to Blackspire Keep and discover why the fortress is connected to the scholar's investigation.",
+    "objectives": [
+      {
+        "id": "enter_blackspire",
+        "description": "Enter Blackspire Keep.",
+        "completed": false
+      },
+      {
+        "id": "find_the_archive",
+        "description": "Locate the sealed archive beneath the keep.",
+        "completed": false
+      },
+      {
+        "id": "recover_bloodglass_key",
+        "description": "Recover the Bloodglass Key.",
+        "completed": false
+      }
+    ],
+    "completed": false,
+    "rewards": {
+      "experience": 250,
+      "gold": 125
+    }
+  },
+  {
+    "id": "bloodglass_sanctum",
+    "title": "The Bloodglass Sanctum",
+    "description": "Open the ancient sanctum and confront the secret behind the Bloodlands' awakening bloodline powers.",
+    "objectives": [
+      {
+        "id": "open_sanctum",
+        "description": "Open the Bloodglass Sanctum.",
+        "completed": false
+      },
+      {
+        "id": "face_the_guardian",
+        "description": "Confront the guardian of the sanctum.",
+        "completed": false
+      },
+      {
+        "id": "learn_the_truth",
+        "description": "Discover the truth recorded in the Bloodglass archives.",
+        "completed": false
+      }
+    ],
+    "completed": false,
+    "rewards": {
+      "experience": 400,
+      "gold": 250
     }
   }
 ]
