@@ -1,6 +1,7 @@
 import { askAI } from "./aiClient";
 import fs from "fs";
 import { compileRulesBible } from "./rulesPipeline";
+import { SUPERPOWERS_SCRIBE_SKILLS } from "./skills/superpowers";
 
 const RULES_BIBLE_PATH = "docs/RULES_BIBLE.md";
 const AI_HANDOFF_PATH = "docs/AI_HANDOFF.md";
@@ -110,11 +111,6 @@ export function applyApprovedDecisions(
   return bible;
 }
 
-/**
- * Applies human approvals and immediately recompiles the authoritative Bible
- * into runtime data. If compilation fails, the existing runtime data is left
- * untouched by the compiler.
- */
 export async function applyApprovedDecisionsAndCompile(
   decisions: ApprovedDecision[]
 ): Promise<string> {
@@ -140,6 +136,8 @@ export async function prepareRulesBibleUpdate(
 
   const prompt = `
 You are the BLOODLINES Scribe Assistant.
+
+${SUPERPOWERS_SCRIBE_SKILLS}
 
 You have received an EXPLICIT HUMAN-APPROVED RULES BIBLE UPDATE ORDER.
 
@@ -185,6 +183,8 @@ export async function createCheckpoint(update: string): Promise<string> {
 
   const prompt = `
 You are the BLOODLINES Scribe Assistant.
+
+${SUPERPOWERS_SCRIBE_SKILLS}
 
 Your role:
 - Maintain authoritative project documentation.
