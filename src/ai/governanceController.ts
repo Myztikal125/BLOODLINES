@@ -45,13 +45,9 @@ export function evaluateImplementationGate(system: string, report: string, rules
   const implementationLanguage = /\b(?:implement|implementation|missing|unimplemented|required|not fully|not currently|no evidence)\b/i.test(`${status}\n${requiredChanges}`);
 
   if (authority === "APPROVED") {
-    // A concrete unresolved design question always wins over the implementation
-    // path. An approved system does not authorize the assistant to invent the
-    // missing parameter just because implementation work is also described.
     if (designGap) {
       return { gate: "ESCALATE", reason: "Hard-coded governance: an unresolved design detail must be decided by the human before implementation." };
     }
-
     if (implementationLanguage && (explicitlyNoHumanDecision || !/\b(?:human decision|required decision|approval)\b/i.test(humanText))) {
       return { gate: "IMPLEMENT", reason: "Hard-coded governance: the system is explicitly approved and no substantive design decision remains." };
     }
@@ -67,7 +63,10 @@ export function evaluateImplementationGate(system: string, report: string, rules
 export function validateSuperpowersExecution(report: string, patchesApplied: boolean, verificationPassed: boolean): void {
   const status = extractSection(report, "Implementation Status");
   const requiredChanges = extractSection(report, "Required Changes");
-  const implementationComplete = /\b(?:already|fully|completely)\s+(?:implemented|satisfied|complete)\b|\bno (?:repository )?changes? required\b|\bnone required\b/i.test(`${status}\n${requiredChanges}`);
+  const completionEvidence = `${status}\n${requiredChanges}`;
+  const statusExplicitlyComplete = /\b(?:already|fully|completely)\s+(?:implemented|satisfied|complete)\b|\bimplementation\s+(?:is\s+)?(?:complete|complete\.)\b|\bno (?:repository )?changes? required\b/i.test(status);
+  const changesExplicitlyEmpty = /^(?:none required|none)\.?$/i.test(requiredChanges.trim());
+  const implementationComplete = statusExplicitlyComplete && changesExplicitlyEmpty;
 
   if (!patchesApplied && !implementationComplete) {
     throw new Error("Superpowers execution gate: incomplete implementation cannot finish without a repository patch.");
