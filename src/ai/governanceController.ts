@@ -39,22 +39,25 @@ export function evaluateImplementationGate(system: string, report: string, rules
   const humanSection = extractSection(report, "Human Decisions Required");
   const requiredChanges = extractSection(report, "Required Changes");
   const status = extractSection(report, "Implementation Status");
+  const humanText = humanSection.trim();
+  const designGap = /\b(?:define|decide|specify)\b.*\b(?:exact|modifier|timing|trigger|cost|resource|formula|maneuver)\b|\bunspecified mechanics\b|\bmissing (?:numerical|procedural)\b/i.test(humanText);
+  const explicitlyNoHumanDecision = /^(?:none required|none|no human decisions required)\.?$/i.test(humanText);
+  const implementationLanguage = /\b(?:implement|implementation|missing|unimplemented|required|not fully|not currently|no evidence)\b/i.test(`${status}\n${requiredChanges}`);
 
   if (authority === "APPROVED") {
-    const implementationLanguage = /implement|implementation|missing|unimplemented|required|not fully|not currently|no evidence/i.test(`${status}\n${requiredChanges}`);
-    const genuineDesignGap = /define|decide|specify|exact (?:modifier|timing|trigger|cost|resource|formula|maneuver)|unspecified mechanics|missing numerical|missing procedural/i.test(humanSection);
-    if (implementationLanguage && !genuineDesignGap) {
-      return { gate: "IMPLEMENT", reason: "Hard-coded governance: the system is explicitly approved; implementation cannot be escalated as a design question." };
+    // A concrete unresolved design question always wins over the implementation
+    // path. An approved system does not authorize the assistant to invent the
+    // missing parameter just because implementation work is also described.
+    if (designGap) {
+      return { gate: "ESCALATE", reason: "Hard-coded governance: an unresolved design detail must be decided by the human before implementation." };
     }
-    if (implementationLanguage && /no human decisions required|none required|none\.?$/i.test(humanSection.trim())) {
-      return { gate: "IMPLEMENT", reason: "Hard-coded governance: approved system with no substantive human decision requirement." };
-    }
-    if (implementationLanguage && !/human decision|required decision|approval/i.test(humanSection)) {
-      return { gate: "IMPLEMENT", reason: "Hard-coded governance: approved implementation task does not establish a new design decision." };
+
+    if (implementationLanguage && (explicitlyNoHumanDecision || !/\b(?:human decision|required decision|approval)\b/i.test(humanText))) {
+      return { gate: "IMPLEMENT", reason: "Hard-coded governance: the system is explicitly approved and no substantive design decision remains." };
     }
   }
 
-  if (authority === "APPROVED" && /explicitly approved|approved system/i.test(`${status}\n${rulesBible}`) && !/define|decide|specify|exact (?:modifier|timing|trigger|cost|resource|formula|maneuver)|unspecified mechanics/i.test(humanSection)) {
+  if (authority === "APPROVED" && /explicitly approved|approved system/i.test(`${status}\n${rulesBible}`) && !designGap) {
     return { gate: "IMPLEMENT", reason: "Hard-coded governance: approved rule remains binding; implementation work is not reopened for approval." };
   }
 
@@ -62,7 +65,11 @@ export function evaluateImplementationGate(system: string, report: string, rules
 }
 
 export function validateSuperpowersExecution(report: string, patchesApplied: boolean, verificationPassed: boolean): void {
-  if (!patchesApplied && !/already|fully|completely|no (?:repository )?changes? required|none required/i.test(extractSection(report, "Implementation Status") + "\n" + extractSection(report, "Required Changes"))) {
+  const status = extractSection(report, "Implementation Status");
+  const requiredChanges = extractSection(report, "Required Changes");
+  const implementationComplete = /\b(?:already|fully|completely)\s+(?:implemented|satisfied|complete)\b|\bno (?:repository )?changes? required\b|\bnone required\b/i.test(`${status}\n${requiredChanges}`);
+
+  if (!patchesApplied && !implementationComplete) {
     throw new Error("Superpowers execution gate: incomplete implementation cannot finish without a repository patch.");
   }
   if (patchesApplied && !verificationPassed) {
