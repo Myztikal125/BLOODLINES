@@ -1,0 +1,272 @@
+[
+  {
+    "id": "cinder_ward",
+    "name": "Cinder Ward",
+    "level": 1,
+    "school": "Abjuration",
+    "tags": ["fire", "shield", "support", "heat"],
+    "description": "Wraps an ally in a heated ward. Attacks against the ward scorch the attacker and contribute Heat to the ward's owner.",
+    "unlockHints": ["Flameguard", "Cinder Warden", "Infernal Sentinel"]
+  },
+  {
+    "id": "fire_funnel",
+    "name": "Fire Funnel",
+    "level": 3,
+    "school": "Evocation",
+    "tags": ["fire", "control", "area", "rage"],
+    "description": "Creates a spiraling column of flame that corrals enemies toward its center. Stored Heat or Rage can intensify the funnel.",
+    "unlockHints": ["Flameguard", "Furnace Berserker"]
+  },
+  {
+    "id": "heat_transfer",
+    "name": "Heat Transfer",
+    "level": 2,
+    "school": "Transmutation",
+    "tags": ["fire", "support", "resource"],
+    "description": "Moves accumulated Heat between linked allies, allowing a support caster to feed a fire specialist's next power spike.",
+    "unlockHints": ["Flameguard", "Cinder Song"]
+  },
+  {
+    "id": "kindled_guardian",
+    "name": "Kindled Guardian",
+    "level": 2,
+    "school": "Abjuration",
+    "tags": ["fire", "shield", "support", "reaction"],
+    "description": "A reactive ward that becomes hotter each time it prevents harm to its bearer.",
+    "unlockHints": ["Flameguard", "Cinder Warden"]
+  },
+  {
+    "id": "living_ember",
+    "name": "Living Ember",
+    "level": 1,
+    "school": "Transmutation",
+    "tags": ["fire", "bloodline", "resource"],
+    "description": "Ignites the caster's bloodline power, causing compatible fire effects to generate Heat instead of behaving as ordinary spells.",
+    "unlockHints": ["Emberborn"]
+  },
+  {
+    "id": "ash_mark",
+    "name": "Ash Mark",
+    "level": 1,
+    "school": "Evocation",
+    "tags": ["fire", "mark", "weapon"],
+    "description": "Marks a target with a smoldering sigil. Repeated attacks build the mark until it erupts when the mark is transferred or detonated.",
+    "unlockHints": ["Ashblade", "Wildfire Stalker"]
+  },
+  {
+    "id": "wildfire_arrow",
+    "name": "Wildfire Arrow",
+    "level": 2,
+    "school": "Evocation",
+    "tags": ["fire", "ranged", "mark", "spread"],
+    "description": "A burning projectile that can pass part of its mark to nearby enemies when the original target is struck again.",
+    "unlockHints": ["Wildfire Stalker"]
+  },
+  {
+    "id": "furnace_heart",
+    "name": "Furnace Heart",
+    "level": 3,
+    "school": "Transmutation",
+    "tags": ["fire", "rage", "self", "resource"],
+    "description": "Converts accumulated punishment into Heat. At high Heat, the caster's melee abilities become explosive but harder to control.",
+    "unlockHints": ["Furnace Berserker", "Bloodfire Ascendant"]
+  },
+  {
+    "id": "ember_step",
+    "name": "Ember Step",
+    "level": 2,
+    "school": "Transmutation",
+    "tags": ["fire", "movement", "monk"],
+    "description": "Dash through a short space and leave a fading ignition zone behind you.",
+    "unlockHints": ["Ember Dancer"]
+  },
+  {
+    "id": "cinder_song",
+    "name": "Cinder Song",
+    "level": 2,
+    "school": "Enchantment",
+    "tags": ["fire", "support", "bard", "buff"],
+    "description": "A rhythmic performance that stores Heat in an ally's next elemental attack, empowering it when the rhythm resolves.",
+    "unlockHints": ["Cinder Song"]
+  },
+  {
+    "id": "burning_grove",
+    "name": "Burning Grove",
+    "level": 3,
+    "school": "Conjuration",
+    "tags": ["fire", "nature", "terrain", "control"],
+    "description": "Conjures living vegetation that ignites in controlled patterns, creating shifting zones of cover and flame.",
+    "unlockHints": ["Verdant Inferno"]
+  },
+  {
+    "id": "flameweave",
+    "name": "Flameweave",
+    "level": 3,
+    "school": "Evocation",
+    "tags": ["fire", "arcane", "shield", "spellcraft"],
+    "description": "Threads a fire spell through a protective ward, allowing flame to pass around protected creatures before striking enemies.",
+    "unlockHints": ["Flameweaver", "Flameguard"]
+  },
+  {
+    "id": "umbra_ward",
+    "name": "Umbra Ward",
+    "level": 1,
+    "school": "Abjuration",
+    "tags": ["shadow", "shield", "support", "blind"],
+    "description": "A dark barrier that hides its bearer and clouds the senses of creatures that strike it.",
+    "unlockHints": ["Umbral Bastion"]
+  },
+  {
+    "id": "veil_strike",
+    "name": "Veil Strike",
+    "level": 1,
+    "school": "Illusion",
+    "tags": ["shadow", "rogue", "stealth", "weapon"],
+    "description": "Strike from concealment and leave behind a false image that briefly draws enemy attention away from your true position.",
+    "unlockHints": ["Nightblade"]
+  },
+  {
+    "id": "eclipse_cast",
+    "name": "Eclipse Cast",
+    "level": 3,
+    "school": "Illusion",
+    "tags": ["shadow", "arcane", "control", "spellcraft"],
+    "description": "Folds an arcane spell through a veil of darkness, allowing the spell to emerge from an unexpected angle.",
+    "unlockHints": ["Eclipse Mage"]
+  },
+  {
+    "id": "dusk_arrow",
+    "name": "Dusk Arrow",
+    "level": 2,
+    "school": "Necromancy",
+    "tags": ["shadow", "ranged", "mark", "debuff"],
+    "description": "A shadow-laced projectile that marks prey and weakens defenses while the target remains within darkness.",
+    "unlockHints": ["Duskwarden"]
+  },
+  {
+    "id": "void_step",
+    "name": "Void Step",
+    "level": 2,
+    "school": "Conjuration",
+    "tags": ["shadow", "movement", "monk", "reaction"],
+    "description": "Slip through a momentary tear in space to evade an attack and reappear beside a nearby opening.",
+    "unlockHints": ["Void Disciple"]
+  },
+  {
+    "id": "grave_benediction",
+    "name": "Grave Benediction",
+    "level": 3,
+    "school": "Necromancy",
+    "tags": ["shadow", "divine", "death", "support"],
+    "description": "Places a protective blessing on a dying ally. If the ally falls, the blessing releases a temporary shadow reservoir that can power recovery magic.",
+    "unlockHints": ["Grave Saint"]
+  },
+  {
+    "id": "blood_ward",
+    "name": "Blood Ward",
+    "level": 1,
+    "school": "Abjuration",
+    "tags": ["blood", "shield", "support", "sacrifice"],
+    "description": "Creates a ward fueled by the caster's vitality. Part of an ally's incoming harm can be redirected into the caster's blood reservoir.",
+    "unlockHints": ["Crimson Martyr", "Blood Knight"]
+  },
+  {
+    "id": "crimson_edge",
+    "name": "Crimson Edge",
+    "level": 1,
+    "school": "Transmutation",
+    "tags": ["blood", "weapon", "fighter", "resource"],
+    "description": "Turns stored blood energy into a weapon enhancement that grows stronger as the wielder accumulates controlled wounds.",
+    "unlockHints": ["Blood Knight"]
+  },
+  {
+    "id": "martyrs_restoration",
+    "name": "Martyr's Restoration",
+    "level": 2,
+    "school": "Necromancy",
+    "tags": ["blood", "healing", "support", "sacrifice"],
+    "description": "Converts stored Pain into restoration for an ally. Greater restoration requires greater personal sacrifice.",
+    "unlockHints": ["Crimson Martyr"]
+  },
+  {
+    "id": "storm_mark",
+    "name": "Storm Mark",
+    "level": 1,
+    "school": "Evocation",
+    "tags": ["lightning", "mark", "ranger", "chain"],
+    "description": "Marks prey with a static charge that can jump to another target when the marked creature is struck.",
+    "unlockHints": ["Storm Reaver"]
+  },
+  {
+    "id": "thunder_chant",
+    "name": "Thunder Chant",
+    "level": 2,
+    "school": "Evocation",
+    "tags": ["lightning", "bard", "support", "charge"],
+    "description": "Builds static charge through repeated performance beats and discharges it through an ally's next successful attack.",
+    "unlockHints": ["Thunder Chant"]
+  },
+  {
+    "id": "tempest_smite",
+    "name": "Tempest Smite",
+    "level": 2,
+    "school": "Evocation",
+    "tags": ["lightning", "divine", "paladin", "smite"],
+    "description": "A divine strike that calls lightning onto enemies already exposed by the paladin's aura.",
+    "unlockHints": ["Tempest Paladin"]
+  },
+  {
+    "id": "frost_bind",
+    "name": "Frost Bind",
+    "level": 2,
+    "school": "Transmutation",
+    "tags": ["cold", "control", "slow", "freeze"],
+    "description": "Accumulates Chill on a target. At high Chill, movement becomes severely restricted and the target may freeze.",
+    "unlockHints": ["Frostbinder"]
+  },
+  {
+    "id": "ice_sanctuary",
+    "name": "Ice Sanctuary",
+    "level": 3,
+    "school": "Abjuration",
+    "tags": ["cold", "shield", "terrain", "defense"],
+    "description": "Raises protective ice around an area, trading mobility for powerful cover and damage mitigation.",
+    "unlockHints": ["Frostbinder"]
+  },
+  {
+    "id": "beast_mark",
+    "name": "Beast Mark",
+    "level": 1,
+    "school": "Divination",
+    "tags": ["nature", "ranger", "druid", "mark"],
+    "description": "Marks a creature as prey and strengthens tracking, perception, and shapeshift attacks against that target.",
+    "unlockHints": ["Beastwarden"]
+  },
+  {
+    "id": "bloodfire_ritual",
+    "name": "Bloodfire Ritual",
+    "level": 4,
+    "school": "Blood Magic",
+    "tags": ["blood", "fire", "risk", "arcane", "resource"],
+    "description": "Converts vitality and Heat into a temporary surge of volatile spell power. Excess accumulation can become dangerous.",
+    "unlockHints": ["Bloodfire Ascendant"]
+  },
+  {
+    "id": "eclipse_flare",
+    "name": "Eclipse Flare",
+    "level": 4,
+    "school": "Evocation",
+    "tags": ["fire", "shadow", "hybrid", "area"],
+    "description": "Combines flame and darkness into a flare that blinds at the edge and burns intensely at the center.",
+    "unlockHints": ["Eclipse Mage", "Shadowveil + Emberborn interactions"]
+  },
+  {
+    "id": "shadowfire_chain",
+    "name": "Shadowfire Chain",
+    "level": 4,
+    "school": "Evocation",
+    "tags": ["fire", "shadow", "control", "chain"],
+    "description": "Links enemies with a burning shadow tether. Moving apart spreads the effect instead of breaking it immediately.",
+    "unlockHints": ["Shadowveil", "Emberborn", "future hybrid paths"]
+  }
+]
