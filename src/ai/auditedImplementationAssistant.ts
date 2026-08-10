@@ -1,6 +1,7 @@
 import { askAI } from "./aiClient";
 import { implementDesign, readRulesBible, validateImplementationPlan, type ImplementationResult } from "./implementationAssistant";
 import { ReportAuditor } from "./reportAuditor";
+import { buildGovernanceRepositoryContext } from "./repositoryContext";
 
 export interface AuditedImplementationRequest {
   system: string;
@@ -42,6 +43,24 @@ function validateReportShape(report: string): string {
   return report;
 }
 
+function extractSection(report: string, heading: string): string {
+  const escaped = heading.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&");
+  const start = report.search(new RegExp(`(?:^|\\n)#?\\s*${escaped}\\s*$`, "im"));
+  if (start < 0) return "";
+  const afterHeading = report.slice(start).replace(new RegExp(`^(?:\\n)?#?\\s*${escaped}\\s*\\n`, "i"), "");
+  const next = afterHeading.search(new RegExp(`\\n#?\\s*(?:${sections.map(section => section.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")).join("|")})\\s*\\n`, "i"));
+  return (next >= 0 ? afterHeading.slice(0, next) : afterHeading).trim();
+}
+
+function hasSubstantiveHumanDecision(report: string): boolean {
+  const section = extractSection(report, "Human Decisions Required");
+  if (!section) return true;
+  const normalized = section.toLowerCase().replace(/\s+/g, " ").trim();
+  if (!normalized) return true;
+  if (/^(none|none required|no human decisions required|no human decision required|n\/a|not applicable|no decisions required)[.!]?$/i.test(normalized)) return false;
+  return true;
+}
+
 function buildRevisionPrompt(request: AuditedImplementationRequest, rules: string, report: string, feedback: string, repositoryEvidence: string): string {
   return `BLOODLINES IMPLEMENTATION REPORT REVISION\n\nRevise your previous report using the auditor/governance feedback below. Correct the actual implementation assessment, not merely the wording. You must stay grounded in the supplied repository evidence. Do not invent files, classes, directories, APIs, mechanics, or missing systems. Every Repository Finding and Files Affected entry must be supported by the supplied evidence. If evidence shows a system already exists, do not claim it is missing. Preserve requirements that are already satisfied.\n\nSYSTEM: ${request.system}\nCONTEXT:\n${request.context ?? ""}\n\nRULES AUTHORITY:\n${rules}\n\nREPOSITORY EVIDENCE:\n${repositoryEvidence}\n\nCURRENT REPORT:\n${report}\n\nFEEDBACK:\n${feedback}\n\nReturn exactly these nine sections in this order:\n${sections.join("\n")}\n\nIf and only if an actual repository change is required, append <IMPLEMENTATION_PATCHES> containing a valid JSON array. Do not emit fake tool calls, unified diffs, Markdown fences, YAML, or prose outside the report and optional patch payload.`;
 }
@@ -51,7 +70,7 @@ export async function runAuditedImplementation(request: AuditedImplementationReq
   const rules = readRulesBible();
   const dataFile = request.dataFile ?? "data/rules/compiledRules.json";
   const enginePath = request.enginePath ?? "engine";
-  const repositoryEvidence = `Known repository scope: ${enginePath}\nRules data: ${dataFile}\nThe assistant must use the host-supplied repository evidence and must not invent repository paths or architecture.`;
+  const repositoryEvidence = buildGovernanceRepositoryContext(`${request.system}\n${request.context ?? ""}`);
   let currentReport = "";
   let revision = 1;
   let feedback = "";
@@ -72,6 +91,18 @@ export async function runAuditedImplementation(request: AuditedImplementationReq
     catch (error) {
       if (revision >= (request.maxAutomaticRevisions ?? 3)) return { report: `${raw}\n\nREPORT AUDITOR\nESCALATE — ${error instanceof Error ? error.message : String(error)}`, patches: [], applied: false, auditVerdict: "ESCALATE", auditRevision: revision, humanActionRequired: true };
       feedback = error instanceof Error ? error.message : String(error); revision += 1; continue;
+    }
+
+    if (hasSubstantiveHumanDecision(currentReport)) {
+      const requiredDecision = extractSection(currentReport, "Human Decisions Required");
+      return {
+        report: `${currentReport}\n\nIMPLEMENTATION GOVERNANCE\nESCALATE — Human decision required before automatic implementation.\n\n${requiredDecision}`,
+        patches: [],
+        applied: false,
+        auditVerdict: "ESCALATE",
+        auditRevision: revision,
+        humanActionRequired: true,
+      };
     }
 
     const audit = await auditor.review({ assistant: "Implementation Assistant", system: request.system, report: currentReport, revision }, rules, repositoryEvidence, auditor.getHistory().filter(record => record.assistant !== "Implementation Assistant" || record.system !== request.system));
