@@ -5,39 +5,171 @@ import { askAI } from "./aiClient";
 import { IMPLEMENTATION_ENGINEERING_PROTOCOL } from "./implementationProtocol";
 
 const RULES_BIBLE_PATH = "docs/RULES_BIBLE.md";
-const MAX_CONTEXT_CHARS = 600;
-const MAX_FILE_CHARS = 3000;
-const MAX_FILES = 5;
-const MAX_EVIDENCE_CHARS = 6000;
-const MAX_RULE_CHARS = 1800;
-const IMPLEMENTATION_REPORT_MAX_TOKENS = 700;
+const MAX_CONTEXT_CHARS = 12000;
+const MAX_EVIDENCE_CHARS = 12000;
+const MAX_FILE_CHARS = 5000;
+const MAX_FILES = 12;
 
 export interface ImplementationRequest { system: string; context?: string; }
 export interface ImplementationEdit { find: string; replace: string; }
 export interface ImplementationPatch { path: string; content?: string; edits?: ImplementationEdit[]; reason: string; }
 export interface ImplementationResult { report: string; patches: ImplementationPatch[]; applied: boolean; verification?: string; }
 
-const REQUIRED_SECTIONS = ["Implementation Status","Approved Requirements","Repository Findings","Human Decisions Required","Files Affected","Required Changes","Tests","Risks","Verification"];
+const SECTIONS = ["Implementation Status", "Approved Requirements", "Repository Findings", "Human Decisions Required", "Files Affected", "Required Changes", "Tests", "Risks", "Verification"];
 
-export function readRulesBible(): string { if (!fs.existsSync(RULES_BIBLE_PATH)) throw new Error(`Rules Bible not found: ${RULES_BIBLE_PATH}`); return fs.readFileSync(RULES_BIBLE_PATH,"utf8"); }
-function safePath(filePath:string):string { const root=path.resolve(process.cwd()); const resolved=path.resolve(root,filePath); if(resolved!==root&&!resolved.startsWith(root+path.sep)) throw new Error(`Patch rejected: path escapes repository: ${filePath}`); if(resolved===path.resolve(root,RULES_BIBLE_PATH)||resolved.startsWith(path.resolve(root,".git")+path.sep)) throw new Error(`Patch rejected: protected path ${filePath}`); return resolved; }
-function walkFiles(root:string):string[]{const files:string[]=[]; const walk=(dir:string)=>{for(const entry of fs.readdirSync(dir,{withFileTypes:true})){if(["node_modules",".git","dist","coverage"].includes(entry.name))continue;const full=path.join(dir,entry.name);if(entry.isDirectory())walk(full);else if(/\.(ts|tsx|js|json|md)$/.test(entry.name))files.push(full);}};walk(root);return files;}
-function keywords(system:string):string[]{const s=system.toLowerCase();if(s.includes("action economy"))return ["action","economy","turn","bonus","reaction","stamina","combat","loop"];return s.split(/[^a-z0-9]+/).filter(w=>w.length>=4);}
-function collectEvidence(system:string,dataFile:string,enginePath:string,context:string):string{const wanted=keywords(system);const candidates=new Set<string>();try{if(fs.existsSync(dataFile)&&fs.statSync(dataFile).isFile())candidates.add(dataFile);}catch{}if(fs.existsSync(enginePath)){const files=fs.statSync(enginePath).isDirectory()?walkFiles(enginePath):[enginePath];const ranked=files.map(file=>{let text="";try{text=fs.readFileSync(file,"utf8").toLowerCase();}catch{}const base=path.basename(file).toLowerCase();let score=0;for(const key of wanted)score+=base.includes(key)?8:text.includes(key)?1:0;return{file,score};}).sort((a,b)=>b.score-a.score||a.file.localeCompare(b.file));for(const item of ranked.slice(0,MAX_FILES))candidates.add(item.file);}let out=`REQUEST CONTEXT:\n${context}\n`;for(const file of candidates)try{const section=`\n== ${file} ==\n${fs.readFileSync(safePath(file),"utf8").slice(0,MAX_FILE_CHARS)}\n`;if(out.length+section.length>MAX_EVIDENCE_CHARS)break;out+=section;}catch{}return out;}
-function getRulesSection(rulesBible:string,system:string):string{const lines=rulesBible.split("\n");const index=lines.findIndex(l=>l.toLowerCase().includes(system.toLowerCase()));if(index<0)return rulesBible.slice(0,MAX_RULE_CHARS);let end=lines.length;for(let i=index+1;i<lines.length;i++)if(/^#{2,3}\s/.test(lines[i])){end=i;break;}return lines.slice(Math.max(0,index-1),end).join("\n").slice(0,MAX_RULE_CHARS);}
-function gitState():string{try{return `Repository HEAD: ${execFileSync("git",["rev-parse","--short","HEAD"],{encoding:"utf8"}).trim()}\nWorking tree: ${execFileSync("git",["status","--short"],{encoding:"utf8"}).trim()||"clean"}`;}catch{return "Repository Git state unavailable.";}}
-function headingPositions(output:string):number[]{return REQUIRED_SECTIONS.map(section=>{const hash=output.indexOf(`# ${section}`);const plain=output.indexOf(section);return hash>=0?hash:plain;});}
-export function validateImplementationPlan(system:string,output:string):string{const positions=headingPositions(output);if(positions.some(p=>p<0)||positions.some((p,i)=>i>0&&p<=positions[i-1]))throw new Error("Implementation plan rejected: required report sections are missing or out of order.");if(/stamina\s+cost\s+of\s+\d+|staminacost\s*[:=]\s*\d+/i.test(output))throw new Error("Implementation plan rejected: unspecified mechanics were invented.");if(system.toLowerCase().includes("action economy")){const required:[string,RegExp][]=[["Action",/one\s+action|baseline.*one.*turn/i],["Bonus Action",/bonus\s+action/i],["Reaction",/reaction/i],["Action consumption",/action.*consum|consum.*action/i],["Bonus consumption",/bonus.*consum|consum.*bonus/i],["Reaction reset",/reaction.*reset|reset.*reaction/i],["Turn reset",/turn.*reset|reset.*turn/i],["Stamina",/stamina|energy/i],["No extra baseline slots",/stamina.*(extra|additional).*action|cannot.*(?:purchase|gain).*extra.*action/i]];const missing=required.filter(([,r])=>!r.test(output)).map(([n])=>n);if(missing.length)throw new Error(`Implementation plan rejected: approved requirements were omitted: ${missing.join(", ")}`);}return output;}
-function parsePatchResponse(raw:string):ImplementationPatch[]{const match=raw.match(/<IMPLEMENTATION_PATCHES>\s*([\s\S]*?)\s*<\/IMPLEMENTATION_PATCHES>/i);if(!match)throw new Error("Implementation patch rejected: no explicit patch payload.");let parsed:unknown;try{parsed=JSON.parse(match[1]);}catch{throw new Error("Implementation patch rejected: patch payload must be valid JSON, not a unified diff or Markdown.");}if(!Array.isArray(parsed))throw new Error("Implementation patch rejected: payload must be an array.");return parsed.map((item,index)=>{if(!item||typeof item!=="object")throw new Error(`Invalid patch ${index}.`);const p=item as Record<string,unknown>;if(typeof p.path!=="string"||typeof p.reason!=="string")throw new Error(`Invalid patch ${index}: path and reason are required.`);if(typeof p.content!=="string"&&!Array.isArray(p.edits))throw new Error(`Invalid patch ${index}: content or edits are required.`);if(Array.isArray(p.edits))for(const edit of p.edits)if(!edit||typeof edit!=="object"||typeof(edit as Record<string,unknown>).find!=="string"||typeof(edit as Record<string,unknown>).replace!=="string")throw new Error(`Invalid patch ${index}: every edit requires find and replace strings.`);safePath(p.path);return{path:p.path,reason:p.reason,content:typeof p.content==="string"?p.content:undefined,edits:Array.isArray(p.edits)?p.edits as ImplementationEdit[]:undefined};});}
-function materializePatch(patch:ImplementationPatch):string{const target=safePath(patch.path);if(!fs.existsSync(target)){if(typeof patch.content!=="string")throw new Error(`Patch rejected for ${patch.path}: new files require complete content.`);return patch.content;}let current=fs.readFileSync(target,"utf8");if(patch.edits?.length)for(const edit of patch.edits){const count=current.split(edit.find).length-1;if(count!==1)throw new Error(`Patch rejected for ${patch.path}: expected one exact match, found ${count}.`);current=current.replace(edit.find,edit.replace);}else if(typeof patch.content!=="string")throw new Error(`Patch rejected for ${patch.path}: no content supplied.`);return current;}
-function validateApiPreservation(patches:ImplementationPatch[]):void{for(const patch of patches){const target=safePath(patch.path);if(!fs.existsSync(target))continue;const before=fs.readFileSync(target,"utf8"),after=materializePatch(patch);const exports=[...before.matchAll(/export\s+(?:default\s+)?(?:class|function|const|let|var|interface|type|enum)\s+([A-Za-z_$][\w$]*)/g)].map(m=>m[1]);for(const symbol of exports){const escaped=symbol.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");if(!new RegExp(`export\\s+(?:default\\s+)?(?:class|function|const|let|var|interface|type|enum)\\s+${escaped}\\b`).test(after))throw new Error(`Patch rejected for ${patch.path}: existing exported symbol ${symbol} would be removed.`);}if(!patch.edits?.length&&after.length<Math.max(200,before.length*.5))throw new Error(`Patch rejected for ${patch.path}: suspiciously small replacement.`);}}
-function applyPatches(patches:ImplementationPatch[]):string[]{validateApiPreservation(patches);const changed:string[]=[];for(const patch of patches){const target=safePath(patch.path),before=fs.existsSync(target)?fs.readFileSync(target,"utf8"):undefined,after=materializePatch(patch);if(before===after)continue;fs.mkdirSync(path.dirname(target),{recursive:true});fs.writeFileSync(target,after,"utf8");changed.push(patch.path);}return changed;}
-function runVerification():string{const run=(c:string,a:string[])=>execFileSync(c,a,{encoding:"utf8",stdio:["ignore","pipe","pipe"]}).trim()||"PASS";try{return `tsc --noEmit: ${run("npx",["tsc","--noEmit"])}\nvitest run: ${run("npx",["vitest","run"])}`;}catch(error){const e=error as{message?:string;stdout?:string;stderr?:string};throw new Error([e.message,e.stdout,e.stderr].filter(Boolean).join("\n").slice(-12000));}}
-function actionEconomyRuntimeComplete():boolean{const file=path.resolve(process.cwd(),"engine/combat/combatLoop.ts");if(!fs.existsSync(file))return false;const source=fs.readFileSync(file,"utf8");return /ActionEconomyState|\.economy\b|actionEconomy/i.test(source)&&/startTurn\s*\(/.test(source);}
-function noPatchClaimIsFactuallyValid(system:string,report:string):boolean{const status=report.match(/(?:#\s*)?Implementation Status\s+([\s\S]*?)(?=\n#?\s*Approved Requirements)/i)?.[1]??"",changes=report.match(/(?:#\s*)?Required Changes\s+([\s\S]*?)(?=\n#?\s*Tests)/i)?.[1]??"";const complete=/(already|fully|completely)\s+(implemented|complete|satisfied)/i.test(status)&&/(?:none|no\s+(?:code|repository)\s+changes?\s+(?:are\s+)?required|no\s+changes?\s+required)/i.test(changes);return complete&&(!system.toLowerCase().includes("action economy")||actionEconomyRuntimeComplete());}
-async function forceImplementationAfterContradiction(system:string,report:string,evidence:string,rules:string):Promise<ImplementationPatch[]>{const prompt=`BLOODLINES IMPLEMENTATION CORRECTION\n${IMPLEMENTATION_ENGINEERING_PROTOCOL}\nThe previous report incorrectly claimed completion. Host verification disproves it. Return ONLY a valid JSON patch payload for the missing runtime integration. Do not invent mechanics.\nSYSTEM: ${system}\nRULES:\n${rules}\nEVIDENCE:\n${evidence}\nPREVIOUS REPORT:\n${report}\nFORMAT: <IMPLEMENTATION_PATCHES>[{"path":"relative/path","edits":[{"find":"exact existing text","replace":"minimal replacement text"}],"reason":"specific missing runtime integration"}]</IMPLEMENTATION_PATCHES>`;return parsePatchResponse(await askAI(prompt, undefined, undefined, false));}
-export async function implementDesign(dataFile:string,enginePath:string,request?:ImplementationRequest):Promise<ImplementationResult>{const system=request?.system??"Review the supplied implementation against the Rules Bible.",context=(request?.context??"Determine implementation status and authorized integration work.").slice(0,MAX_CONTEXT_CHARS),rulesBible=readRulesBible(),rules=getRulesSection(rulesBible,system),evidence=collectEvidence(system,dataFile,enginePath,context);const prompt=`BLOODLINES IMPLEMENTATION ASSISTANT\n${IMPLEMENTATION_ENGINEERING_PROTOCOL}\nAnalyze the supplied repository evidence. Return exactly these nine sections, using plain headings (no # required): Implementation Status, Approved Requirements, Repository Findings, Human Decisions Required, Files Affected, Required Changes, Tests, Risks, Verification. Keep EACH section under 35 words. Do not repeat the repository evidence. If changes are required, append <IMPLEMENTATION_PATCHES> with valid JSON only. If complete, state why briefly; the host independently verifies completion. Never emit <tool_call>, unified diffs, Markdown fences, YAML, or invented mechanics.\n\nRULES:\n${rules}\nSYSTEM: ${system}\nREPOSITORY EVIDENCE:\n${evidence}\n${gitState()}\nPATCH JSON: [{"path":"relative/path","edits":[{"find":"exact existing text","replace":"minimal replacement text"}],"reason":"specific reason"}]`;
-let output:string;try{output=await askAI(prompt, IMPLEMENTATION_REPORT_MAX_TOKENS, undefined, false);}catch(error){return{report:`AI request failed: ${errorText(error)}`,patches:[],applied:false};}let report:string;try{report=validateImplementationPlan(system,output);}catch(error){return{report:`${output}\n\nGOVERNANCE VALIDATION\nREJECTED — ${errorText(error)}`,patches:[],applied:false};}
-let patches:ImplementationPatch[]=[];try{patches=parsePatchResponse(output);}catch(error){if(!noPatchClaimIsFactuallyValid(system,report)){try{patches=await forceImplementationAfterContradiction(system,report,evidence,rules);}catch(correctionError){return{report:`${report}\n\nIMPLEMENTATION EXECUTION\nBLOCKED — completion claim contradicted repository evidence; correction failed: ${errorText(correctionError)}`,patches:[],applied:false};}}else return{report:`${report}\n\nIMPLEMENTATION EXECUTION\nNO PATCH REQUIRED — repository verification agrees that the approved requirements are already implemented.`,patches:[],applied:true};}if(!patches.length){if(noPatchClaimIsFactuallyValid(system,report))return{report:`${report}\n\nIMPLEMENTATION EXECUTION\nNO PATCH REQUIRED — repository verification agrees that the approved requirements are already implemented.`,patches:[],applied:true};return{report:`${report}\n\nIMPLEMENTATION EXECUTION\nBLOCKED — empty patch payload supplied for an incomplete system.`,patches:[],applied:false};}
-let changed:string[];try{changed=applyPatches(patches);}catch(error){return{report:`${report}\n\nIMPLEMENTATION EXECUTION\nBLOCKED — ${errorText(error)}`,patches,applied:false};}for(let attempt=0;attempt<3;attempt++){try{const verification=runVerification();return{report:`${report}\n\nIMPLEMENTATION EXECUTION\nPATCHED: ${changed.join(", ")}\nVERIFICATION PASSED (repair attempts: ${attempt})\n${verification}`,patches,applied:true,verification};}catch(error){if(attempt===2)return{report:`${report}\n\nIMPLEMENTATION EXECUTION\nPATCHED: ${changed.join(", ")}\nVERIFICATION FAILED\n${errorText(error)}`,patches,applied:true,verification:errorText(error)};try{const repairPrompt=`BLOODLINES PATCH REPAIR\n${IMPLEMENTATION_ENGINEERING_PROTOCOL}\nRepair only the applied implementation using this actual verification failure. Return JSON only inside <IMPLEMENTATION_PATCHES>. Preserve APIs and do not invent mechanics.\nSYSTEM: ${system}\nFAILURE:\n${errorText(error).slice(-6000)}\nEVIDENCE:\n${evidence.slice(0,4000)}`;const repair=parsePatchResponse(await askAI(repairPrompt, 700, undefined, false));if(!repair.length)break;const repairChanged=applyPatches(repair);changed=[...new Set([...changed,...repairChanged])];patches=[...patches,...repair];}catch(repairError){return{report:`${report}\n\nIMPLEMENTATION EXECUTION\nPATCHED: ${changed.join(", ")}\nVERIFICATION FAILED\n${errorText(error)}\nREPAIR FAILED — ${errorText(repairError)}`,patches,applied:true,verification:errorText(error)};}}}return{report,patches,applied:true};}
-function errorText(error:unknown):string{return error instanceof Error?error.message:String(error);}
+export function readRulesBible(): string {
+  if (!fs.existsSync(RULES_BIBLE_PATH)) throw new Error(`Rules Bible not found: ${RULES_BIBLE_PATH}`);
+  return fs.readFileSync(RULES_BIBLE_PATH, "utf8");
+}
+
+function safePath(filePath: string): string {
+  const root = path.resolve(process.cwd());
+  const resolved = path.resolve(root, filePath);
+  if (resolved !== root && !resolved.startsWith(root + path.sep)) throw new Error(`Patch rejected: path escapes repository: ${filePath}`);
+  if (resolved === path.resolve(root, RULES_BIBLE_PATH) || resolved.startsWith(path.resolve(root, ".git") + path.sep)) throw new Error(`Patch rejected: protected path ${filePath}`);
+  return resolved;
+}
+
+function walkFiles(root: string): string[] {
+  const files: string[] = [];
+  const walk = (dir: string) => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (["node_modules", ".git", "dist", "coverage"].includes(entry.name)) continue;
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) walk(full);
+      else if (/\.(ts|tsx|js|json|md)$/.test(entry.name)) files.push(full);
+    }
+  };
+  walk(root);
+  return files;
+}
+
+function collectEvidence(system: string, enginePath: string, context: string): string {
+  const terms = system.toLowerCase().split(/[^a-z0-9]+/).filter(value => value.length >= 4);
+  const files = fs.existsSync(enginePath) ? walkFiles(path.resolve(enginePath)) : [];
+  const ranked = files.map(file => {
+    let text = "";
+    try { text = fs.readFileSync(file, "utf8").toLowerCase(); } catch { /* ignore unreadable files */ }
+    const base = path.basename(file).toLowerCase();
+    const score = terms.reduce((total, term) => total + (base.includes(term) ? 8 : text.includes(term) ? 1 : 0), 0);
+    return { file, score };
+  }).sort((a, b) => b.score - a.score || a.file.localeCompare(b.file));
+  let result = `REQUEST CONTEXT:\n${context}\n`;
+  for (const { file } of ranked.slice(0, MAX_FILES)) {
+    const relative = path.relative(process.cwd(), file);
+    const section = `\n== ${relative} ==\n${fs.readFileSync(file, "utf8").slice(0, MAX_FILE_CHARS)}\n`;
+    if (result.length + section.length > MAX_EVIDENCE_CHARS) break;
+    result += section;
+  }
+  return result;
+}
+
+function approvedSystem(rules: string, system: string): boolean {
+  const index = rules.toLowerCase().indexOf(system.toLowerCase());
+  if (index < 0) return false;
+  const window = rules.slice(index, index + 4000);
+  return /status\s*:\s*approved|\bapproved\b/i.test(window);
+}
+
+function section(report: string, name: string): string {
+  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return report.match(new RegExp(`(?:^|\\n)#?\\s*${escaped}\\s*\\n([\\s\\S]*?)(?=\\n#?\\s*(?:${SECTIONS.map(value => value.replace(/[.*+?^${}()|[\]\\\\]/g, "\\$&")).join("|")})\\s*\\n|$)`, "i"))?.[1]?.trim() ?? "";
+}
+
+function validateReport(report: string): void {
+  const positions = SECTIONS.map(name => report.search(new RegExp(`(?:^|\\n)#?\\s*${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*$`, "im")));
+  if (positions.some(position => position < 0) || positions.some((position, index) => index > 0 && position <= positions[index - 1])) throw new Error("Implementation report rejected: required sections are missing or out of order.");
+  if (/stamina\s+cost\s+of\s+\d+|staminacost\s*[:=]\s*\d+/i.test(report)) throw new Error("Implementation report rejected: unspecified mechanics were invented.");
+}
+
+function parsePatches(raw: string): ImplementationPatch[] {
+  const match = raw.match(/<IMPLEMENTATION_PATCHES>\s*([\s\S]*?)\s*<\/IMPLEMENTATION_PATCHES>/i);
+  if (!match) return [];
+  let parsed: unknown;
+  try { parsed = JSON.parse(match[1]); } catch { throw new Error("Implementation patch rejected: payload must be valid JSON."); }
+  if (!Array.isArray(parsed)) throw new Error("Implementation patch rejected: payload must be an array.");
+  return parsed.map((item, index) => {
+    if (!item || typeof item !== "object") throw new Error(`Invalid patch ${index}.`);
+    const value = item as Record<string, unknown>;
+    if (typeof value.path !== "string" || typeof value.reason !== "string") throw new Error(`Invalid patch ${index}: path and reason are required.`);
+    if (typeof value.content !== "string" && !Array.isArray(value.edits)) throw new Error(`Invalid patch ${index}: content or edits are required.`);
+    if (Array.isArray(value.edits)) for (const edit of value.edits) {
+      if (!edit || typeof edit !== "object" || typeof (edit as Record<string, unknown>).find !== "string" || typeof (edit as Record<string, unknown>).replace !== "string") throw new Error(`Invalid patch ${index}: every edit requires find and replace.`);
+    }
+    safePath(value.path);
+    return { path: value.path, reason: value.reason, content: typeof value.content === "string" ? value.content : undefined, edits: Array.isArray(value.edits) ? value.edits as ImplementationEdit[] : undefined };
+  });
+}
+
+function materialize(patch: ImplementationPatch): string {
+  const target = safePath(patch.path);
+  if (!fs.existsSync(target)) {
+    if (typeof patch.content !== "string") throw new Error(`Patch rejected for ${patch.path}: new files require complete content.`);
+    return patch.content;
+  }
+  let current = fs.readFileSync(target, "utf8");
+  if (patch.edits?.length) {
+    for (const edit of patch.edits) {
+      const count = current.split(edit.find).length - 1;
+      if (count !== 1) throw new Error(`Patch rejected for ${patch.path}: expected one exact match, found ${count}.`);
+      current = current.replace(edit.find, edit.replace);
+    }
+  } else if (typeof patch.content !== "string") throw new Error(`Patch rejected for ${patch.path}: no replacement content supplied.`);
+  return current;
+}
+
+function applyPatches(patches: ImplementationPatch[]): string[] {
+  const changed: string[] = [];
+  for (const patch of patches) {
+    const target = safePath(patch.path);
+    const before = fs.existsSync(target) ? fs.readFileSync(target, "utf8") : undefined;
+    const after = materialize(patch);
+    if (before === after) continue;
+    fs.mkdirSync(path.dirname(target), { recursive: true });
+    fs.writeFileSync(target, after, "utf8");
+    changed.push(patch.path);
+  }
+  return changed;
+}
+
+function verify(): string {
+  try {
+    execFileSync("npx", ["tsc", "--noEmit"], { stdio: "pipe", encoding: "utf8" });
+    execFileSync("npx", ["vitest", "run"], { stdio: "pipe", encoding: "utf8" });
+    return "tsc --noEmit: PASS\nvitest run: PASS";
+  } catch (error) {
+    const value = error as { stdout?: string; stderr?: string; message?: string };
+    throw new Error([value.stdout, value.stderr, value.message].filter(Boolean).join("\n").slice(-12000));
+  }
+}
+
+function reportTemplate(status: string, message: string): string {
+  return `Implementation Status\n${status}\n\nApproved Requirements\n${message}\n\nRepository Findings\nSee the repository evidence inspected by the executor.\n\nHuman Decisions Required\nNone for an explicitly approved system.\n\nFiles Affected\nDetermined from the patch.\n\nRequired Changes\nOnly approved requirements missing from the repository.\n\nTests\nRelevant Vitest tests plus the full verification suite.\n\nRisks\nOnly regression risk in the affected implementation path.\n\nVerification\nTypeScript and Vitest verification are required before completion.`;
+}
+
+export async function implementDesign(dataFile: string, enginePath: string, request?: ImplementationRequest): Promise<ImplementationResult> {
+  const system = request?.system ?? "Review the supplied implementation against the Rules Bible.";
+  const context = (request?.context ?? "Inspect the repository and implement missing approved requirements.").slice(0, MAX_CONTEXT_CHARS);
+  const rules = readRulesBible();
+  if (!approvedSystem(rules, system)) {
+    return { report: reportTemplate("BLOCKED — system is not explicitly approved in the Rules Bible.", "No implementation may proceed without an approved rule."), patches: [], applied: false };
+  }
+  const evidence = collectEvidence(system, enginePath, context);
+  const prompt = `BLOODLINES DIRECT IMPLEMENTATION EXECUTOR\n${IMPLEMENTATION_ENGINEERING_PROTOCOL}\n\nThis is the execution layer. There is NO report-auditor loop and NO Lead Designer approval loop. The Rules Bible is authoritative. The requested system is already approved. Inspect the supplied evidence, implement only genuinely missing approved requirements, and do not reopen design approval. Do not invent mechanics. Do not use Jest; this repository uses Vitest.\n\nSYSTEM: ${system}\nRULES:\n${rules}\n\nREPOSITORY EVIDENCE:\n${evidence}\n\nCONTEXT:\n${context}\n\nReturn the nine report sections in order. If code is missing, append <IMPLEMENTATION_PATCHES> containing a JSON array of minimal patches. If implementation is already complete, provide repository evidence supporting that conclusion and do not create a patch. Do not emit tool calls or Markdown fences.`;
+  let raw: string;
+  try { raw = await askAI(prompt, 1800, "You are the BLOODLINES Direct Implementation Executor. Approved rules are binding. Implement them exactly, never invent mechanics, never reopen approval, and never generate Jest tests.", false); }
+  catch (error) { return { report: `${reportTemplate("EXECUTION FAILED", "The approved system could not be executed because the AI provider layer failed.")}\n\nProvider failure: ${error instanceof Error ? error.message : String(error)}`, patches: [], applied: false }; }
+  try { validateReport(raw); } catch (error) { return { report: `${raw}\n\nEXECUTION REJECTED — ${error instanceof Error ? error.message : String(error)}`, patches: [], applied: false }; }
+  let patches: ImplementationPatch[];
+  try { patches = parsePatches(raw); } catch (error) { return { report: `${raw}\n\nEXECUTION REJECTED — ${error instanceof Error ? error.message : String(error)}`, patches: [], applied: false }; }
+  if (!patches.length) return { report: `${raw}\n\nIMPLEMENTATION EXECUTION\nNO PATCH REQUIRED — the executor found no missing approved requirement.`, patches: [], applied: true };
+  try {
+    const changed = applyPatches(patches);
+    const verification = verify();
+    return { report: `${raw}\n\nIMPLEMENTATION EXECUTION\nPATCHED: ${changed.join(", ") || "no files changed"}\nVERIFICATION PASSED\n${verification}`, patches, applied: true, verification };
+  } catch (error) {
+    return { report: `${raw}\n\nIMPLEMENTATION EXECUTION\nPATCHED: ${patches.map(patch => patch.path).join(", ")}\nVERIFICATION FAILED — ${(error instanceof Error ? error.message : String(error))}`, patches, applied: false, verification: error instanceof Error ? error.message : String(error) };
+  }
+}
+
+export function validateImplementationPlan(_system: string, output: string): string { validateReport(output); return output; }
