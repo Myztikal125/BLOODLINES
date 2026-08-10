@@ -1,0 +1,24 @@
+{
+  "id": "monk",
+  "name": "Monk",
+  "description": "A disciplined martial artist who turns body, movement, and focused inner energy into supernatural technique.",
+  "role": "mobile_martial",
+  "hitDie": "d8",
+  "primaryAbility": "dexterity",
+  "features": [
+    { "id": "martial_arts", "name": "Martial Arts", "description": "Use disciplined unarmed strikes and monk weapons with exceptional speed and precision." },
+    { "id": "ki", "name": "Ki", "description": "Spend focused inner energy to power special techniques." },
+    { "id": "unarmored_movement", "name": "Unarmored Movement", "description": "Move with exceptional speed while unarmored." },
+    { "id": "monastic_tradition", "name": "Monastic Tradition", "description": "Choose a tradition that defines your disciplined techniques." },
+    { "id": "stunning_strike", "name": "Stunning Strike", "description": "Disrupt an enemy with a precisely timed empowered strike." }
+  ],
+  "abilities": ["martial_arts", "ki", "unarmored_movement", "stunning_strike"],
+  "progression": [
+    { "level": 1, "features": ["martial_arts", "unarmored_movement"], "abilities": ["martial_arts"] },
+    { "level": 2, "features": ["ki"], "abilities": ["ki_techniques"] },
+    { "level": 3, "features": ["monastic_tradition"], "abilities": ["tradition_specialization"] },
+    { "level": 5, "features": ["stunning_strike"], "abilities": ["extra_attack"] }
+  ],
+  "startingHP": 8,
+  "bloodlineBonus": "Focused techniques can channel the chosen bloodline as an elemental, shadow, or spiritual manifestation."
+}
