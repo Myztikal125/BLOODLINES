@@ -21,8 +21,6 @@ export async function searchReddit(topic: string, options: SearchOptions): Promi
     if (error instanceof Error && !/Reddit search failed: (403|429)/.test(error.message)) throw error;
   }
 
-  // Reddit frequently blocks unauthenticated API requests. Fall back to a
-  // keyless web search restricted to Reddit so the source remains usable.
   return searchRedditViaWeb(topic, options, now);
 }
 
@@ -83,25 +81,26 @@ export async function searchHackerNews(topic: string, options: SearchOptions): P
 }
 
 export async function searchGitHub(topic: string, options: SearchOptions): Promise<ResearchSource[]> {
-  // The GitHub Issues search API supports created/updated qualifiers, not pushed.
-  const query = `${topic} updated:>=${formatDate(lookbackStart(options.days))}`;
+  // Search by creation date, not update date. An old issue updated today is
+  // not new evidence for a last-30-days research window.
+  const query = `${topic} created:>=${formatDate(lookbackStart(options.days))}`;
   const headers: Record<string, string> = { Accept: "application/vnd.github+json", "User-Agent": "BLOODLINES-research/1.0" };
   if (process.env.GITHUB_TOKEN?.trim()) headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN.trim()}`;
-  const url = `https://api.github.com/search/issues?q=${encodeURIComponent(query)}&sort=updated&order=desc&per_page=${Math.min(options.maxResults, 100)}`;
+  const url = `https://api.github.com/search/issues?q=${encodeURIComponent(query)}&sort=created&order=desc&per_page=${Math.min(options.maxResults, 100)}`;
   const response = await fetch(url, { headers, signal: options.signal });
   if (!response.ok) throw new Error(`GitHub search failed: ${response.status}`);
   const data = await response.json() as { items?: Array<Record<string, unknown>> };
   const now = new Date();
-  const start = lookbackStart(options.days);
+  const start = lookbackStart(options.days, now);
   return (data.items ?? []).flatMap(item => {
-    const updated = typeof item.updated_at === "string" ? item.updated_at : undefined;
-    if (!withinLookback(updated, start, now)) return [];
+    const created = typeof item.created_at === "string" ? item.created_at : undefined;
+    if (!withinLookback(created, start, now)) return [];
     const htmlUrl = typeof item.html_url === "string" ? item.html_url : "";
     return htmlUrl ? [{
       type: "github" as const,
       title: typeof item.title === "string" ? item.title : "GitHub result",
       url: htmlUrl,
-      publishedAt: typeof item.created_at === "string" ? item.created_at : updated,
+      publishedAt: created,
       author: typeof item.user === "object" && item.user && typeof (item.user as Record<string, unknown>).login === "string" ? (item.user as Record<string, unknown>).login as string : undefined,
       engagement: typeof item.comments === "number" ? item.comments : undefined,
       excerpt: typeof item.body === "string" ? item.body.slice(0, 1000) : undefined,
