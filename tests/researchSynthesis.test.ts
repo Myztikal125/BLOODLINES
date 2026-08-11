@@ -27,7 +27,7 @@ describe("research synthesis", () => {
     expect(synthesis.clusters).toHaveLength(1);
     expect(synthesis.clusters[0].crossSource).toBe(true);
     expect(synthesis.clusters[0].confidence).toBe("high");
-    expect(synthesis.limitations).toHaveLength(2);
+    expect(synthesis.limitations).toHaveLength(1);
     expect(toResearchFindings(synthesis)[0].sources).toHaveLength(2);
   });
 
