@@ -4,12 +4,34 @@ import { lookbackStart, withinLookback } from "./researchUtils";
 interface SearchOptions { days: number; maxResults: number; signal?: AbortSignal; }
 
 export async function searchReddit(topic: string, options: SearchOptions): Promise<ResearchSource[]> {
-  const url = `https://www.reddit.com/search.json?q=${encodeURIComponent(topic)}&sort=new&t=month&limit=${Math.min(options.maxResults, 100)}`;
-  const response = await fetch(url, { headers: { "User-Agent": "BLOODLINES-research/1.0" }, signal: options.signal });
-  if (!response.ok) throw new Error(`Reddit search failed: ${response.status}`);
-  const data = await response.json() as { data?: { children?: Array<{ data?: Record<string, unknown> }> } };
-  const start = lookbackStart(options.days);
+  const limit = Math.min(options.maxResults, 100);
   const now = new Date();
+
+  try {
+    const url = `https://www.reddit.com/search.json?q=${encodeURIComponent(topic)}&sort=new&t=month&limit=${limit}`;
+    const response = await fetch(url, { headers: { "User-Agent": "BLOODLINES-research/1.0" }, signal: options.signal });
+    if (response.ok) {
+      const data = await response.json() as { data?: { children?: Array<{ data?: Record<string, unknown> }> } };
+      return parseRedditJson(data, options, now);
+    }
+    if (response.status !== 403 && response.status !== 429) {
+      throw new Error(`Reddit search failed: ${response.status}`);
+    }
+  } catch (error) {
+    if (error instanceof Error && !/Reddit search failed: (403|429)/.test(error.message)) throw error;
+  }
+
+  // Reddit frequently blocks unauthenticated API requests. Fall back to a
+  // keyless web search restricted to Reddit so the source remains usable.
+  return searchRedditViaWeb(topic, options, now);
+}
+
+function parseRedditJson(
+  data: { data?: { children?: Array<{ data?: Record<string, unknown> }> } },
+  options: SearchOptions,
+  now: Date
+): ResearchSource[] {
+  const start = lookbackStart(options.days, now);
   return (data.data?.children ?? []).flatMap(child => {
     const item = child.data ?? {};
     const created = typeof item.created_utc === "number" ? new Date(item.created_utc * 1000).toISOString() : undefined;
@@ -25,6 +47,15 @@ export async function searchReddit(topic: string, options: SearchOptions): Promi
       retrievedAt: now.toISOString()
     }];
   }).filter(source => Boolean(source.url));
+}
+
+async function searchRedditViaWeb(topic: string, options: SearchOptions, now: Date): Promise<ResearchSource[]> {
+  const url = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(`site:reddit.com ${topic}`)}`;
+  const response = await fetch(url, { headers: { "User-Agent": "BLOODLINES-research/1.0" }, signal: options.signal });
+  if (!response.ok) throw new Error(`Reddit fallback search failed: ${response.status}`);
+  const html = await response.text();
+  const results = parseDuckDuckGoResults(html, options.maxResults, now);
+  return results.filter(source => /(^|\.)reddit\.com$/i.test(new URL(source.url).hostname)).map(source => ({ ...source, type: "reddit" as const }));
 }
 
 export async function searchHackerNews(topic: string, options: SearchOptions): Promise<ResearchSource[]> {
@@ -52,7 +83,8 @@ export async function searchHackerNews(topic: string, options: SearchOptions): P
 }
 
 export async function searchGitHub(topic: string, options: SearchOptions): Promise<ResearchSource[]> {
-  const query = `${topic} pushed:>=${formatDate(lookbackStart(options.days))}`;
+  // The GitHub Issues search API supports created/updated qualifiers, not pushed.
+  const query = `${topic} updated:>=${formatDate(lookbackStart(options.days))}`;
   const headers: Record<string, string> = { Accept: "application/vnd.github+json", "User-Agent": "BLOODLINES-research/1.0" };
   if (process.env.GITHUB_TOKEN?.trim()) headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN.trim()}`;
   const url = `https://api.github.com/search/issues?q=${encodeURIComponent(query)}&sort=updated&order=desc&per_page=${Math.min(options.maxResults, 100)}`;
@@ -83,15 +115,26 @@ export async function searchWeb(topic: string, options: SearchOptions): Promise<
   const response = await fetch(url, { headers: { "User-Agent": "BLOODLINES-research/1.0" }, signal: options.signal });
   if (!response.ok) throw new Error(`Web search failed: ${response.status}`);
   const html = await response.text();
-  const now = new Date().toISOString();
+  return parseDuckDuckGoResults(html, options.maxResults, new Date());
+}
+
+function parseDuckDuckGoResults(html: string, maxResults: number, now: Date): ResearchSource[] {
   const sources: ResearchSource[] = [];
-  const pattern = /<a[^>]+class="result__a"[^>]+href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi;
-  for (const match of html.matchAll(pattern)) {
-    if (sources.length >= options.maxResults) break;
-    const rawUrl = decodeHtml(match[1]);
-    const title = decodeHtml(stripTags(match[2]));
-    if (!/^https?:\/\//i.test(rawUrl)) continue;
-    sources.push({ type: "web", title, url: rawUrl, retrievedAt: now });
+  const patterns = [
+    /<a[^>]+class=["']result__a["'][^>]+href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi,
+    /<a[^>]+href=["']([^"']+)["'][^>]*class=["'][^"']*result__a[^"']*["'][^>]*>([\s\S]*?)<\/a>/gi
+  ];
+
+  for (const pattern of patterns) {
+    for (const match of html.matchAll(pattern)) {
+      if (sources.length >= maxResults) break;
+      const rawUrl = decodeHtml(match[1]);
+      const title = decodeHtml(stripTags(match[2]));
+      if (!/^https?:\/\//i.test(rawUrl)) continue;
+      if (sources.some(source => source.url === rawUrl)) continue;
+      sources.push({ type: "web", title, url: rawUrl, retrievedAt: now.toISOString() });
+    }
+    if (sources.length >= maxResults) break;
   }
   return sources;
 }
