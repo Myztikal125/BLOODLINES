@@ -1,4 +1,4 @@
-import type { ResearchQuery, ResearchReport, ResearchSourceType } from "./researchTypes";
+import type { ResearchQuery, ResearchReport, ResearchSourceType, ResearchSourceStatus } from "./researchTypes";
 import { searchSource } from "./sources";
 import { dedupeSources, rankSources, lookbackStart } from "./researchUtils";
 
@@ -21,7 +21,7 @@ export async function researchTopic(query: ResearchQuery): Promise<ResearchRepor
       allSources.push(...results);
       sourceStatus[source] = results.length ? "ok" : "no-results";
     } catch (error) {
-      sourceStatus[source] = "error";
+      sourceStatus[source] = classifySourceError(error);
       console.warn(`Research source ${source} failed: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
@@ -43,4 +43,15 @@ export async function researchTopic(query: ResearchQuery): Promise<ResearchRepor
     sourceStatus,
     generatedAt: new Date().toISOString()
   };
+}
+
+function classifySourceError(error: unknown): ResearchSourceStatus {
+  const message = error instanceof Error ? error.message : String(error);
+  const status = message.match(/(?:failed:|status\s+)(\d{3})/i)?.[1];
+
+  if (status === "401" || status === "403") return "auth-failed";
+  if (status === "429") return "rate-limited";
+  if (status && /^5\d\d$/.test(status)) return "unreachable";
+  if (/timeout|timed out|abort/i.test(message)) return "unreachable";
+  return "error";
 }
