@@ -1,5 +1,14 @@
 export type ResearchSourceType = "web" | "reddit" | "github" | "hackernews";
 
+export type ResearchSourceStatus =
+  | "ok"
+  | "no-results"
+  | "error"
+  | "rate-limited"
+  | "auth-failed"
+  | "unreachable"
+  | "skipped";
+
 export interface ResearchSource {
   type: ResearchSourceType;
   title: string;
@@ -31,6 +40,6 @@ export interface ResearchReport {
   windowEnd: string;
   findings: ResearchFinding[];
   sources: ResearchSource[];
-  sourceStatus: Record<ResearchSourceType, "ok" | "no-results" | "error" | "skipped">;
+  sourceStatus: Record<ResearchSourceType, ResearchSourceStatus>;
   generatedAt: string;
 }
