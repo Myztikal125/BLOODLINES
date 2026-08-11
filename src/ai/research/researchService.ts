@@ -1,6 +1,6 @@
 import type { ResearchQuery, ResearchReport, ResearchSourceType, ResearchSourceStatus } from "./researchTypes";
 import { searchSource } from "./sources";
-import { dedupeSources, rankSources, lookbackStart } from "./researchUtils";
+import { dedupeSources, filterResearchSources, rankSources, lookbackStart } from "./researchUtils";
 
 const DEFAULT_SOURCES: ResearchSourceType[] = ["reddit", "github", "hackernews", "web"];
 
@@ -26,7 +26,13 @@ export async function researchTopic(query: ResearchQuery): Promise<ResearchRepor
     }
   }
 
-  const ranked = rankSources(dedupeSources(allSources)).slice(0, maxResults);
+  // Freshness is a hard gate: retrievedAt never substitutes for publishedAt.
+  // Relevance is applied after freshness so stale but highly-engaged results
+  // cannot survive merely because they rank well.
+  const deduped = dedupeSources(allSources);
+  const freshRelevant = filterResearchSources(deduped, query.topic, start, end);
+  const ranked = rankSources(freshRelevant).slice(0, maxResults);
+
   const findings = ranked.map(source => ({
     statement: source.title,
     sources: [source],
