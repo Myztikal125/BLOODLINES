@@ -22,20 +22,35 @@ export function withinLookback(date: string | undefined, start: Date, end = new 
  * Keep only evidence whose publication date can be proven to fall inside the
  * requested window and whose content has meaningful overlap with the topic.
  * Retrieval time is deliberately ignored for freshness decisions.
+ *
+ * For multi-term research questions, at least two topic terms must match.
+ * This prevents a generic result containing only one broad word such as
+ * "AI" or "game" from being treated as evidence for a specific topic.
  */
 export function filterResearchSources(
   sources: ResearchSource[],
   topic: string,
   start: Date,
   end: Date,
-  minRelevance = 0.2
+  minRelevance = 0.35
 ): ResearchSource[] {
   const topicTerms = tokenize(topic);
   if (topicTerms.length === 0) return [];
 
   return sources.filter(source => {
     if (!withinLookback(source.publishedAt, start, end)) return false;
-    return relevanceScore(source, topicTerms) >= minRelevance;
+
+    const score = relevanceScore(source, topicTerms);
+    if (score < minRelevance) return false;
+
+    const text = normalize(`${source.title} ${source.excerpt ?? ""}`);
+    const matchedTerms = topicTerms.filter(term => text.includes(term)).length;
+
+    // Specific multi-word topics need multiple independent signals. A single
+    // generic match is not enough to establish topical relevance.
+    if (topicTerms.length >= 3 && matchedTerms < 2) return false;
+
+    return true;
   });
 }
 
@@ -51,8 +66,8 @@ export function relevanceScore(source: ResearchSource, topicTerms = tokenize(sou
   const titleCoverage = titleMatches / topicTerms.length;
 
   // Reward phrases that preserve the meaning of multi-word topics without
-  // requiring exact title matches. This keeps "AI RPG game development"
-  // relevant to "AI-assisted RPG development" while rejecting incidental hits.
+  // requiring exact title matches. This keeps "AI-assisted RPG development"
+  // relevant to "AI RPG game development" while rejecting incidental hits.
   const phraseBonus = topicTerms.length > 1 && matched >= 2 ? 0.15 : 0;
 
   return Math.min(1, termCoverage * 0.55 + titleCoverage * 0.3 + phraseBonus);
