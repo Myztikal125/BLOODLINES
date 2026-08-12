@@ -1,0 +1,51 @@
+{
+  "id": "lyra_vey",
+  "name": "Lyra Vey",
+  "role": "Companion #1",
+  "identity": {
+    "ancestry": "human",
+    "class": "wizard",
+    "background": "scholar"
+  },
+  "focus": {
+    "combat": "arcane_damage",
+    "utility": "investigation"
+  },
+  "personality": {
+    "traits": [
+      "curious",
+      "driven",
+      "analytical"
+    ],
+    "values": [
+      "knowledge",
+      "discovery",
+      "truth"
+    ]
+  },
+  "story": {
+    "hook": "Bloodglass Sanctum disappearance"
+  },
+  "recruitment": {
+    "requirements": [
+      "rescue Lyra",
+      "prove Shadow isn't hunting the Bloodglass secrets"
+    ]
+  },
+  "character": {
+    "level": 1,
+    "bloodlineIds": [],
+    "abilities": {
+      "strength": 8,
+      "dexterity": 12,
+      "constitution": 10,
+      "intelligence": 16,
+      "wisdom": 13,
+      "charisma": 11
+    },
+    "hitPoints": 7,
+    "armorClass": 10,
+    "stamina": 10,
+    "proficiencyBonus": 2
+  }
+}
