@@ -1,3 +1,4 @@
+import { ActionEconomyState } from "./combat/actionEconomy";
 import { AbilityScores, defaultAbilities } from "./stats";
 
 export interface Character {
@@ -13,6 +14,12 @@ export interface Character {
 
   hitPoints: number;
   armorClass: number;
+  stamina?: number;
+  proficiencyBonus?: number;
+  ancestry?: string;
+  background?: string;
+  bloodlineIds?: string[];
+  actionEconomy: ActionEconomyState;
 
   abilities: AbilityScores;
 }
@@ -33,6 +40,12 @@ export function createBaseCharacter(
 
     hitPoints: data.hitPoints ?? 10,
     armorClass: data.armorClass ?? 10,
+    stamina: data.stamina,
+    proficiencyBonus: data.proficiencyBonus,
+    ancestry: data.ancestry,
+    background: data.background,
+    bloodlineIds: data.bloodlineIds,
+    actionEconomy: data.actionEconomy ?? new ActionEconomyState(),
 
     abilities: data.abilities ?? defaultAbilities
   };
