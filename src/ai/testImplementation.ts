@@ -12,8 +12,8 @@ function getSystemRequest(): string {
 async function main() {
   const system = getSystemRequest();
   const context = getArgument("--context") ?? `Inspect the repository for the '${system}' system. Search the relevant Rules Bible entries, runtime rules, existing implementation, and tests. Determine whether the approved rules are already implemented, ready for implementation, or blocked by a missing human decision. Do not invent mechanics.`;
-  const dataFile = getArgument("--data") ?? "data/rules/compiledRules.json";
-  const engineFile = getArgument("--engine") ?? "engine";
+  const dataFile = getArgument("--data") ?? "docs";
+  const engineFile = getArgument("--engine") ?? "src/engine";
   const result = await implementDesign(dataFile, engineFile, { system, context });
 
   console.log(result.report);
