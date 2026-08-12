@@ -9,7 +9,7 @@ describe("Lyra Vey companion foundation", () => {
       background: "scholar",
       classId: "wizard",
       level: 1,
-      abilityScores: {
+      abilities: {
         strength: 8,
         dexterity: 12,
         constitution: 10,
@@ -26,7 +26,7 @@ describe("Lyra Vey companion foundation", () => {
     expect(lyra.name).toBe("Lyra Vey");
     expect(lyra.ancestry).toBe("human");
     expect(lyra.background).toBe("scholar");
-    expect(lyra.classId).toBe("wizard");
+    expect(lyra.class.id).toBe("wizard");
     expect(lyra.level).toBe(1);
     expect(lyra.abilities).toEqual({
       strength: 8,
@@ -40,6 +40,6 @@ describe("Lyra Vey companion foundation", () => {
     expect(lyra.armorClass).toBe(10);
     expect(lyra.stamina).toBe(10);
     expect(lyra.proficiencyBonus).toBe(2);
-    expect(lyra.bloodlineId).toBeUndefined();
+    expect(lyra.bloodlineIds).toEqual([]);
   });
 });
