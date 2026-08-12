@@ -53,8 +53,8 @@ IMPLEMENTATION FLOW
 VERIFICATION
 - Do not report success from model reasoning alone.
 - A successful implementation requires actual repository verification.
-- For TypeScript changes, run `npx tsc --noEmit`.
-- For the BLOODLINES test suite, run `npm test`.
+- For TypeScript changes, run npx tsc --noEmit.
+- For the BLOODLINES test suite, run npm test.
 - Report exact failures rather than claiming a pass.
 
 PATCH CONTRACT
