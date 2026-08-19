@@ -1,0 +1,24 @@
+{
+  "id": "bard",
+  "name": "Bard",
+  "description": "A versatile performer whose magic, knowledge, and influence turn stories and artistry into practical power.",
+  "role": "support_caster",
+  "hitDie": "d8",
+  "primaryAbility": "charisma",
+  "features": [
+    { "id": "bardic_inspiration", "name": "Bardic Inspiration", "description": "Inspire allies with a die of performance-fueled potential." },
+    { "id": "spellcasting", "name": "Spellcasting", "description": "Cast spells through music, speech, performance, or another creative medium." },
+    { "id": "jack_of_all_trades", "name": "Jack of All Trades", "description": "Apply broad experience to tasks outside your strongest specialties." },
+    { "id": "bard_college", "name": "Bard College", "description": "Choose a tradition of performance and magical study." }
+  ],
+  "abilities": ["bardic_inspiration", "spellcasting", "jack_of_all_trades", "counter_charm"],
+  "progression": [
+    { "level": 1, "features": ["bardic_inspiration", "spellcasting"], "abilities": ["bardic_inspiration"] },
+    { "level": 2, "features": ["jack_of_all_trades"], "abilities": ["jack_of_all_trades"] },
+    { "level": 3, "features": ["bard_college"], "abilities": ["college_specialization"] },
+    { "level": 5, "abilities": ["font_of_inspiration"] }
+  ],
+  "spells": { "casting": true, "spellAbility": "charisma", "spellList": ["vicious_mockery", "healing_word", "dissonant_whispers", "charm_person"] },
+  "startingHP": 8,
+  "bloodlineBonus": "Performance magic can manifest as an audible or visual expression of the chosen bloodline."
+}

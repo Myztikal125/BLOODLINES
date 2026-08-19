@@ -7,13 +7,31 @@
       "id": "ashenvale",
       "name": "Ashenvale",
       "type": "forest",
-      "description": "An ancient forest filled with hidden ruins."
+      "description": "An ancient forest filled with hidden ruins and old bloodline secrets."
+    },
+    {
+      "id": "ruined_watchtower",
+      "name": "Ruined Watchtower",
+      "type": "ruin",
+      "description": "A shattered watchtower where a missing scholar left behind strange magical markings."
+    },
+    {
+      "id": "hollowroot_path",
+      "name": "Hollowroot Path",
+      "type": "wilderness",
+      "description": "A dangerous forest trail leading beneath the roots of the oldest trees."
     },
     {
       "id": "blackspire",
       "name": "Blackspire Keep",
       "type": "dungeon",
-      "description": "A fortress where dark secrets remain buried."
+      "description": "A fortress where dark secrets remain buried beneath ancient stone."
+    },
+    {
+      "id": "bloodglass_sanctum",
+      "name": "Bloodglass Sanctum",
+      "type": "ruin",
+      "description": "A sealed arcane sanctuary connected to the origin of the Bloodlands' oldest bloodlines."
     }
   ]
 }

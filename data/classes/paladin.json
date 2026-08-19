@@ -1,0 +1,24 @@
+{
+  "id": "paladin",
+  "name": "Paladin",
+  "description": "A divine champion who combines martial discipline, protective power, and an oath that shapes their supernatural abilities.",
+  "role": "divine_martial",
+  "hitDie": "d10",
+  "primaryAbility": "strength",
+  "features": [
+    { "id": "divine_sense", "name": "Divine Sense", "description": "Detect powerful supernatural presences and threats." },
+    { "id": "lay_on_hands", "name": "Lay on Hands", "description": "Restore an ally's vitality through a pool of divine healing power." },
+    { "id": "fighting_style", "name": "Fighting Style", "description": "Choose a specialized martial discipline." },
+    { "id": "divine_smite", "name": "Divine Smite", "description": "Channel divine power through a successful weapon strike." },
+    { "id": "sacred_oath", "name": "Sacred Oath", "description": "Bind yourself to an oath that defines your divine path." }
+  ],
+  "abilities": ["divine_sense", "lay_on_hands", "divine_smite", "aura_of_protection"],
+  "progression": [
+    { "level": 1, "features": ["divine_sense", "lay_on_hands"], "abilities": ["divine_sense"] },
+    { "level": 2, "features": ["fighting_style", "divine_smite"], "abilities": ["divine_smite"] },
+    { "level": 3, "features": ["sacred_oath"], "abilities": ["oath_specialization"] },
+    { "level": 5, "abilities": ["extra_attack"] }
+  ],
+  "startingHP": 10,
+  "bloodlineBonus": "Divine manifestations can inherit the symbolism and damage affinity of the chosen bloodline."
+}

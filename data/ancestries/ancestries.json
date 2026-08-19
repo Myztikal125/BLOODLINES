@@ -3,27 +3,60 @@
     "id": "human",
     "name": "Human",
     "description": "Adaptable and ambitious, humans are capable of reaching great heights.",
-    "traits": [
-      "Versatile",
-      "Determined"
-    ]
+    "traits": ["Versatile", "Determined"]
   },
   {
     "id": "elf",
     "name": "Elf",
     "description": "Ancient beings with a connection to magic and nature.",
-    "traits": [
-      "Keen Senses",
-      "Fey Ancestry"
-    ]
+    "traits": ["Keen Senses", "Fey Ancestry"]
   },
   {
     "id": "dwarf",
     "name": "Dwarf",
     "description": "Resilient people known for endurance and craftsmanship.",
-    "traits": [
-      "Darkvision",
-      "Dwarven Resilience"
-    ]
+    "traits": ["Darkvision", "Dwarven Resilience"]
+  },
+  {
+    "id": "halfling",
+    "name": "Halfling",
+    "description": "Small, resourceful folk whose courage and luck routinely carry them through danger.",
+    "traits": ["Lucky", "Brave", "Nimble"]
+  },
+  {
+    "id": "gnome",
+    "name": "Gnome",
+    "description": "Inventive and curious people with an instinct for magic, mechanisms, and hidden possibilities.",
+    "traits": ["Gnome Cunning", "Inventive", "Darkvision"]
+  },
+  {
+    "id": "orc",
+    "name": "Orc",
+    "description": "Powerful survivors with fierce determination and a deep cultural respect for strength and endurance.",
+    "traits": ["Relentless Endurance", "Powerful Build", "Adrenaline Rush"]
+  },
+  {
+    "id": "tiefling",
+    "name": "Tiefling",
+    "description": "A lineage touched by infernal power, often marked by horns, unusual eyes, and innate magic.",
+    "traits": ["Hellish Resistance", "Infernal Legacy", "Darkvision"]
+  },
+  {
+    "id": "dragonborn",
+    "name": "Dragonborn",
+    "description": "Draconic humanoids whose heritage grants elemental resilience and a devastating breath weapon.",
+    "traits": ["Draconic Ancestry", "Breath Weapon", "Elemental Resistance"]
+  },
+  {
+    "id": "half_elf",
+    "name": "Half-Elf",
+    "description": "People who blend human adaptability with elven senses, charm, and a connection to the fey.",
+    "traits": ["Fey Ancestry", "Keen Senses", "Versatile"]
+  },
+  {
+    "id": "goliath",
+    "name": "Goliath",
+    "description": "Towering mountain-born warriors known for endurance, competition, and imposing physical presence.",
+    "traits": ["Stone's Endurance", "Powerful Build", "Mountain Athlete"]
   }
 ]

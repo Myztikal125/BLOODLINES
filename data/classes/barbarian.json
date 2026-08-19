@@ -1,0 +1,23 @@
+{
+  "id": "barbarian",
+  "name": "Barbarian",
+  "description": "A primal warrior who turns fury, endurance, and raw physical power into devastating combat strength.",
+  "role": "primal_martial",
+  "hitDie": "d12",
+  "primaryAbility": "strength",
+  "features": [
+    { "id": "rage", "name": "Rage", "description": "Enter a battle fury that increases durability and melee damage." },
+    { "id": "unarmored_defense", "name": "Unarmored Defense", "description": "Use agility and toughness to defend without relying on heavy armor." },
+    { "id": "reckless_attack", "name": "Reckless Attack", "description": "Strike with overwhelming force while exposing yourself to greater risk." },
+    { "id": "primal_path", "name": "Primal Path", "description": "Choose a specialized expression of your bloodline and primal training." }
+  ],
+  "abilities": ["rage", "reckless_attack", "danger_sense", "brutal_force"],
+  "progression": [
+    { "level": 1, "features": ["rage", "unarmored_defense"], "abilities": ["rage"] },
+    { "level": 2, "features": ["reckless_attack"], "abilities": ["danger_sense"] },
+    { "level": 3, "features": ["primal_path"], "abilities": ["primal_specialization"] },
+    { "level": 5, "abilities": ["extra_attack"] }
+  ],
+  "startingHP": 12,
+  "bloodlineBonus": "While raging, bloodline manifestations gain increased physical impact."
+}

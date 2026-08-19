@@ -11,21 +11,20 @@ function getSystemRequest(): string {
 
 async function main() {
   const system = getSystemRequest();
-  const context = getArgument("--context") ?? `Inspect the repository for the '${system}' system. Search the relevant Rules Bible entries, runtime rules, existing implementation, and tests. Determine whether the approved rules are already implemented, ready for implementation, or blocked by a missing human decision. Do not invent mechanics.`;
+  const context = getArgument("--context") ?? `Inspect the repository for the '${system}' system. Search the Rules Bible, runtime implementation, and tests. Implement only missing approved requirements. Do not invent mechanics, reopen design approval, or use Jest.`;
   const dataFile = getArgument("--data") ?? "data/rules/compiledRules.json";
-  const engineFile = getArgument("--engine") ?? "engine";
-  const result = await implementDesign(dataFile, engineFile, { system, context });
-
+  const enginePath = getArgument("--engine") ?? "engine";
+  const result = await implementDesign(dataFile, enginePath, { system, context });
   console.log(result.report);
   if (result.applied) {
-    console.log("\nImplementation Assistant completed the authorized repository patch.");
-  } else {
-    console.log("\nImplementation Assistant did not patch the repository.");
-    process.exitCode = 2;
+    console.log("\nDirect Implementation Executor completed the approved implementation path.");
+    return;
   }
+  console.error("\nDirect Implementation Executor did not complete the implementation.");
+  process.exitCode = 2;
 }
 
-main().catch((error) => {
+main().catch(error => {
   console.error(error);
-  process.exit(1);
+  process.exitCode = 1;
 });

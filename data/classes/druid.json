@@ -1,0 +1,24 @@
+{
+  "id": "druid",
+  "name": "Druid",
+  "description": "A primal spellcaster who draws on nature, transformation, and the living forces of the world.",
+  "role": "primal_caster",
+  "hitDie": "d8",
+  "primaryAbility": "wisdom",
+  "features": [
+    { "id": "druidic", "name": "Druidic", "description": "Know the secret language and traditions of druidic circles." },
+    { "id": "spellcasting", "name": "Spellcasting", "description": "Channel primal magic through prepared nature-based spells." },
+    { "id": "wild_shape", "name": "Wild Shape", "description": "Transform into an appropriate beast form." },
+    { "id": "druid_circle", "name": "Druid Circle", "description": "Choose a circle that defines your relationship with primal power." }
+  ],
+  "abilities": ["druidic", "spell_preparation", "wild_shape", "nature_magic"],
+  "progression": [
+    { "level": 1, "features": ["druidic", "spellcasting"], "abilities": ["nature_magic"] },
+    { "level": 2, "features": ["wild_shape", "druid_circle"], "abilities": ["wild_shape"] },
+    { "level": 3, "abilities": ["circle_specialization"] },
+    { "level": 5, "abilities": ["advanced_wild_shape"] }
+  ],
+  "spells": { "casting": true, "spellAbility": "wisdom", "spellList": ["entangle", "healing_word", "thunderwave", "faerie_fire"] },
+  "startingHP": 8,
+  "bloodlineBonus": "Primal spells and transformations can reflect the chosen bloodline's nature."
+}

@@ -1,5 +1,6 @@
 import { askAI } from "./aiClient";
 import { buildRepositoryContext } from "./repositoryContext";
+import { SUPERPOWERS_RULES_ENGINE_SKILLS } from "./skills/superpowers";
 
 export async function generateRules(target: string) {
   const rulesBible = "docs/RULES_BIBLE.md";
@@ -7,6 +8,8 @@ export async function generateRules(target: string) {
 
   const prompt = `
 You are the BLOODLINES Rules Engine Assistant.
+
+${SUPERPOWERS_RULES_ENGINE_SKILLS}
 
 ROLE:
 - Translate already-approved Rules Bible requirements into engine-facing specifications and data structures.
