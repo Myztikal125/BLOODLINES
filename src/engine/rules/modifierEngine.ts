@@ -47,10 +47,10 @@ export function applyModifiers(base: StatMap, modifiers: Modifier[]): StatMap {
 }
 
 export function deriveStats(base: StatMap, rules: DerivedStatRule[], modifiers: Modifier[] = []): StatMap {
-  const result = applyModifiers(base, modifiers);
+  const result: StatMap = { ...base };
 
   for (const rule of rules) {
-    let value = result[rule.base] ?? 0;
+    let value = base[rule.base] ?? 0;
     const relevant = modifiers
       .filter(modifier => modifier.target === rule.stat && (rule.modifiers?.includes(modifier.id) ?? true))
       .sort((a, b) => (a.priority ?? 0) - (b.priority ?? 0) || a.id.localeCompare(b.id));
