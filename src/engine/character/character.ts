@@ -5,6 +5,9 @@ export interface Character {
   level: number;
   experience: number;
 
+  ancestry: string;
+  background: string;
+
   class: {
     id: string;
     name: string;
@@ -15,6 +18,9 @@ export interface Character {
   armorClass: number;
 
   abilities: AbilityScores;
+
+  stamina?: number;
+  proficiencyBonus?: number;
 }
 
 export function createBaseCharacter(
@@ -25,6 +31,9 @@ export function createBaseCharacter(
     level: data.level ?? 1,
     experience: data.experience ?? 0,
 
+    ancestry: data.ancestry ?? "unknown",
+    background: data.background ?? "unknown",
+
     class: data.class ?? {
       id: "none",
       name: "None",
@@ -34,6 +43,9 @@ export function createBaseCharacter(
     hitPoints: data.hitPoints ?? 10,
     armorClass: data.armorClass ?? 10,
 
-    abilities: data.abilities ?? defaultAbilities
+    abilities: data.abilities ?? defaultAbilities,
+
+    stamina: data.stamina,
+    proficiencyBonus: data.proficiencyBonus
   };
 }

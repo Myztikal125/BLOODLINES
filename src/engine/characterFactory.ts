@@ -1,12 +1,24 @@
 import { loadData } from "./dataLoader";
 import { createBaseCharacter } from "./character/character";
+import { AbilityScores } from "./character/stats";
 
-export function createCharacter(data: {
+export interface CreateCharacterData {
   name: string;
   classId: string;
   level?: number;
   bloodlineIds?: string[];
-}) {
+
+  ancestry?: string;
+  background?: string;
+
+  abilities?: AbilityScores;
+  hitPoints?: number;
+  armorClass?: number;
+  stamina?: number;
+  proficiencyBonus?: number;
+}
+
+export function createCharacter(data: CreateCharacterData) {
   const level = data.level ?? 1;
 
   const classData = loadData("classes", data.classId);
@@ -41,11 +53,18 @@ export function createCharacter(data: {
   const character = createBaseCharacter({
     name: data.name,
     level,
+    ancestry: data.ancestry,
+    background: data.background,
     class: {
       id: classData.id,
       name: classData.name,
       abilities
-    }
+    },
+    abilities: data.abilities,
+    hitPoints: data.hitPoints,
+    armorClass: data.armorClass,
+    stamina: data.stamina,
+    proficiencyBonus: data.proficiencyBonus
   });
 
   return {
