@@ -18,7 +18,7 @@ describe("Inventory expansion", () => {
     expect(inventory.items).toHaveLength(1);
     expect(inventory.items[0]).toMatchObject({
       id: "health_potion",
-      name: "health potion",
+      name: "Health Potion",
       type: "consumable",
       effect: "heal 2d4+2",
       quantity: 3
