@@ -3,35 +3,33 @@ import { Item } from "./item";
 export class Inventory {
   items: Item[] = [];
 
-  addItem(item: string | Item, quantity = 1): void {
-    if (!Number.isSafeInteger(quantity) || quantity <= 0) {
+  addItem(item: string | Item, quantity?: number): void {
+    const incomingQuantity = quantity ?? (typeof item === "string" ? 1 : item.quantity ?? 1);
+    if (!Number.isSafeInteger(incomingQuantity) || incomingQuantity <= 0) {
       throw new RangeError("Item quantity must be a positive whole number.");
     }
 
     const incoming: Item = typeof item === "string"
-      ? { name: item, quantity }
-      : { ...item, quantity };
+      ? { name: item, quantity: incomingQuantity }
+      : { ...item, quantity: incomingQuantity };
 
     if (!incoming.name.trim()) {
       throw new Error("Item name cannot be empty.");
     }
 
-    const key = incoming.id
-      ? `id:${incoming.id.toLowerCase()}`
-      : `name:${incoming.name.trim().toLowerCase()}`;
-    const existing = this.items.find(current => {
-      const currentKey = current.id
-        ? `id:${current.id.toLowerCase()}`
-        : `name:${current.name.trim().toLowerCase()}`;
-      return currentKey === key;
-    });
+    const existing = this.items.find(current =>
+      current.name.trim().toLowerCase() === incoming.name.trim().toLowerCase() ||
+      (!!incoming.id && current.id?.toLowerCase() === incoming.id.toLowerCase())
+    );
 
     if (existing) {
-      existing.quantity = (existing.quantity ?? 1) + quantity;
-      // Preserve known item metadata if the new stack was added by name only.
-      for (const [field, value] of Object.entries(incoming)) {
-        if (field !== "quantity" && value !== undefined) {
-          (existing as any)[field] = value;
+      existing.quantity = (existing.quantity ?? 1) + incomingQuantity;
+      // A name-only add must not erase canonical names or item metadata.
+      if (typeof item !== "string") {
+        for (const [field, value] of Object.entries(incoming)) {
+          if (field !== "quantity" && value !== undefined) {
+            (existing as any)[field] = value;
+          }
         }
       }
       return;
