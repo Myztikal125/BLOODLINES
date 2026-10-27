@@ -1,5 +1,6 @@
 import { Command } from "./command";
 import { Inventory } from "../../inventory/inventory";
+import { ItemLoader } from "../../inventory/itemLoader";
 
 export class AddItemCommand implements Command {
   name = "add-item";
@@ -20,7 +21,14 @@ export class AddItemCommand implements Command {
       return "Quantity must be a positive whole number.";
     }
 
+    const catalogItem = ItemLoader.getItem(itemName);
+    if (catalogItem) {
+      this.inventory.addItem(catalogItem, quantity);
+      return `Added ${quantity} × ${catalogItem.name}.`;
+    }
+
+    // Keep support for custom/narrative items that are not in the catalogue.
     this.inventory.addItem(itemName, quantity);
-    return `Added ${quantity} × ${itemName}.`;
+    return `Added ${quantity} × ${itemName} (custom item).`;
   }
 }
