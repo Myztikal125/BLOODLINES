@@ -28,5 +28,149 @@
     "armorClass": 16,
     "attack": "Shadow Claw",
     "damage": "2d8+4"
+  },
+  {
+    "id": "giant_rat",
+    "name": "Giant Rat",
+    "type": "beast",
+    "challenge": 0.125,
+    "hitPoints": 7,
+    "armorClass": 12,
+    "attack": "Bite",
+    "damage": "1d4+2",
+    "habitat": [
+      "sewers",
+      "ruins"
+    ],
+    "tactics": "Swarm and retreat when isolated.",
+    "description": "A diseased-looking rat the size of a small dog."
+  },
+  {
+    "id": "skeleton",
+    "name": "Skeleton",
+    "type": "undead",
+    "challenge": 0.25,
+    "hitPoints": 13,
+    "armorClass": 13,
+    "attack": "Shortsword",
+    "damage": "1d6+2",
+    "habitat": [
+      "crypts",
+      "ruins"
+    ],
+    "tactics": "Presses forward without fear.",
+    "description": "Animated bones held together by dark magic."
+  },
+  {
+    "id": "bandit",
+    "name": "Bandit",
+    "type": "humanoid",
+    "challenge": 0.125,
+    "hitPoints": 11,
+    "armorClass": 12,
+    "attack": "Scimitar",
+    "damage": "1d6+1",
+    "habitat": [
+      "roads",
+      "camps"
+    ],
+    "tactics": "Looks for isolated targets and may flee when outnumbered.",
+    "description": "A desperate outlaw with worn equipment."
+  },
+  {
+    "id": "cult_acolyte",
+    "name": "Cult Acolyte",
+    "type": "humanoid",
+    "challenge": 0.25,
+    "hitPoints": 9,
+    "armorClass": 12,
+    "attack": "Dagger",
+    "damage": "1d4+1",
+    "habitat": [
+      "shrines",
+      "ruins"
+    ],
+    "tactics": "Keeps distance behind allies.",
+    "description": "A zealot marked by an obscure forbidden order."
+  },
+  {
+    "id": "dire_wolf",
+    "name": "Dire Wolf",
+    "type": "beast",
+    "challenge": 1,
+    "hitPoints": 37,
+    "armorClass": 14,
+    "attack": "Bite",
+    "damage": "2d6+3",
+    "habitat": [
+      "forest",
+      "mountains"
+    ],
+    "tactics": "Targets the most isolated creature.",
+    "description": "A massive wolf with scarred hide and pale eyes."
+  },
+  {
+    "id": "orc_raider",
+    "name": "Orc Raider",
+    "type": "humanoid",
+    "challenge": 0.5,
+    "hitPoints": 15,
+    "armorClass": 13,
+    "attack": "Greataxe",
+    "damage": "1d12+3",
+    "habitat": [
+      "camps",
+      "mountains"
+    ],
+    "tactics": "Charges the nearest visible opponent.",
+    "description": "A hard-bitten raider carrying a heavy axe."
+  },
+  {
+    "id": "ogre",
+    "name": "Ogre",
+    "type": "giant",
+    "challenge": 2,
+    "hitPoints": 59,
+    "armorClass": 11,
+    "attack": "Greatclub",
+    "damage": "2d8+4",
+    "habitat": [
+      "hills",
+      "caves"
+    ],
+    "tactics": "Overwhelms opponents with brute force.",
+    "description": "A towering brute with crude armor and a massive club."
+  },
+  {
+    "id": "wraith",
+    "name": "Wraith",
+    "type": "undead",
+    "challenge": 5,
+    "hitPoints": 67,
+    "armorClass": 13,
+    "attack": "Life Drain",
+    "damage": "4d8+3",
+    "habitat": [
+      "crypts",
+      "haunted ruins"
+    ],
+    "tactics": "Stalks intruders from darkness.",
+    "description": "A cold, translucent figure surrounded by a whispering shadow."
+  },
+  {
+    "id": "bog_hag",
+    "name": "Bog Hag",
+    "type": "fey",
+    "challenge": 2,
+    "hitPoints": 45,
+    "armorClass": 14,
+    "attack": "Claw",
+    "damage": "2d6+3",
+    "habitat": [
+      "swamps",
+      "marshes"
+    ],
+    "tactics": "Lures travelers into difficult ground.",
+    "description": "A hunched marsh-dweller with moss tangled in its hair."
   }
 ]
