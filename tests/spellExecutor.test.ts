@@ -46,7 +46,23 @@ describe("SpellExecutor", () => {
     expect(Dice.roll).toHaveBeenCalledWith(8);
   });
 
+  test.each(["mage_armor", "shield", "detect_magic"])(
+    "does not report unimplemented spell %s as successful or consume a slot",
+    spellId => {
+      const executor = new SpellExecutor();
+      const result = executor.cast(spellId, { name: "Mage" }, { name: "Mage", hitPoints: 10 });
 
+      expect(result.success).toBe(false);
+      expect(result.message).toContain("not implemented");
+      expect(result.message).toContain("no spell slot was spent");
+
+      // The executor still has both configured level-1 slots because the
+      // unsupported cast must not consume one.
+      vi.spyOn(Dice, "roll").mockReturnValue(1);
+      expect(executor.cast("magic_missile", { name: "Mage" }, { hitPoints: 20 }).success).toBe(true);
+      expect(executor.cast("magic_missile", { name: "Mage" }, { hitPoints: 20 }).success).toBe(true);
+    }
+  );
 
   test("cast command resolves a requested target through its target provider", () => {
     vi.spyOn(Dice, "roll").mockReturnValue(1);
