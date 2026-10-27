@@ -39,3 +39,13 @@ Last Updated: 2026-10-27
 - Rules Bible and human-approved decisions remain authoritative.
 - Do not invent mechanics where rules are unresolved.
 - Keep future changes scoped and test-driven.
+
+## Save/Load Integrity Follow-up
+
+- Removed the terminal loop's shallow automatic save, which could overwrite the richer campaign snapshot with empty quest/event collections and hard-coded zero gold after ordinary commands. Saving is now explicit through the existing `save` command.
+- Startup now loads through the shared `engine/save/SaveManager` format and passes the loaded snapshot into `GameController`.
+- `GameController` restores progression, world snapshot fields, inventory, and current location at startup instead of only restoring the character object.
+- Added `tests/saveLoad.test.ts`: missing-file behavior, full save round-trip, and startup restoration coverage.
+- GitHub Actions run [#24](https://github.com/Myztikal125/BLOODLINES/actions/runs/40562778074) passed: **20 test files / 53 tests**.
+- Remaining boundary: quest runtime objects are not persisted by the existing `SaveData` schema; this change preserves the existing string-based `world.activeQuests` snapshot without inventing quest serialization mechanics.
+
