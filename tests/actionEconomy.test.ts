@@ -12,14 +12,15 @@ describe("Action Economy", () => {
     expect(() => state.consume(ActionSlot.Action)).toThrow();
   });
 
-  it("allows a Bonus Action only when explicitly granted", () => {
+  it("provides one baseline Bonus Action each turn", () => {
     const state = new ActionEconomyState();
 
-    expect(state.canUse(ActionSlot.BonusAction)).toBe(false);
-    state.grantBonusAction();
     expect(state.canUse(ActionSlot.BonusAction)).toBe(true);
     state.consume(ActionSlot.BonusAction);
     expect(state.canUse(ActionSlot.BonusAction)).toBe(false);
+
+    state.startTurn();
+    expect(state.canUse(ActionSlot.BonusAction)).toBe(true);
   });
 
   it("allows a Reaction only when explicitly authorized and consumes it", () => {
@@ -43,7 +44,7 @@ describe("Action Economy", () => {
     state.startTurn();
 
     expect(state.canUse(ActionSlot.Action)).toBe(true);
-    expect(state.canUse(ActionSlot.BonusAction)).toBe(false);
+    expect(state.canUse(ActionSlot.BonusAction)).toBe(true);
     expect(state.canUse(ActionSlot.Reaction)).toBe(false);
   });
 
