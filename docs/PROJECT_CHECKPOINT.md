@@ -29,10 +29,11 @@ Last Updated: 2026-10-27
 
 ## Validation Status
 
-- Repository edits were committed directly to `main`.
-- Local test execution: NOT RUN. This environment could not resolve github.com to clone the repository, so dependencies and the Vitest suite were not available locally.
-- GitHub Actions: NOT VERIFIED. The GitHub connector returned no workflow runs and no combined status checks for the final test commit; this is not evidence that tests passed.
-- Therefore this is an implementation checkpoint, not a green-test/verified-release checkpoint. Recheck GitHub Actions and run `npm test -- --run` in a network-enabled checkout before treating the combat fix as verified.
+- GitHub Actions run for initial combat audit commit `a3e04f1` failed because the pre-existing `tests/enemyAI.test.ts` player fixture omitted Armor Class, which the approved AC-based attack resolver now requires.
+- Corrected the test fixture to include `armorClass: 10`; no combat rule or runtime fallback was weakened.
+- Verified GitHub Actions run [#21](https://github.com/Myztikal125/BLOODLINES/actions/runs/40562314061) on commit `92719e769fb48a8afed29fe14375c276a66df5ed`: **success**. `npm ci` completed and `npm test -- --run` passed **19 test files / 50 tests**.
+- Local test execution remains unavailable in this environment because direct GitHub clone DNS resolution failed. The successful GitHub-hosted CI run is the verification source.
+- npm reported 7 dependency audit vulnerabilities (2 moderate, 3 high, 2 critical); dependency upgrades were not part of this scoped combat fix and were not applied.
 
 ## Development Constraints
 - Rules Bible and human-approved decisions remain authoritative.
