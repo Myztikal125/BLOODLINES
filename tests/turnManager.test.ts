@@ -3,7 +3,7 @@ import { TurnManager } from "../engine/combat/turnManager";
 
 describe("TurnManager", () => {
   it("orders combatants by current initiative, highest first", () => {
-    const turns = new TurnManager();
+    const turns = new TurnManager<{ name: string; initiative: number }>();
     turns.start([
       { name: "slow", initiative: 2 },
       { name: "fast", initiative: 9 },
@@ -15,7 +15,7 @@ describe("TurnManager", () => {
   });
 
   it("preserves input order for ties without mutating the caller's list", () => {
-    const turns = new TurnManager();
+    const turns = new TurnManager<{ name: string; initiative: number }>();
     const combatants = [
       { name: "first", initiative: 4 },
       { name: "second", initiative: 4 },
@@ -31,7 +31,7 @@ describe("TurnManager", () => {
   });
 
   it("advances through turns and wraps to the first combatant", () => {
-    const turns = new TurnManager();
+    const turns = new TurnManager<{ name: string; initiative: number }>();
     turns.start([
       { name: "first", initiative: 8 },
       { name: "second", initiative: 3 }
@@ -43,7 +43,7 @@ describe("TurnManager", () => {
   });
 
   it("handles an empty combat without returning a fake combatant", () => {
-    const turns = new TurnManager();
+    const turns = new TurnManager<{ name: string; initiative: number }>();
     turns.start([]);
 
     expect(turns.getCurrent()).toBeUndefined();
