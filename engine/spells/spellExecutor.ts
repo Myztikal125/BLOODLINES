@@ -1,5 +1,6 @@
 import { Dice } from "../core/dice";
 import { SpellLoader } from "./spellLoader";
+import { SpellCaster } from "./spellCaster";
 
 function rollExpression(expression: string): number {
   const match = expression.match(/^\s*(\d*)d(\d+)\s*([+-]\s*\d+)?(?:\s+.*)?$/i);
@@ -23,11 +24,20 @@ function rollExpression(expression: string): number {
 }
 
 export class SpellExecutor {
+  private spellCaster = new SpellCaster();
+
+  restoreSlots(): void {
+    this.spellCaster.restoreSlots();
+  }
+
   cast(spellId: string, caster: any, target: any) {
     const spell = SpellLoader.getSpell(spellId);
 
     if (!spell) {
       return { success: false, message: "Unknown spell." };
+    }
+    if (!this.spellCaster.canCast(spell)) {
+      return { success: false, message: "No spell slot available." };
     }
 
     if (spell.damage) {
@@ -48,6 +58,7 @@ export class SpellExecutor {
         };
       }
 
+      this.spellCaster.cast(spell);
       target[hpField] = Math.max(0, target[hpField] - damage);
       return {
         success: true,
@@ -81,6 +92,7 @@ export class SpellExecutor {
         : typeof target.maximumHitPoints === "number"
           ? target.maximumHitPoints
           : undefined;
+      this.spellCaster.cast(spell);
       target[hpField] = Math.max(0, maximum === undefined
         ? before + healing
         : Math.min(maximum, before + healing));
@@ -92,6 +104,7 @@ export class SpellExecutor {
       };
     }
 
+    this.spellCaster.cast(spell);
     return {
       success: true,
       message: `${caster?.name ?? "The caster"} casts ${spell.name}.`
