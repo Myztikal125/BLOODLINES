@@ -6,7 +6,7 @@ import { TerminalInterface } from "./interface/terminal";
 import { GameController } from "../engine/game/gameController";
 import { CombatController } from "../engine/combat/combatController";
 import { RulesRuntime } from "../engine/rules/rulesRuntime";
-import { loadGame, saveGame } from "./save/saveManager";
+import { SaveManager } from "../engine/save/saveManager";
 
 import { loadData } from "./engine/dataLoader";
 import { NPCService } from "./npcs/npcService";
@@ -15,7 +15,7 @@ import { RelationshipService } from "./npcs/relationships/relationshipService";
 import { WorldInitializer } from "./world/worldInitializer";
 
 const runner = new GameRunner();
-const saved = loadGame();
+const saved = new SaveManager().load();
 
 let player;
 
@@ -72,30 +72,14 @@ const controller = new GameController(
   combat,
   npcService,
   relationshipService,
-  rulesRuntime
+  rulesRuntime,
+  saved
 );
 
 const terminal = new TerminalInterface();
 
 terminal.start(input => {
+  // Saves are explicit through the "save" command so a shallow auto-save
+  // cannot overwrite the complete campaign snapshot after every command.
   controller.handle(input);
-
-  saveGame({
-    character: state.character,
-    progress: {
-      level: state.character.level,
-      experience: state.character.experience,
-      gold: 0
-    },
-    world: {
-      currentLocation: state.location,
-      discoveredLocations: [state.location],
-      activeQuests: [],
-      discoveredNPCs: [],
-      events: []
-    },
-    inventory: {
-      items: state.inventory
-    }
-  });
 });
