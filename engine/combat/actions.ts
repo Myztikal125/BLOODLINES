@@ -20,30 +20,19 @@ export class AttackAction implements CombatAction {
 
     // No stamina cost is assigned: the Rules Bible does not authorize one.
     this.economy.consume(this.slot);
+    const result = this.resolver.attack(this.attacker, this.target);
 
-    const result = this.resolver.attack(
-      this.attacker,
-      this.target
-    );
-
-    if (result.defeated) {
-      return `
-⚔️ Attack hits!
-
-${this.target.name}
-has been defeated!
-`;
+    if (!result.hit) {
+      return `\n⚔️ Attack misses!\n\nAttack Roll: ${result.roll}\nTotal: ${result.total}\nArmor Class: ${this.target.armorClass}\n`;
     }
 
-    return `
-⚔️ Attack hits!
+    if (result.defeated) {
+      return `\n⚔️ Attack hits!\n\nDamage: ${result.damage}\n\n${this.target.name}\nhas been defeated!\n`;
+    }
 
-Damage:
-${result.damage}
-
-${this.target.name}
-HP:
-${this.target.hitPoints}
-`;
+    const hp = typeof this.target.currentHitPoints === "number"
+      ? this.target.currentHitPoints
+      : this.target.hitPoints;
+    return `\n⚔️ Attack hits!\n\nAttack Roll: ${result.roll}\nTotal: ${result.total}\nDamage: ${result.damage}\n\n${this.target.name}\nHP: ${hp}\n`;
   }
 }
