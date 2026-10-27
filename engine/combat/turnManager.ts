@@ -2,8 +2,8 @@ export interface TurnOrderCombatant {
   initiative: number;
 }
 
-export class TurnManager {
-  private order: TurnOrderCombatant[] = [];
+export class TurnManager<T extends TurnOrderCombatant = TurnOrderCombatant> {
+  private order: T[] = [];
   private current = 0;
 
   /**
@@ -11,7 +11,7 @@ export class TurnManager {
    * The input list is copied so starting combat does not reorder caller state.
    * Equal initiative values preserve the order supplied by the caller.
    */
-  start<T extends TurnOrderCombatant>(combatants: T[]): void {
+  start(combatants: T[]): void {
     this.order = combatants
       .map((combatant, originalIndex) => ({ combatant, originalIndex }))
       .sort((a, b) =>
@@ -23,11 +23,11 @@ export class TurnManager {
     this.current = 0;
   }
 
-  getCurrent(): TurnOrderCombatant | undefined {
+  getCurrent(): T | undefined {
     return this.order[this.current];
   }
 
-  nextTurn(): TurnOrderCombatant | undefined {
+  nextTurn(): T | undefined {
     if (this.order.length === 0) {
       this.current = 0;
       return undefined;
@@ -37,7 +37,7 @@ export class TurnManager {
     return this.getCurrent();
   }
 
-  getOrder(): TurnOrderCombatant[] {
+  getOrder(): T[] {
     return [...this.order];
   }
 }
