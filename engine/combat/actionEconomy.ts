@@ -10,7 +10,7 @@ import { ActionSlot } from "./combatAction";
  */
 export class ActionEconomyState {
   private actionAvailable = true;
-  private bonusActionAvailable = false;
+  private bonusActionAvailable = true;
   private reactionAvailable = false;
 
   canUse(slot: ActionSlot): boolean {
@@ -53,14 +53,14 @@ export class ActionEconomyState {
   /** Reset the per-turn Action/Bonus Action state and the authorized Reaction. */
   startTurn(): void {
     this.actionAvailable = true;
-    this.bonusActionAvailable = false;
+    this.bonusActionAvailable = true;
     this.reactionAvailable = false;
   }
 
   /** Reset only the per-turn slots while preserving an explicitly authorized Reaction. */
   startTurnWithReactionAuthorization(): void {
     this.actionAvailable = true;
-    this.bonusActionAvailable = false;
+    this.bonusActionAvailable = true;
     this.reactionAvailable = true;
   }
 }
