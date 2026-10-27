@@ -104,10 +104,11 @@ export class SpellExecutor {
       };
     }
 
-    this.spellCaster.cast(spell);
+    // Do not claim success or spend a slot for catalogue entries whose mechanics
+    // have not been implemented and approved yet (e.g. Mage Armor, Shield).
     return {
-      success: true,
-      message: `${caster?.name ?? "The caster"} casts ${spell.name}.`
+      success: false,
+      message: `${spell.name} is listed, but its effect is not implemented yet; no spell slot was spent.`
     };
   }
 }
