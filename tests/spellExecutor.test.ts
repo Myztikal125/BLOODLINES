@@ -45,6 +45,29 @@ describe("SpellExecutor", () => {
     expect(Dice.roll).toHaveBeenCalledWith(8);
   });
 
+
+  test("uses the existing two first-level spell slots and rejects a third cast", () => {
+    vi.spyOn(Dice, "roll").mockReturnValue(1);
+    const executor = new SpellExecutor();
+    const target = { hitPoints: 100 };
+
+    expect(executor.cast("magic_missile", { name: "Mage" }, target).success).toBe(true);
+    expect(executor.cast("magic_missile", { name: "Mage" }, target).success).toBe(true);
+    const third = executor.cast("magic_missile", { name: "Mage" }, target);
+
+    expect(third.success).toBe(false);
+    expect(third.message).toContain("No spell slot");
+    expect(target.hitPoints).toBe(88);
+  });
+
+  test("does not spend a spell slot when target validation fails", () => {
+    vi.spyOn(Dice, "roll").mockReturnValue(1);
+    const executor = new SpellExecutor();
+
+    expect(executor.cast("magic_missile", { name: "Mage" }, {}).success).toBe(false);
+    expect(executor.cast("magic_missile", { name: "Mage" }, { hitPoints: 20 }).success).toBe(true);
+  });
+
   test("returns a safe failure for unknown spells and targets without HP", () => {
     const executor = new SpellExecutor();
 
