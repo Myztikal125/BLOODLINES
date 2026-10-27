@@ -49,3 +49,29 @@ Last Updated: 2026-10-27
 - GitHub Actions run [#24](https://github.com/Myztikal125/BLOODLINES/actions/runs/40562778074) passed: **20 test files / 53 tests**.
 - Remaining boundary: quest runtime objects are not persisted by the existing `SaveData` schema; this change preserves the existing string-based `world.activeQuests` snapshot without inventing quest serialization mechanics.
 
+## Inventory, Spell, and Encounter Expansion — 2026-10-27
+
+### Inventory
+- Expanded `data/items/items.json` from 3 to 13 entries, including weapons, armor, consumables, adventuring gear, and spellcrafting ingredients.
+- Added optional item metadata for rarity, description, weight, effects, and Armor Class while retaining legacy item fields.
+- Added `ItemLoader` so `add-item` can add catalogue entries by ID or name with their data intact; non-catalogue custom items remain supported.
+- Inventory now validates positive whole-number stack quantities, supports partial stack removal, resolves names case-insensitively, removes by ID or name, and displays useful metadata.
+- Commands accept quantities, e.g. `add-item 3 Health Potion` and `remove-item 1 Health Potion`.
+
+### Spells
+- Expanded `data/spells/spells.json` from 3 to 14 spells across Evocation, Conjuration, Abjuration, and Divination.
+- Spell execution now rolls the listed dice expression instead of a generic d8, supports both `hitPoints` and `currentHitPoints`, clamps damage at zero HP, applies listed healing, and respects a known maximum HP field.
+- Connected the existing `SpellCaster` slot rules to spell execution. Level-0 spells remain free; current configured level-1 slots are consumed only after target/effect validation succeeds.
+- Registered the `cast` command with live combat target resolution. `cast spell_id` targets the first living enemy; `cast spell_id self` targets the character; `cast spell_id Enemy Name` selects a named combat enemy.
+- Utility spell entries are catalogue/narrative-only for now: Mage Armor, Shield, and Detect Magic do not yet apply mechanics. Spell schools, signature spell exceptions, material components, spellcrafting, and school bonuses still need explicit mechanics approval before implementation.
+
+### Enemies and Encounters
+- Expanded `data/monsters/monsters.json` from 3 to 12 monsters, adding optional habitat, description, and tactics notes for future adaptive AI.
+- Encounter generation now validates positive party level/size, uses monster challenge as a conservative eligibility ceiling against party level, avoids duplicate picks when enough eligible monsters exist, and fails clearly if the catalogue is empty.
+- This is not a full encounter XP-budget calculator; no unapproved XP or reward mechanics were added.
+
+### Verification
+- Previous full run [#25](https://github.com/Myztikal125/BLOODLINES/actions/runs/40572602663) passed **22 test files / 68 tests** before the final spell-slot and target-aware command coverage was added.
+- A fresh full CI run is required for the latest spell-slot integration and regression tests. Do not treat those latest changes as verified until that run completes successfully.
+- npm continues to report 7 dependency audit vulnerabilities (2 moderate, 3 high, 2 critical); no dependency upgrades were mixed into this feature batch.
+
