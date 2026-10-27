@@ -22,5 +22,90 @@
     "school": "Evocation",
     "healing": "1d8",
     "description": "Restore a creature's vitality."
+  },
+  {
+    "id": "ray_of_frost",
+    "name": "Ray of Frost",
+    "level": 0,
+    "school": "Evocation",
+    "damage": "1d8 cold",
+    "description": "A beam of freezing energy strikes a creature."
+  },
+  {
+    "id": "shocking_grasp",
+    "name": "Shocking Grasp",
+    "level": 0,
+    "school": "Evocation",
+    "damage": "1d8 lightning",
+    "description": "A touch releases a burst of lightning."
+  },
+  {
+    "id": "sacred_flame",
+    "name": "Sacred Flame",
+    "level": 0,
+    "school": "Evocation",
+    "damage": "1d8 radiant",
+    "description": "Radiant fire descends upon a target."
+  },
+  {
+    "id": "acid_splash",
+    "name": "Acid Splash",
+    "level": 0,
+    "school": "Conjuration",
+    "damage": "1d6 acid",
+    "description": "A splash of corrosive acid strikes a target."
+  },
+  {
+    "id": "guiding_bolt",
+    "name": "Guiding Bolt",
+    "level": 1,
+    "school": "Evocation",
+    "damage": "4d6 radiant",
+    "description": "A flash of light strikes with radiant force."
+  },
+  {
+    "id": "healing_word",
+    "name": "Healing Word",
+    "level": 1,
+    "school": "Evocation",
+    "healing": "1d4",
+    "description": "A brief prayer restores a creature's vitality."
+  },
+  {
+    "id": "burning_hands",
+    "name": "Burning Hands",
+    "level": 1,
+    "school": "Evocation",
+    "damage": "3d6 fire",
+    "description": "Flames surge from the caster's hands toward a target."
+  },
+  {
+    "id": "thunderwave",
+    "name": "Thunderwave",
+    "level": 1,
+    "school": "Evocation",
+    "damage": "2d8 thunder",
+    "description": "A wave of thunderous force erupts from the caster."
+  },
+  {
+    "id": "mage_armor",
+    "name": "Mage Armor",
+    "level": 1,
+    "school": "Abjuration",
+    "description": "Protective magic surrounds a willing creature; mechanical duration and AC rules are not yet implemented."
+  },
+  {
+    "id": "shield",
+    "name": "Shield",
+    "level": 1,
+    "school": "Abjuration",
+    "description": "A magical barrier flashes into place; reaction timing and AC bonuses are not yet implemented."
+  },
+  {
+    "id": "detect_magic",
+    "name": "Detect Magic",
+    "level": 1,
+    "school": "Divination",
+    "description": "The caster senses the presence of magic; detection range and duration remain unimplemented."
   }
 ]
