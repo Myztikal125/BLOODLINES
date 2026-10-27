@@ -75,3 +75,11 @@ Last Updated: 2026-10-27
 - GitHub Actions installed locked dependencies and completed `npm test -- --run` successfully on the checkpoint commit. The local clone limitation remains; hosted CI is the verification source.
 - npm continues to report 7 dependency audit vulnerabilities (2 moderate, 3 high, 2 critical); no dependency upgrades were mixed into this feature batch.
 
+
+## Spell Execution Safety Follow-up — 2026-10-27
+
+- Updated `SpellExecutor` to fail closed for catalogue spells without implemented mechanics rather than reporting a successful cast with no effect.
+- Unsupported effects now return a clear message and do not consume a spell slot. This currently covers Mage Armor, Shield, and Detect Magic.
+- Added regression coverage for all three unsupported spell entries and verified the same executor still has both configured first-level slots available after each rejected attempt.
+- This is a safety/correctness fix, not an implementation of the missing effects. Shield reaction timing/AC bonus, Mage Armor AC/duration, and Detect Magic range/duration remain unimplemented because those mechanics are not specified by approved decisions.
+- GitHub Actions verification is pending for commits `90bf983` and `8c2c1f5`; do not treat this follow-up as verified until the workflow passes.
