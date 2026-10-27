@@ -3,10 +3,11 @@ export interface Monster {
   name: string;
   type: string;
   challenge: number;
-
   hitPoints: number;
   armorClass: number;
-
   attack: string;
   damage: string;
+  description?: string;
+  habitat?: string[];
+  tactics?: string;
 }
