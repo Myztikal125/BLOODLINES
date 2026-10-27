@@ -62,6 +62,21 @@ describe("Inventory expansion", () => {
     expect(inventory.items[0].quantity).toBe(2);
   });
 
+
+  test("adds catalogue items by id with their full metadata", () => {
+    const inventory = new Inventory();
+    const add = new AddItemCommand(inventory);
+
+    expect(add.execute(["2", "health_potion"])).toContain("Health Potion");
+    expect(inventory.items[0]).toMatchObject({
+      id: "health_potion",
+      name: "Health Potion",
+      type: "consumable",
+      effect: "heal 2d4+2",
+      quantity: 2
+    });
+  });
+
   test("lists useful item metadata", () => {
     const inventory = new Inventory();
     inventory.addItem({
