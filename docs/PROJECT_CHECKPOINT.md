@@ -71,7 +71,7 @@ Last Updated: 2026-10-27
 - This is not a full encounter XP-budget calculator; no unapproved XP or reward mechanics were added.
 
 ### Verification
-- Previous full run [#25](https://github.com/Myztikal125/BLOODLINES/actions/runs/40572602663) passed **22 test files / 68 tests** before the final spell-slot and target-aware command coverage was added.
-- A fresh full CI run is required for the latest spell-slot integration and regression tests. Do not treat those latest changes as verified until that run completes successfully.
+- Full CI run [#26](https://github.com/Myztikal125/BLOODLINES/actions/runs/40572816357) passed after the spell-slot and target-aware command coverage was added: **22 test files / 71 tests**.
+- GitHub Actions installed locked dependencies and completed `npm test -- --run` successfully on the checkpoint commit. The local clone limitation remains; hosted CI is the verification source.
 - npm continues to report 7 dependency audit vulnerabilities (2 moderate, 3 high, 2 critical); no dependency upgrades were mixed into this feature batch.
 
