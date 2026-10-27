@@ -10,6 +10,7 @@ describe("Bloodlines Enemy AI", () => {
 
     const player = {
       name: "Hero",
+      armorClass: 10,
       hitPoints: 20
     };
 
