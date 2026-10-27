@@ -46,8 +46,10 @@ export class AttackResolver {
 
     const hit = roll === 20 || total >= target.armorClass;
 
+    // Damage cannot heal a target. Negative ability modifiers can reduce
+    // a damage roll to zero, but never below zero.
     const damage = hit
-      ? Dice.roll(damageDie) + modifier(abilityScore)
+      ? Math.max(0, Dice.roll(damageDie) + modifier(abilityScore))
       : 0;
 
     if (hit) {
