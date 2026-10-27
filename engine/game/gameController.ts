@@ -5,6 +5,7 @@ import { ExploreCommand } from "./commands/exploreCommand";
 import { InvestigateCommand } from "./commands/investigateCommand";
 import { CombatController } from "../combat/combatController";
 import { CombatCommand } from "./commands/combatCommand";
+import { CastCommand } from "./commands/castCommand";
 import { EncounterCommand } from "./commands/encounterCommand";
 import { EncounterDirector } from "../ai/encounterDirector";
 import { WorldCommand } from "./commands/worldCommand";
@@ -78,6 +79,20 @@ export class GameController {
 
     this.commands.register(
       new CombatCommand(this.combat, this.state)
+    );
+
+    this.commands.register(
+      new CastCommand(this.state.character, targetName => {
+        if (!targetName) {
+          return this.combat.state.enemies.find(
+            enemy => (enemy.currentHitPoints ?? enemy.hitPoints) > 0
+          );
+        }
+        if (targetName.toLowerCase() === "self" || targetName.toLowerCase() === "me") {
+          return this.state.character;
+        }
+        return this.combat.state.getEnemy(targetName);
+      })
     );
 
     this.commands.register(
