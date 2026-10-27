@@ -54,6 +54,21 @@ describe("AttackResolver roll states", () => {
     expect(result.roll).toBe(7);
   });
 
+  it("never turns a negative damage modifier into healing", () => {
+    vi.spyOn(Dice, "d20").mockReturnValue(20);
+    vi.spyOn(Dice, "roll").mockReturnValue(1);
+    const target = combatant({ armorClass: 20, hitPoints: 10 });
+
+    const result = AttackResolver.makeAttack(
+      combatant(), target, 0, 4, 4, "NORMAL"
+    );
+
+    expect(result.hit).toBe(true);
+    expect(result.damage).toBe(0);
+    expect(target.hitPoints).toBe(10);
+    expect(target.alive).toBe(true);
+  });
+
   it("supports explicit cancellation by resolving with NORMAL", () => {
     vi.spyOn(Dice, "d20").mockReturnValue(11);
     const target = combatant({ armorClass: 20 });
