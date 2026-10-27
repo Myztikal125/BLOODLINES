@@ -1,144 +1,53 @@
 import { Command } from "./command";
-import { Dice } from "../../core/dice";
+import { ActionResolver } from "../../combat/actionResolver";
 import { EnemyAI } from "../../combat/enemyAI";
 
 export class CombatCommand implements Command {
-
   name = "attack";
+  private enemyAI = new EnemyAI();
+  private resolver = new ActionResolver();
 
-  private enemyAI =
-    new EnemyAI();
-
-  constructor(
-    private combat: any,
-    private state: any
-  ) {}
+  constructor(private combat: any, private state: any) {}
 
   execute(args?: string[]): string {
+    if (!this.combat.isActive()) return "You are not in combat.";
+    if (this.state.character.hitPoints <= 0) return "💀 You cannot fight while defeated.";
 
-    if (!this.combat.isActive()) {
+    const targetName = args?.join(" ") || "";
+    const enemy = this.combat.state.getEnemy(targetName);
+    if (!enemy) return `No enemy found: ${targetName}`;
 
-      return "You are not in combat.";
+    const attack = this.resolver.attack(this.state.character, enemy);
+    let result = `\n⚔️ You attack ${enemy.name}!\n\nAttack Roll: ${attack.roll}\nTotal: ${attack.total}\nArmor Class: ${enemy.armorClass}\n`;
 
-    }
-
-    if (this.state.character.hitPoints <= 0) {
-
-      return "💀 You cannot fight while defeated.";
-
-    }
-
-    const targetName =
-      args?.join(" ") ||
-      "";
-
-    const enemy =
-      this.combat.state.getEnemy(targetName);
-
-    if (!enemy) {
-
-      return `No enemy found: ${targetName}`;
-
-    }
-
-    const attackRoll =
-      Dice.d20();
-
-    let result = "";
-
-    if (attackRoll < enemy.armorClass) {
-
-      result += `
-⚔️ You attack ${enemy.name}!
-
-Attack Roll: ${attackRoll}
-Armor Class: ${enemy.armorClass}
-
-❌ Miss!
-`;
-
+    if (!attack.hit) {
+      result += "\n❌ Miss!\n";
     } else {
-
-      const damage =
-        Dice.roll(6);
-
-      enemy.currentHitPoints -= damage;
-
-      result += `
-⚔️ You attack ${enemy.name}!
-
-Attack Roll: ${attackRoll}
-Armor Class: ${enemy.armorClass}
-
-✅ Hit!
-
-Damage: ${damage}
-
-${enemy.name} HP:
-${Math.max(0, enemy.currentHitPoints)}/${enemy.hitPoints}
-`;
-
+      result += `\n✅ Hit!\n\nDamage: ${attack.damage}\n\n${enemy.name} HP:\n${enemy.currentHitPoints}/${enemy.hitPoints}\n`;
     }
 
     if (this.state.character.hitPoints <= 0) {
-
-      result += `
-
-💀 ${this.state.character.name} has fallen!`;
-
-      return result;
-
+      return result + `\n💀 ${this.state.character.name} has fallen!`;
     }
 
-    const remainingEnemies =
-      this.combat.state.enemies.filter(
-        (enemy: any) =>
-          enemy.currentHitPoints > 0
-      );
-
+    const remainingEnemies = this.combat.state.enemies.filter(
+      (candidate: any) => candidate.currentHitPoints > 0
+    );
     if (remainingEnemies.length === 0) {
-
       this.combat.end();
-
-      result += `
-
-🎉 Victory!
-
-All enemies have been defeated.`;
-
-      return result;
-
+      return result + "\n\n🎉 Victory!\n\nAll enemies have been defeated.";
     }
 
     const enemyTurns: string[] = [];
-
-    for (const enemy of remainingEnemies) {
-
-      if (this.state.character.hitPoints <= 0) {
-        break;
-      }
-
-      enemyTurns.push(
-        this.enemyAI.takeTurn(
-          enemy,
-          this.state.character
-        )
-      );
-
+    for (const remainingEnemy of remainingEnemies) {
+      if (this.state.character.hitPoints <= 0) break;
+      enemyTurns.push(this.enemyAI.takeTurn(remainingEnemy, this.state.character));
     }
 
     result += "\n" + enemyTurns.join("\n");
-
     if (this.state.character.hitPoints <= 0) {
-
-      result += `
-
-💀 ${this.state.character.name} has fallen!`;
-
+      result += `\n\n💀 ${this.state.character.name} has fallen!`;
     }
-
     return result;
-
   }
-
 }
