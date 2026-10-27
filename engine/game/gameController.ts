@@ -17,7 +17,7 @@ import { WorldState } from "../world/state/worldState";
 import { QuestManager } from "../world/quests/questManager";
 import { PlayerProgress } from "../progression/playerProgress";
 import { RewardHandler } from "../progression/rewardHandler";
-import { SaveManager } from "../save/saveManager";
+import { SaveData, SaveManager } from "../save/saveManager";
 import { SaveCommand } from "./commands/saveCommand";
 import { LoadCommand } from "./commands/loadCommand";
 import { Inventory } from "../inventory/inventory";
@@ -48,8 +48,22 @@ export class GameController {
     private combat: CombatController,
     private npcService: NPCService,
     private relationshipService: RelationshipService,
-    private rules?: RulesRuntime
+    private rules?: RulesRuntime,
+    initialSave?: SaveData | null
   ) {
+    // Restore runtime managers from the same save loaded by the entry point.
+    this.progress.level = initialSave?.progress?.level ?? state.character?.level ?? 1;
+    this.progress.experience = initialSave?.progress?.experience ?? state.character?.experience ?? 0;
+    this.progress.gold = initialSave?.progress?.gold ?? 0;
+
+    this.world.currentLocation = initialSave?.world?.currentLocation ?? state.location ?? "Ashenvale";
+    this.world.discoveredLocations = initialSave?.world?.discoveredLocations ?? [this.world.currentLocation];
+    this.world.activeQuests = initialSave?.world?.activeQuests ?? [];
+    this.world.discoveredNPCs = initialSave?.world?.discoveredNPCs ?? [];
+    this.world.events = initialSave?.world?.events ?? [];
+
+    this.inventory.items = initialSave?.inventory?.items ?? (Array.isArray(state.inventory) ? state.inventory : []);
+    this.state.location = this.world.currentLocation;
 
     this.commands.register(new HelpCommand());
     this.commands.register(new CharacterCommand(this.state));
