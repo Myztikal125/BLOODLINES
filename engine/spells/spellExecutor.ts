@@ -81,6 +81,9 @@ export class SpellExecutor {
     }
 
     if (spell.resolution === "healing") {
+      if (!spellcastingStats(caster)) {
+        return { success: false, message: "Caster needs a valid spellcasting ability and level (1–20); no spell slot was spent." };
+      }
       if (!target || !targetHitPointField(target)) {
         return { success: false, message: "This target has no supported hit point field." };
       }
@@ -163,7 +166,8 @@ export class SpellExecutor {
 
     if (spell.resolution === "healing") {
       const hpField = targetHitPointField(target)!;
-      const healing = rollExpression(spell.healing!);
+      const healingStats = spellcastingStats(caster)!;
+      const healing = Math.max(0, rollExpression(spell.healing!) + healingStats.modifier);
       const before = target[hpField];
       const maximum = typeof target.maxHitPoints === "number"
         ? target.maxHitPoints
