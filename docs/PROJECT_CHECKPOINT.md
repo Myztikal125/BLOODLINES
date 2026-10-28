@@ -97,3 +97,36 @@ Last Updated: 2026-10-27
 - Hosted CI verification is pending for the spell resolution changes. Do not claim the system is verified until GitHub Actions completes successfully.
 
 - Follow-up: healing spells now add the caster's spellcasting ability modifier, as in the D&D 2014 baseline; they reject missing caster stats before spending a slot.
+
+
+## Resume Checkpoint — D&D Spell Resolution Verified — 2026-10-28
+
+**Repository:** `Myztikal125/BLOODLINES`, branch `main`  
+**Latest verified commit:** `286931cf944c475cef7850a474416257e4faa803` — [Use a normal hit roll in cast command test](https://github.com/Myztikal125/BLOODLINES/commit/286931cf944c475cef7850a474416257e4faa803)  
+**CI:** PASS — [GitHub Actions run 40617251653](https://github.com/Myztikal125/BLOODLINES/actions/runs/40617251653); 22 test files passed, 78 tests passed. This verifies the automated test suite, not completion of every spell mechanic.  
+**Deployment:** No production deployment was performed or verified.
+
+### Approved Rules Decision
+The user explicitly approved Dungeons & Dragons 5e 2014 spell-resolution mechanics as the BLOODLINES baseline, adapted to BLOODLINES and recorded in `docs/RULES_BIBLE.md`. Do not reopen the baseline decision.
+
+### Current Spell Implementation
+- Spell entries declare resolution type: `attack`, `save`, `automatic`, `healing`, or `utility`.
+- Spell attacks roll d20 + casting-ability modifier + level-based proficiency bonus versus target AC; natural 1 misses, natural 20 hits and doubles damage dice (not flat modifiers).
+- Spell save DC is 8 + casting-ability modifier + proficiency bonus. Target save modifiers must be explicitly supplied at `target.savingThrows[ability]`; missing data fails safely without spending a slot.
+- Saving-throw spells apply their configured success result (currently no effect or half damage).
+- Healing uses healing dice plus the caster's casting modifier, without an attack roll.
+- Valid attack attempts spend the slot even on a miss; invalid casts and unsupported effects do not spend a slot.
+- Mage Armor, Shield, and Detect Magic remain safely unsupported and must not claim success or spend a slot.
+- Latest CI covers spell attack math, misses/slot use, saving throw DC/effects, missing save data, and existing suite regressions.
+
+### Next Work — Continue From Here
+1. Inspect the actual monster/combatant and character data models and wire explicit saving-throw modifiers into the supported combat data path. Never invent missing save stats.
+2. Add tests using real character/monster fixtures to verify spell casting works end-to-end in encounters, not just isolated unit tests.
+3. Implement spell-specific details only when they are explicitly represented and testable: cantrip/slot scaling, damage types/resistances, secondary conditions, and area targeting.
+4. Implement Mage Armor, Shield (including reaction timing), and Detect Magic only after defining their effects and required duration/targeting data; until then keep fail-closed behavior.
+5. Recheck current npm audit report separately; known previous audit was 7 vulnerabilities (2 moderate, 3 high, 2 critical). Do not mix dependency upgrades into spell changes without cause.
+
+### Operating Constraints
+- Keep changes scoped; preserve existing working behavior.
+- Do not claim deployment or full spell-system completion without evidence.
+- Hosted GitHub Actions is the test-verification source because the local clone previously failed due to DNS.
