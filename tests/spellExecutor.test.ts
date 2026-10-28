@@ -33,8 +33,9 @@ describe("SpellExecutor", () => {
   });
 
   test("supports currentHitPoints and never reduces health below zero", () => {
+    vi.spyOn(Dice, "d20").mockReturnValue(20);
     vi.spyOn(Dice, "roll").mockReturnValue(10);
-    const target = { name: "Target", currentHitPoints: 4 };
+    const target = { name: "Target", currentHitPoints: 4, armorClass: 10 };
 
     const result = new SpellExecutor().cast("firebolt", caster(), target);
 
@@ -74,10 +75,11 @@ describe("SpellExecutor", () => {
   );
 
   test("cast command resolves a requested target through its target provider", () => {
+    vi.spyOn(Dice, "d20").mockReturnValue(20);
     vi.spyOn(Dice, "roll").mockReturnValue(1);
-    const target = { name: "Target", hitPoints: 5 };
+    const target = { name: "Target", hitPoints: 5, armorClass: 10 };
     const command = new CastCommand(
-      { name: "Mage" },
+      caster(),
       targetName => targetName?.toLowerCase() === "target" ? target : undefined
     );
 
