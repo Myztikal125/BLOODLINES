@@ -75,7 +75,7 @@ describe("SpellExecutor", () => {
   );
 
   test("cast command resolves a requested target through its target provider", () => {
-    vi.spyOn(Dice, "d20").mockReturnValue(20);
+    vi.spyOn(Dice, "d20").mockReturnValue(10);
     vi.spyOn(Dice, "roll").mockReturnValue(1);
     const target = { name: "Target", hitPoints: 5, armorClass: 10 };
     const command = new CastCommand(
