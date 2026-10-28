@@ -83,3 +83,15 @@ Last Updated: 2026-10-27
 - Added regression coverage for all three unsupported spell entries and verified the same executor still has both configured first-level slots available after each rejected attempt.
 - This is a safety/correctness fix, not an implementation of the missing effects. Shield reaction timing/AC bonus, Mage Armor AC/duration, and Detect Magic range/duration remain unimplemented because those mechanics are not specified by approved decisions.
 - GitHub Actions verification is pending for commits `90bf983` and `8c2c1f5`; do not treat this follow-up as verified until the workflow passes.
+
+
+## D&D-Based Spell Resolution — 2026-10-27
+
+- User approved using Dungeons & Dragons 5e 2014 spell resolution as BLOODLINES' baseline; this decision is recorded in `docs/RULES_BIBLE.md`.
+- Spell catalogue entries now declare explicit resolution types: spell attack, saving throw, automatic hit, healing, or utility.
+- Implemented spell attack rolls using d20 + spellcasting ability modifier + level-based proficiency bonus versus target AC; natural 1 misses, natural 20 hits and doubles damage dice.
+- Implemented saving throw DC = 8 + spellcasting ability modifier + proficiency bonus. Target save modifiers must be explicitly present under `target.savingThrows`; missing stats fail safely without spending a slot.
+- Implemented no-effect and half-damage save outcomes for the currently defined saving-throw spells. Valid attacks spend their spell slot on a miss; invalid casts and unsupported utility effects do not.
+- Added tests for spell attack math, misses and slot use, saving-throw DC/effects, and missing target save data.
+- Current boundaries: the combatant/monster model does not yet consistently populate saving-throw modifiers, so save-based spells will reject targets without them rather than inventing values. Mage Armor, Shield, and Detect Magic remain unsupported utility effects. Spell scaling by character level, damage-type resistances, conditions/secondary effects, signature spells, and full area-target selection are not implemented in this pass.
+- Hosted CI verification is pending for the spell resolution changes. Do not claim the system is verified until GitHub Actions completes successfully.
