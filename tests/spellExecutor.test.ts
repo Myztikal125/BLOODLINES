@@ -48,7 +48,7 @@ describe("SpellExecutor", () => {
     vi.spyOn(Dice, "roll").mockReturnValue(8);
     const target = { name: "Ally", hitPoints: 9, maxHitPoints: 10 };
 
-    const result = new SpellExecutor().cast("cure_wounds", { name: "Mage" }, target);
+    const result = new SpellExecutor().cast("cure_wounds", caster(), target);
 
     expect(result.success).toBe(true);
     expect(result.healing).toBe(1);
