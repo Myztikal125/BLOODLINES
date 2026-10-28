@@ -154,7 +154,8 @@ describe("SpellExecutor", () => {
     expect(executor.cast("magic_missile", caster(), { hitPoints: 20 }).success).toBe(true);
     expect(executor.cast("magic_missile", caster(), { hitPoints: 20 }).success).toBe(true);
   });
-\n  test("returns a safe failure for unknown spells and targets without HP", () => {
+
+  test("returns a safe failure for unknown spells and targets without HP", () => {
     const executor = new SpellExecutor();
 
     expect(executor.cast("not_a_spell", { name: "Mage" }, { hitPoints: 10 }).success).toBe(false);
