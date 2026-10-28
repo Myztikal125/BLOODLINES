@@ -95,3 +95,5 @@ Last Updated: 2026-10-27
 - Added tests for spell attack math, misses and slot use, saving-throw DC/effects, and missing target save data.
 - Current boundaries: the combatant/monster model does not yet consistently populate saving-throw modifiers, so save-based spells will reject targets without them rather than inventing values. Mage Armor, Shield, and Detect Magic remain unsupported utility effects. Spell scaling by character level, damage-type resistances, conditions/secondary effects, signature spells, and full area-target selection are not implemented in this pass.
 - Hosted CI verification is pending for the spell resolution changes. Do not claim the system is verified until GitHub Actions completes successfully.
+
+- Follow-up: healing spells now add the caster's spellcasting ability modifier, as in the D&D 2014 baseline; they reject missing caster stats before spending a slot.
