@@ -205,3 +205,25 @@ This structured overview sets the foundation for BLOODLINES, encapsulating core 
 - Specific abilities or other explicitly approved rules may later authorize additional actions without changing these baseline rules.
 
 **Governance:** This system and the above implementation rules are explicitly approved and must not be reopened as unresolved decisions. Future clarification may define resource costs or authorized exceptions without changing the approved baseline action types and turn limits.
+
+
+### D&D-Based Spell Resolution
+
+**Status:** APPROVED
+
+**Human Decision:** Use Dungeons & Dragons-style d20 spell resolution for BLOODLINES, using the 2014 rules as the baseline where a specific edition detail matters. Adapt these mechanics to BLOODLINES' character and bloodline systems without silently importing unrelated D&D rules.
+
+**Approved Implementation Rules:**
+- **Spell attacks:** Roll a d20, add the caster's spellcasting ability modifier and proficiency bonus, and compare the total to the target's Armor Class (AC). A natural 1 misses and a natural 20 hits and is a critical hit for a spell attack, subject to the spell's damage rules.
+- **Spell attack bonus:** spellcasting ability modifier + proficiency bonus. The spellcasting ability must come from the character/class data; the engine must not guess a missing ability.
+- **Proficiency bonus:** use the D&D 2014 level progression: +2 at levels 1–4, +3 at 5–8, +4 at 9–12, +5 at 13–16, and +6 at 17–20. Levels outside that range require an explicit BLOODLINES progression decision rather than extrapolation.
+- **Spell saving throws:** spell save DC = 8 + spellcasting ability modifier + proficiency bonus. The spell defines the saving-throw ability. The target rolls d20 + its applicable saving-throw modifier; meeting or exceeding the DC succeeds. The spell definition determines whether success negates or reduces the effect.
+- **Automatic-hit spells:** spells explicitly defined as automatic-hit do not make a spell attack roll. Their specific approved effects still apply.
+- **Healing and utility spells:** do not make attack rolls unless their spell definition explicitly requires one. Resolve only effects that have been implemented and specified.
+- **Spell slots:** a valid attempted cast spends its required slot even when an attack misses or a target succeeds on its saving throw. Unknown spells, missing required stats, invalid targets, unavailable slots, and unimplemented effects fail before spending a slot.
+- **Advantage/disadvantage:** use the already-approved BLOODLINES rule; apply it only when an explicit rule, ability, condition, or DM decision grants it.
+- **No silent success:** an unresolved or unimplemented spell effect must return a clear failure and must not claim an effect occurred.
+
+**Implementation boundary:** Spell entries must explicitly identify whether they use a spell attack, saving throw, automatic hit, healing, or utility resolution, including the saving-throw ability and effect details where applicable. Do not infer these fields from spell names alone. The implementation must validate caster stats and target defenses and include deterministic tests for hit, miss, natural 1/20, saving-throw success/failure, slot consumption, and invalid casts.
+
+**Governance:** This baseline is approved and must not be reopened as an unresolved system decision. Spell-specific effects and BLOODLINES-specific exceptions still require explicit definition before implementation.
