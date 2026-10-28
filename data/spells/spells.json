@@ -4,6 +4,7 @@
     "name": "Fire Bolt",
     "level": 0,
     "school": "Evocation",
+    "resolution": "attack",
     "damage": "1d10 fire",
     "description": "A bolt of flame streaks toward a target."
   },
@@ -12,6 +13,7 @@
     "name": "Magic Missile",
     "level": 1,
     "school": "Evocation",
+    "resolution": "automatic",
     "damage": "3d4+3 force",
     "description": "Magical darts strike automatically."
   },
@@ -20,6 +22,7 @@
     "name": "Cure Wounds",
     "level": 1,
     "school": "Evocation",
+    "resolution": "healing",
     "healing": "1d8",
     "description": "Restore a creature's vitality."
   },
@@ -28,6 +31,7 @@
     "name": "Ray of Frost",
     "level": 0,
     "school": "Evocation",
+    "resolution": "attack",
     "damage": "1d8 cold",
     "description": "A beam of freezing energy strikes a creature."
   },
@@ -36,6 +40,7 @@
     "name": "Shocking Grasp",
     "level": 0,
     "school": "Evocation",
+    "resolution": "attack",
     "damage": "1d8 lightning",
     "description": "A touch releases a burst of lightning."
   },
@@ -44,22 +49,29 @@
     "name": "Sacred Flame",
     "level": 0,
     "school": "Evocation",
+    "resolution": "save",
+    "saveAbility": "dexterity",
+    "saveSuccess": "none",
     "damage": "1d8 radiant",
-    "description": "Radiant fire descends upon a target."
+    "description": "Radiant fire descends upon a target; a successful Dexterity save avoids the damage."
   },
   {
     "id": "acid_splash",
     "name": "Acid Splash",
     "level": 0,
     "school": "Conjuration",
+    "resolution": "save",
+    "saveAbility": "dexterity",
+    "saveSuccess": "none",
     "damage": "1d6 acid",
-    "description": "A splash of corrosive acid strikes a target."
+    "description": "A splash of corrosive acid strikes a target; a successful Dexterity save avoids the damage."
   },
   {
     "id": "guiding_bolt",
     "name": "Guiding Bolt",
     "level": 1,
     "school": "Evocation",
+    "resolution": "attack",
     "damage": "4d6 radiant",
     "description": "A flash of light strikes with radiant force."
   },
@@ -68,6 +80,7 @@
     "name": "Healing Word",
     "level": 1,
     "school": "Evocation",
+    "resolution": "healing",
     "healing": "1d4",
     "description": "A brief prayer restores a creature's vitality."
   },
@@ -76,36 +89,45 @@
     "name": "Burning Hands",
     "level": 1,
     "school": "Evocation",
+    "resolution": "save",
+    "saveAbility": "dexterity",
+    "saveSuccess": "half",
     "damage": "3d6 fire",
-    "description": "Flames surge from the caster's hands toward a target."
+    "description": "Flames surge from the caster's hands; a successful Dexterity save halves the damage."
   },
   {
     "id": "thunderwave",
     "name": "Thunderwave",
     "level": 1,
     "school": "Evocation",
+    "resolution": "save",
+    "saveAbility": "constitution",
+    "saveSuccess": "half",
     "damage": "2d8 thunder",
-    "description": "A wave of thunderous force erupts from the caster."
+    "description": "A wave of thunderous force erupts; a successful Constitution save halves the damage."
   },
   {
     "id": "mage_armor",
     "name": "Mage Armor",
     "level": 1,
     "school": "Abjuration",
-    "description": "Protective magic surrounds a willing creature; mechanical duration and AC rules are not yet implemented."
+    "resolution": "utility",
+    "description": "Protective magic surrounds a willing creature; AC and duration mechanics are not yet implemented."
   },
   {
     "id": "shield",
     "name": "Shield",
     "level": 1,
     "school": "Abjuration",
-    "description": "A magical barrier flashes into place; reaction timing and AC bonuses are not yet implemented."
+    "resolution": "utility",
+    "description": "A magical barrier flashes into place; reaction timing and AC bonus mechanics are not yet implemented."
   },
   {
     "id": "detect_magic",
     "name": "Detect Magic",
     "level": 1,
     "school": "Divination",
+    "resolution": "utility",
     "description": "The caster senses the presence of magic; detection range and duration remain unimplemented."
   }
 ]
